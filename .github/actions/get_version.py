@@ -3,7 +3,7 @@ import configparser
 
 
 def main():
-    with open("./pyecotrend-ista/const.py") as f:
+    with open("./pyecotrend_ista/const.py") as f:
         config_string = '[dummy_section]\n' + f.read()
         config = configparser.ConfigParser(allow_no_value=True)
         config.read_string(config_string)
