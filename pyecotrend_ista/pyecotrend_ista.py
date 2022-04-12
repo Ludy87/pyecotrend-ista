@@ -89,7 +89,9 @@ class PyEcotrendIsta:
                     consum_now.append({
                         'type': reading['type'],
                         'value': reading['value'],
+                        'valuekwh': reading['additionalValue'],
                         'unit': reading['unit'],
+                        'unitkwh': reading['additionalUnit'],
                     })
         return consum_now
 
