@@ -1,6 +1,9 @@
 import aiohttp
 import json
 
+from lxml import html
+from random import randint
+
 from .const import LOGIN_HEADER, LOGIN_URL
 
 
@@ -8,6 +11,7 @@ class PyEcotrendIsta:
     def __init__(self, email: str, password: str) -> None:
         self._accessToken = None
         self._header = None
+        self._supportCode = None
         self._uuid = None
 
         self._email = email
@@ -19,6 +23,7 @@ class PyEcotrendIsta:
             "password": self._password,
             "fromMobileApp": "true"
         }
+        LOGIN_HEADER['User-Agent'] = await self.getUA()
         async with aiohttp.ClientSession() as session:
             async with session.post(LOGIN_URL, headers=LOGIN_HEADER, data=json.dumps(payload)) as response:
                 try:
@@ -36,6 +41,7 @@ class PyEcotrendIsta:
         self._header = LOGIN_HEADER
         self._header.pop("Accept-Encoding")
         self._header.pop("Content-Type")
+        self._header['User-Agent'] = await self.getUA()
         self._header["Authorization"] = "Bearer {}".format(self._accessToken)
         async with aiohttp.ClientSession() as session:
             async with session.get("https://api.prod.eed.ista.com/account", headers=self._header) as response:
@@ -63,7 +69,7 @@ class PyEcotrendIsta:
                 self._a_privacy = res['privacy']
                 self._a_residentAndConsumptionUuidsMap = res['residentAndConsumptionUuidsMap']
                 self._a_residentTimeRangeUuids = res['residentTimeRangeUuids']
-                self._a_supportCode = res['supportCode']
+                self._supportCode = res['supportCode']
                 self._a_tos = res['tos']
                 self._a_tosUpdated = res['tosUpdated']
                 self._a_transitionMobileNumber = res['transitionMobileNumber']
@@ -84,6 +90,7 @@ class PyEcotrendIsta:
         consum_now: list = []
         for consumption in consum_raw['consumptions']:
             consum_now.append({"date": consumption['date']})
+            consum_now.append({'supportCode': self._supportCode})
             for reading in consumption["readings"]:
                 if reading['type']:
                     consum_now.append({
@@ -94,6 +101,24 @@ class PyEcotrendIsta:
                         'unitkwh': reading['additionalUnit'],
                     })
         return consum_now
+
+    async def getUA(self):
+        url = (
+            "https://webcache.googleusercontent.com/"
+            "search?q=cache:FxxmQW9XrRcJ:https://techblog.willshouse.com/"
+            "2012/01/03/most-common-user-agents/+&cd=4&hl=de&ct=clnk&gl=us"
+        )
+        xpath = '//*[@id="post-2229"]/div[2]/textarea[2]'
+        headers = {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/99.0.4844.51 Safari/537.36'
+        }
+        async with aiohttp.ClientSession() as session:
+            async with session.get(url, headers=headers) as response:
+                xml = html.fromstring(await response.text())
+                elem = xml.xpath(xpath)[0]
+                data = json.loads(elem.text)
+                i = randint(0, len(data) - 1)
+                return data[i]['useragent']
 
 #    async def consum(self):
 #        consum_raw = await self.consum_raw()

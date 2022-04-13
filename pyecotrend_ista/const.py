@@ -1,4 +1,4 @@
-VERSION = "1.0.4"
+VERSION = "1.0.5"
 LOGIN_HEADER = {
     "Accept": "application/json, text/plain, */*",
     "Accept-Encoding": "gzip, deflate, br",
@@ -11,6 +11,5 @@ LOGIN_HEADER = {
     "Sec-Fetch-Mode": "cors",
     "Sec-Fetch-Site": "cross-site",
     "Sec-GPC": "1",
-    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/99.0.4844.51 Safari/537.36"
 }
 LOGIN_URL = "https://api.prod.eed.ista.com/login"
