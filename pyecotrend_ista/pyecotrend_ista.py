@@ -85,12 +85,14 @@ class PyEcotrendIsta:
                 await session.close()
                 return await response.json()
 
+    def getSupportCode(self):
+        return self._supportCode
+
     async def consum_small(self):
         consum_raw = await self.consum_raw()
         consum_now: list = []
         for consumption in consum_raw['consumptions']:
             consum_now.append({"date": consumption['date']})
-            consum_now.append({'supportCode': self._supportCode})
             for reading in consumption["readings"]:
                 if reading['type']:
                     consum_now.append({
