@@ -1,3 +1,8 @@
+from __future__ import annotations
+
+import logging
+
+from asyncio import sleep
 import aiohttp
 import json
 
@@ -6,6 +11,8 @@ from random import randint
 
 from .const import LOGIN_HEADER, LOGIN_URL
 
+_LOGGER = logging.getLogger(__name__)
+
 
 class PyEcotrendIsta:
     def __init__(self, email: str, password: str) -> None:
@@ -13,6 +20,9 @@ class PyEcotrendIsta:
         self._header = None
         self._supportCode = None
         self._uuid = None
+
+        self.maxRetries = 3
+        self.retryDelay = 2
 
         self._email = email
         self._password = password
@@ -33,7 +43,7 @@ class PyEcotrendIsta:
                     self._accessToken = json_str_resp['accessToken']
                     await self.__setAccount()
                 except Exception as err:
-                    raise Exception(err)
+                    _LOGGER.debug(err)
                 finally:
                     await session.close()
 
@@ -91,6 +101,15 @@ class PyEcotrendIsta:
     async def consum_small(self):
         consum_raw = await self.consum_raw()
         consum_now: list = []
+        retryCounter = 0
+        while(('consumptions' not in consum_raw) and (retryCounter < self.maxRetries + 2)):
+            await self.login()
+            consum_raw = await self.consum_raw()
+            if 'consumptions' not in consum_raw:
+                await sleep(self.retryDelay)
+        if 'consumptions' not in consum_raw:
+            raise Exception('Login fail!')
+        retryCounter += 1
         for consumption in consum_raw['consumptions']:
             consum_now.append({"date": consumption['date']})
             for reading in consumption["readings"]:
