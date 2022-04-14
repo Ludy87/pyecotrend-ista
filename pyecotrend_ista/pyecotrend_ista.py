@@ -1,12 +1,10 @@
 from __future__ import annotations
 
-import logging
-
-from asyncio import sleep
 import aiohttp
 import json
+import logging
 
-from lxml import html
+from asyncio import sleep, TimeoutError
 from random import randint
 
 from .const import LOGIN_HEADER, LOGIN_URL
@@ -27,7 +25,13 @@ class PyEcotrendIsta:
         self._email = email
         self._password = password
 
-    async def login(self):
+    def _isConnected(self) -> bool:
+        return self._accessToken
+
+    def _logoff(self) -> None:
+        self._accessToken = None
+
+    async def __login(self):
         payload = {
             "email": self._email,
             "password": self._password,
@@ -38,14 +42,16 @@ class PyEcotrendIsta:
             async with session.post(LOGIN_URL, headers=LOGIN_HEADER, data=json.dumps(payload)) as response:
                 try:
                     if response.status != 200:
-                        raise Exception("Login fail, check your input!")
-                    json_str_resp = await response.json()
-                    self._accessToken = json_str_resp['accessToken']
-                    await self.__setAccount()
+                        raise Exception("Login fail, check your input!", await response.json())
+                    else:
+                        json_str_resp = await response.json()
+                        self._accessToken = json_str_resp['accessToken']
                 except Exception as err:
                     _LOGGER.debug(err)
+                    raise Exception(err)
                 finally:
                     await session.close()
+        return self._accessToken
 
     async def __setAccount(self):
         self._header = LOGIN_HEADER
@@ -87,13 +93,44 @@ class PyEcotrendIsta:
                 self._a_userGroup = res['userGroup']
                 self._uuid = res['activeConsumptionUnit']
 
+    async def login(self, forceLogin=False):
+        if not self._isConnected() or forceLogin:
+            try:
+                self._logoff()
+                retryCounter = 0
+                while (not self._isConnected() and (retryCounter < self.maxRetries + 2)):
+                    retryCounter += 1
+                    try:
+                        self._accessToken = await self.__login()
+                    except Exception as err:
+                        raise Exception(err)
+                    if not self._accessToken:
+                        await sleep(self.retryDelay)
+                    else:
+                        await self.__setAccount()
+            except Exception:
+                # Login failed
+                self._accessToken = None
+        return self._accessToken
+
     async def consum_raw(self):
-        async with aiohttp.ClientSession() as session:
+        c_raw: list = []
+        timeout = aiohttp.ClientTimeout(total=2)
+        async with aiohttp.ClientSession(timeout=timeout) as session:
             async with session.get(
                 "https://api.prod.eed.ista.com/consumptions?consumptionUnitUuid={}".format(self._uuid), headers=self._header
             ) as response:
                 await session.close()
-                return await response.json()
+                retryCounter = 0
+                while not c_raw and (retryCounter < self.maxRetries + 2):
+                    retryCounter += 1
+                    try:
+                        c_raw = await response.json()
+                        if "key" in c_raw:
+                            raise Exception(c_raw['key'])
+                    except TimeoutError as error:
+                        _LOGGER.debug(error)
+        return c_raw
 
     def getSupportCode(self):
         return self._supportCode
@@ -102,14 +139,14 @@ class PyEcotrendIsta:
         consum_raw = await self.consum_raw()
         consum_now: list = []
         retryCounter = 0
-        while(('consumptions' not in consum_raw) and (retryCounter < self.maxRetries + 2)):
+        while(consum_raw and ('consumptions' not in consum_raw) and (retryCounter < self.maxRetries + 2)):
+            retryCounter += 1
             await self.login()
             consum_raw = await self.consum_raw()
             if 'consumptions' not in consum_raw:
                 await sleep(self.retryDelay)
         if 'consumptions' not in consum_raw:
             raise Exception('Login fail!')
-        retryCounter += 1
         for consumption in consum_raw['consumptions']:
             consum_now.append({"date": consumption['date']})
             for reading in consumption["readings"]:
@@ -124,22 +161,10 @@ class PyEcotrendIsta:
         return consum_now
 
     async def getUA(self):
-        url = (
-            "https://webcache.googleusercontent.com/"
-            "search?q=cache:FxxmQW9XrRcJ:https://techblog.willshouse.com/"
-            "2012/01/03/most-common-user-agents/+&cd=4&hl=de&ct=clnk&gl=us"
-        )
-        xpath = '//*[@id="post-2229"]/div[2]/textarea[2]'
-        headers = {
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/99.0.4844.51 Safari/537.36'
-        }
-        async with aiohttp.ClientSession() as session:
-            async with session.get(url, headers=headers) as response:
-                xml = html.fromstring(await response.text())
-                elem = xml.xpath(xpath)[0]
-                data = json.loads(elem.text)
-                i = randint(0, len(data) - 1)
-                return data[i]['useragent']
+        with open("./pyecotrend_ista/ua.json", 'r') as json_file:
+            data = json.load(json_file)
+            i = randint(0, len(data) - 1)
+            return data[i]['useragent']
 
 #    async def consum(self):
 #        consum_raw = await self.consum_raw()
