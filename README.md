@@ -7,3 +7,5 @@
 [![GitHub license](https://img.shields.io/github/license/Ludy87/pyecotrend-ista)](https://github.com/Ludy87/pyecotrend-ista/blob/main/LICENSE)
 
 Unofficial python library for the pyecotrend-ista API
+
+![ecotrend-ista](https://github.com/Ludy87/pyecotrend-ista/blob/main/image/logo.png?raw=true)
