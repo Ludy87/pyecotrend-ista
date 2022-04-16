@@ -108,14 +108,15 @@ class PyEcotrendIsta:
                         await sleep(self.retryDelay)
                     else:
                         await self.__setAccount()
-            except Exception:
+            except Exception as err:
                 # Login failed
                 self._accessToken = None
+                _LOGGER.error(err)
         return self._accessToken
 
     async def consum_raw(self):
         c_raw: list = []
-        timeout = aiohttp.ClientTimeout(total=2)
+        timeout = aiohttp.ClientTimeout(total=12)
         async with aiohttp.ClientSession(timeout=timeout) as session:
             async with session.get(
                 "https://api.prod.eed.ista.com/consumptions?consumptionUnitUuid={}".format(self._uuid), headers=self._header
