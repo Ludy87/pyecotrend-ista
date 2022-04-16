@@ -136,10 +136,10 @@ class PyEcotrendIsta:
         return self._supportCode
 
     async def consum_small(self):
-        consum_raw: list = []  # await self.consum_raw()
+        consum_raw: list = []  # = await self.consum_raw()
         consum_now: list = []
         retryCounter = 0
-        while(consum_raw and ('consumptions' not in consum_raw) and (retryCounter < self.maxRetries + 2)):
+        while(not consum_raw and ('consumptions' not in consum_raw) and (retryCounter < self.maxRetries + 2)):
             retryCounter += 1
             await self.login()
             consum_raw = await self.consum_raw()
