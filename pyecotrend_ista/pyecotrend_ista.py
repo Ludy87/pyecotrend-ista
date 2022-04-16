@@ -162,7 +162,7 @@ class PyEcotrendIsta:
         return consum_now
 
     async def getUA(self):
-        with open("./pyecotrend_ista/ua.json", 'r') as json_file:
+        with open("./ua.json", 'r') as json_file:
             data = json.load(json_file)
             i = randint(0, len(data) - 1)
             return data[i]['useragent']
