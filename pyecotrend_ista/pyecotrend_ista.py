@@ -162,10 +162,15 @@ class PyEcotrendIsta:
         return consum_now
 
     async def getUA(self):
-        with open("./ua.json", 'r') as json_file:
-            data = json.load(json_file)
-            i = randint(0, len(data) - 1)
-            return data[i]['useragent']
+        url = "https://raw.githubusercontent.com/Ludy87/pyecotrend-ista/main/pyecotrend_ista/ua.json"
+        headers = {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/99.0.4844.51 Safari/537.36'
+        }
+        async with aiohttp.ClientSession() as session:
+            async with session.get(url, headers=headers) as response:
+                data = await response.json(content_type=None)
+                i = randint(0, len(data) - 1)
+                return data[i]['useragent']
 
 #    async def consum(self):
 #        consum_raw = await self.consum_raw()
