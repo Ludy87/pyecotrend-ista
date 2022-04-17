@@ -95,7 +95,7 @@ class PyEcotrendIsta:
                 self._a_userGroup = res["userGroup"]
                 self._uuid = res["activeConsumptionUnit"]
 
-    def gerVersion(self):
+    def getVersion(self):
         return self._version
 
     async def login(self, forceLogin=False):
