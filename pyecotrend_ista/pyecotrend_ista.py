@@ -35,17 +35,21 @@ class PyEcotrendIsta:
         payload = {
             "email": self._email,
             "password": self._password,
-            "fromMobileApp": "true"
+            "fromMobileApp": "true",
         }
-        LOGIN_HEADER['User-Agent'] = await self.getUA()
+        LOGIN_HEADER["User-Agent"] = await self.getUA()
         async with aiohttp.ClientSession() as session:
-            async with session.post(LOGIN_URL, headers=LOGIN_HEADER, data=json.dumps(payload)) as response:
+            async with session.post(
+                LOGIN_URL, headers=LOGIN_HEADER, data=json.dumps(payload)
+            ) as response:
                 try:
                     if response.status != 200:
-                        raise Exception("Login fail, check your input!", await response.json())
+                        raise Exception(
+                            "Login fail, check your input!", await response.json()
+                        )
                     else:
                         json_str_resp = await response.json()
-                        self._accessToken = json_str_resp['accessToken']
+                        self._accessToken = json_str_resp["accessToken"]
                 except Exception as err:
                     _LOGGER.debug(err)
                     raise Exception(err)
@@ -57,48 +61,54 @@ class PyEcotrendIsta:
         self._header = LOGIN_HEADER
         self._header.pop("Accept-Encoding")
         self._header.pop("Content-Type")
-        self._header['User-Agent'] = await self.getUA()
+        self._header["User-Agent"] = await self.getUA()
         self._header["Authorization"] = "Bearer {}".format(self._accessToken)
         async with aiohttp.ClientSession() as session:
-            async with session.get("https://api.prod.eed.ista.com/account", headers=self._header) as response:
+            async with session.get(
+                "https://api.prod.eed.ista.com/account", headers=self._header
+            ) as response:
                 res = await response.json()
                 await session.close()
-                self._a_ads = res['ads']
-                self._a_authcode = res['authcode']
-                self._a_betaPhase = res['betaPhase']
-                self._a_consumptionUnitUuids = res['consumptionUnitUuids']
-                self._a_country = res['country']
-                self._a_email = res['email']
-                self._a_emailConfirmed = res['emailConfirmed']
-                self._a_enabled = res['enabled']
-                self._a_fcmToken = res['fcmToken']
-                self._a_firstName = res['firstName']
-                self._a_isDemo = res['isDemo']
-                self._a_keycloakId = res['keycloakId']
-                self._a_lastName = res['lastName']
-                self._a_locale = res['locale']
-                self._a_marketing = res['marketing']
-                self._a_mobileLoginStatus = res['mobileLoginStatus']
-                self._a_notificationMethod = res['notificationMethod']
-                self._a_notificationMethodEmailConfirmed = res['notificationMethodEmailConfirmed']
-                self._a_password = res['password']
-                self._a_privacy = res['privacy']
-                self._a_residentAndConsumptionUuidsMap = res['residentAndConsumptionUuidsMap']
-                self._a_residentTimeRangeUuids = res['residentTimeRangeUuids']
-                self._supportCode = res['supportCode']
-                self._a_tos = res['tos']
-                self._a_tosUpdated = res['tosUpdated']
-                self._a_transitionMobileNumber = res['transitionMobileNumber']
-                self._a_unconfirmedPhoneNumber = res['unconfirmedPhoneNumber']
-                self._a_userGroup = res['userGroup']
-                self._uuid = res['activeConsumptionUnit']
+                self._a_ads = res["ads"]
+                self._a_authcode = res["authcode"]
+                self._a_betaPhase = res["betaPhase"]
+                self._a_consumptionUnitUuids = res["consumptionUnitUuids"]
+                self._a_country = res["country"]
+                self._a_email = res["email"]
+                self._a_emailConfirmed = res["emailConfirmed"]
+                self._a_enabled = res["enabled"]
+                self._a_fcmToken = res["fcmToken"]
+                self._a_firstName = res["firstName"]
+                self._a_isDemo = res["isDemo"]
+                self._a_keycloakId = res["keycloakId"]
+                self._a_lastName = res["lastName"]
+                self._a_locale = res["locale"]
+                self._a_marketing = res["marketing"]
+                self._a_mobileLoginStatus = res["mobileLoginStatus"]
+                self._a_notificationMethod = res["notificationMethod"]
+                self._a_notificationMethodEmailConfirmed = res[
+                    "notificationMethodEmailConfirmed"
+                ]
+                self._a_password = res["password"]
+                self._a_privacy = res["privacy"]
+                self._a_residentAndConsumptionUuidsMap = res[
+                    "residentAndConsumptionUuidsMap"
+                ]
+                self._a_residentTimeRangeUuids = res["residentTimeRangeUuids"]
+                self._supportCode = res["supportCode"]
+                self._a_tos = res["tos"]
+                self._a_tosUpdated = res["tosUpdated"]
+                self._a_transitionMobileNumber = res["transitionMobileNumber"]
+                self._a_unconfirmedPhoneNumber = res["unconfirmedPhoneNumber"]
+                self._a_userGroup = res["userGroup"]
+                self._uuid = res["activeConsumptionUnit"]
 
     async def login(self, forceLogin=False):
         if not self._isConnected() or forceLogin:
             try:
                 self._logoff()
                 retryCounter = 0
-                while (not self._isConnected() and (retryCounter < self.maxRetries + 2)):
+                while not self._isConnected() and (retryCounter < self.maxRetries + 2):
                     retryCounter += 1
                     try:
                         self._accessToken = await self.__login()
@@ -119,7 +129,10 @@ class PyEcotrendIsta:
         timeout = aiohttp.ClientTimeout(total=12)
         async with aiohttp.ClientSession(timeout=timeout) as session:
             async with session.get(
-                "https://api.prod.eed.ista.com/consumptions?consumptionUnitUuid={}".format(self._uuid), headers=self._header
+                "https://api.prod.eed.ista.com/consumptions?consumptionUnitUuid={}".format(
+                    self._uuid
+                ),
+                headers=self._header,
             ) as response:
                 await session.close()
                 retryCounter = 0
@@ -128,7 +141,7 @@ class PyEcotrendIsta:
                     try:
                         c_raw = await response.json()
                         if "key" in c_raw:
-                            raise Exception(c_raw['key'])
+                            raise Exception(c_raw["key"])
                     except TimeoutError as error:
                         _LOGGER.debug(error)
         return c_raw
@@ -140,37 +153,44 @@ class PyEcotrendIsta:
         consum_raw: list = []  # = await self.consum_raw()
         consum_now: list = []
         retryCounter = 0
-        while(not consum_raw and ('consumptions' not in consum_raw) and (retryCounter < self.maxRetries + 2)):
+        while (
+            not consum_raw
+            and ("consumptions" not in consum_raw)
+            and (retryCounter < self.maxRetries + 2)
+        ):
             retryCounter += 1
             await self.login()
             consum_raw = await self.consum_raw()
-            if 'consumptions' not in consum_raw:
+            if "consumptions" not in consum_raw:
                 await sleep(self.retryDelay)
-        if 'consumptions' not in consum_raw:
-            raise Exception('Login fail!')
-        for consumption in consum_raw['consumptions']:
-            consum_now.append({"date": consumption['date']})
+        if "consumptions" not in consum_raw:
+            raise Exception("Login fail!")
+        for consumption in consum_raw["consumptions"]:
+            consum_now.append({"date": consumption["date"]})
             for reading in consumption["readings"]:
-                if reading['type']:
-                    consum_now.append({
-                        'type': reading['type'],
-                        'value': reading['value'],
-                        'valuekwh': reading['additionalValue'],
-                        'unit': reading['unit'],
-                        'unitkwh': reading['additionalUnit'],
-                    })
+                if reading["type"]:
+                    consum_now.append(
+                        {
+                            "type": reading["type"],
+                            "value": reading["value"],
+                            "valuekwh": reading["additionalValue"],
+                            "unit": reading["unit"],
+                            "unitkwh": reading["additionalUnit"],
+                        }
+                    )
         return consum_now
 
     async def getUA(self):
         url = "https://raw.githubusercontent.com/Ludy87/pyecotrend-ista/main/pyecotrend_ista/ua.json"
         headers = {
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/99.0.4844.51 Safari/537.36'
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/99.0.4844.51 Safari/537.36"
         }
         async with aiohttp.ClientSession() as session:
             async with session.get(url, headers=headers) as response:
                 data = await response.json(content_type=None)
                 i = randint(0, len(data) - 1)
-                return data[i]['useragent']
+                return data[i]["useragent"]
+
 
 #    async def consum(self):
 #        consum_raw = await self.consum_raw()
