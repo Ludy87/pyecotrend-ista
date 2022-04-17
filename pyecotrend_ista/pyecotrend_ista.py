@@ -7,7 +7,7 @@ import logging
 from asyncio import sleep, TimeoutError
 from random import randint
 
-from .const import LOGIN_HEADER, LOGIN_URL
+from .const import LOGIN_HEADER, LOGIN_URL, VERSION
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -18,6 +18,8 @@ class PyEcotrendIsta:
         self._header = None
         self._supportCode = None
         self._uuid = None
+
+        self._version = VERSION
 
         self.maxRetries = 3
         self.retryDelay = 2
@@ -92,6 +94,9 @@ class PyEcotrendIsta:
                 self._a_unconfirmedPhoneNumber = res["unconfirmedPhoneNumber"]
                 self._a_userGroup = res["userGroup"]
                 self._uuid = res["activeConsumptionUnit"]
+
+    def gerVersion(self):
+        return self._version
 
     async def login(self, forceLogin=False):
         if not self._isConnected() or forceLogin:
