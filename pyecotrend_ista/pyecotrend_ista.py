@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from typing import Any, Dict, List
+
 import aiohttp
 import json
 import logging
@@ -33,7 +35,7 @@ class PyEcotrendIsta:
     def _logoff(self) -> None:
         self._accessToken = None
 
-    async def __login(self):
+    async def __login(self) -> str:
         payload = {
             "email": self._email,
             "password": self._password,
@@ -55,7 +57,7 @@ class PyEcotrendIsta:
                     await session.close()
         return self._accessToken
 
-    async def __setAccount(self):
+    async def __setAccount(self) -> None:
         self._header = LOGIN_HEADER
         self._header.pop("Accept-Encoding")
         self._header.pop("Content-Type")
@@ -95,10 +97,10 @@ class PyEcotrendIsta:
                 self._a_userGroup = res["userGroup"]
                 self._uuid = res["activeConsumptionUnit"]
 
-    def getVersion(self):
+    def getVersion(self) -> str:
         return self._version
 
-    async def login(self, forceLogin=False):
+    async def login(self, forceLogin=False) -> str:
         if not self._isConnected() or forceLogin:
             try:
                 self._logoff()
@@ -119,15 +121,14 @@ class PyEcotrendIsta:
                 _LOGGER.error(err)
         return self._accessToken
 
-    async def consum_raw(self):
-        c_raw: list = []
+    async def consum_raw(self) -> List[Dict[str, Any]]:
+        c_raw: List[Dict[str, Any]] = []
         timeout = aiohttp.ClientTimeout(total=12)
         async with aiohttp.ClientSession(timeout=timeout) as session:
             async with session.get(
                 "https://api.prod.eed.ista.com/consumptions?consumptionUnitUuid={}".format(self._uuid),
                 headers=self._header,
             ) as response:
-                await session.close()
                 retryCounter = 0
                 while not c_raw and (retryCounter < self.maxRetries + 2):
                     retryCounter += 1
@@ -137,9 +138,10 @@ class PyEcotrendIsta:
                             raise Exception(c_raw["key"])
                     except TimeoutError as error:
                         _LOGGER.debug(error)
+                await session.close()
         return c_raw
 
-    def getSupportCode(self):
+    def getSupportCode(self) -> str:
         return self._supportCode
 
     async def consum_small(self):
@@ -154,22 +156,22 @@ class PyEcotrendIsta:
                 await sleep(self.retryDelay)
         if "consumptions" not in consum_raw:
             raise Exception("Login fail!")
-        for consumption in consum_raw["consumptions"]:
-            consum_now.append({"date": consumption["date"]})
-            for reading in consumption["readings"]:
-                if reading["type"]:
-                    consum_now.append(
-                        {
-                            "type": reading["type"],
-                            "value": reading["value"],
-                            "valuekwh": reading["additionalValue"],
-                            "unit": reading["unit"],
-                            "unitkwh": reading["additionalUnit"],
-                        }
-                    )
+        consumption = consum_raw["consumptions"][0]
+        consum_now.append({"date": consumption["date"]})
+        for reading in consumption["readings"]:
+            if reading["type"]:
+                consum_now.append(
+                    {
+                        "type": reading["type"],
+                        "value": reading["value"],
+                        "valuekwh": reading["additionalValue"],
+                        "unit": reading["unit"],
+                        "unitkwh": reading["additionalUnit"],
+                    }
+                )
         return consum_now
 
-    async def getUA(self):
+    async def getUA(self) -> str:
         url = "https://raw.githubusercontent.com/Ludy87/pyecotrend-ista/main/pyecotrend_ista/ua.json"
         headers = {
             "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/99.0.4844.51 Safari/537.36"
