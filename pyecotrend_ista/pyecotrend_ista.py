@@ -29,6 +29,8 @@ class PyEcotrendIsta:
         self._email = email
         self._password = password
 
+        self._consum: List[Dict[str, Any]] = []
+
     def _isConnected(self) -> bool:
         return self._accessToken
 
@@ -145,31 +147,112 @@ class PyEcotrendIsta:
         return self._supportCode
 
     async def consum_small(self):
-        consum_raw: list = []  # = await self.consum_raw()
-        consum_now: list = []
+        consum_raw: list = []
         retryCounter = 0
         while not consum_raw and ("consumptions" not in consum_raw) and (retryCounter < self.maxRetries + 2):
             retryCounter += 1
             await self.login()
-            consum_raw = await self.consum_raw()
+            consum_raw: dict = await self.consum_raw()
             if "consumptions" not in consum_raw:
                 await sleep(self.retryDelay)
         if "consumptions" not in consum_raw:
             raise Exception("Login fail!")
-        consumption = consum_raw["consumptions"][0]
-        consum_now.append({"date": consumption["date"]})
-        for reading in consumption["readings"]:
-            if reading["type"]:
-                consum_now.append(
-                    {
-                        "type": reading["type"],
-                        "value": reading["value"],
-                        "valuekwh": reading["additionalValue"],
-                        "unit": reading["unit"],
-                        "unitkwh": reading["additionalUnit"],
-                    }
-                )
-        return consum_now
+        consumptions: dict = consum_raw.get("consumptions")
+        for consum in consumptions:
+            for reading in consum.get("readings"):
+                if "type" in reading:
+                    if reading.get("type"):
+                        self._consum.append(
+                            {
+                                "entity_id": "{}_{}_{}_{}".format(
+                                    # sensor.yyyy_m_warmwasser_xxxxxxxxx
+                                    consum["date"]["year"],
+                                    consum["date"]["month"],
+                                    reading["type"],
+                                    self._supportCode,
+                                ),
+                                "year": consum["date"]["year"],
+                                "month": consum["date"]["month"],
+                                "type": reading["type"],
+                                "value": reading["value"],
+                                "valuekwh": reading["additionalValue"],
+                                "unit": reading["unit"],
+                                "unitkwh": reading["additionalUnit"],
+                                "supportCode": self._supportCode,
+                                "date": consum["date"],
+                            }
+                        )
+            # consum_now.append(self._consum)
+        return self._consum
+
+    async def getConsumsNow(self) -> Dict[str, Any]:
+        if self._consum:
+            consums: List[Dict[str, Any]] = self._consum
+        else:
+            consums: List[Dict[str, Any]] = self.consum_small()
+        return consums[0]
+
+    async def getConsumNowByType(self, _type: str | None) -> Dict[str, Any]:
+        if self._consum:
+            consums: List[Dict[str, Any]] = self._consum
+        else:
+            consums: List[Dict[str, Any]] = self.consum_small()
+        for consum in consums:
+            if _type == consum["type"]:
+                return consum
+
+    async def getConsumById(self, entity_id: str | None) -> Dict[str, Any]:
+        if self._consum:
+            consums: List[Dict[str, Any]] = self._consum
+        else:
+            consums: List[Dict[str, Any]] = self.consum_small()
+        for consum in consums:
+            if entity_id == consum["entity_id"]:
+                return consum
+
+    async def getConsumsByType(self, _type: str | None) -> Dict[str, Any]:
+        __type: List[Dict, Any] = []
+        if self._consum:
+            consums: List[Dict[str, Any]] = self._consum
+        else:
+            consums: List[Dict[str, Any]] = self.consum_small()
+        for consum in consums:
+            if _type == consum["type"]:
+                __type.append(consum)
+        return __type
+
+    async def getConsumsByYear(self, year: int | None) -> Dict[str, Any]:
+        __type: List[Dict, Any] = []
+        if self._consum:
+            consums: List[Dict[str, Any]] = self._consum
+        else:
+            consums: List[Dict[str, Any]] = self.consum_small()
+        for consum in consums:
+            if year == consum["year"]:
+                __type.append(consum)
+        return __type
+
+    async def getConsumsByMonth(self, month: int | None) -> Dict[str, Any]:
+        __type: List[Dict, Any] = []
+        if self._consum:
+            consums: List[Dict[str, Any]] = self._consum
+        else:
+            consums: List[Dict[str, Any]] = self.consum_small()
+        for consum in consums:
+            if month == consum["month"]:
+                __type.append(consum)
+        return __type
+
+    async def getConsumsByMonthYear(self, month: int | None, year: int | None) -> Dict[str, Any]:
+        __type: List[Dict, Any] = []
+        if self._consum:
+            consums: List[Dict[str, Any]] = self._consum
+        else:
+            consums: List[Dict[str, Any]] = self.consum_small()
+        for consum in consums:
+            if month == consum["month"] and year == consum["year"]:
+                __type.append(consum)
+        return __type
 
     async def getUA(self) -> str:
         url = "https://raw.githubusercontent.com/Ludy87/pyecotrend-ista/main/pyecotrend_ista/ua.json"
@@ -181,29 +264,3 @@ class PyEcotrendIsta:
                 data = await response.json(content_type=None)
                 i = randint(0, len(data) - 1)
                 return data[i]["useragent"]
-
-
-#    async def consum(self):
-#        consum_raw = await self.consum_raw()
-#        for consumption in consum_raw['consumptions']:
-#            for reading in consumption["readings"]:
-#                if reading['type']:
-#                    print(reading['type'])
-#                    print(reading['value'])
-#                    print(reading['unit'])
-#                    print('zusätzlicher Wert', reading['additionalValue'])
-#                    print('zusätzliche Einheit', reading['additionalUnit'])
-#                    print('geschätzt', reading['estimated'])
-#                    print('Verbrauch verglichen', reading['comparedConsumption'])
-#                    print('Kosten verglichen', reading['comparedCost'])
-#                    if isinstance(reading['averageConsumption'], dict):
-#                        print('durchschnittlicher Verbrauchswert', reading['averageConsumption']['averageConsumptionValue'])
-#                        print('Verbrauchswert der Wohnung', reading['averageConsumption']['residentConsumptionValue'])
-#                        print('durchschnittlicher Verbrauchsanteil', reading['averageConsumption']['averageConsumptionPercentage'])
-#                        print('Prozentsatz des Einwohnerverbrauchs', reading['averageConsumption']['residentConsumptionPercentage'])
-#                        print('zusätzlicher durchschnittlicher Verbrauchswert', reading['averageConsumption']['additionalAverageConsumptionValue'])
-#                        print('zusätzlicher Verbrauchswert der Einwohner', reading['averageConsumption']['additionalResidentConsumptionValue'])
-#                        print('zusätzlicher durchschnittlicher Verbrauchsprozentsatz', reading['averageConsumption']['additionalAverageConsumptionPercentage'])
-#                        print('zusätzlicher Prozentsatz des Einwohnerverbrauchs', reading['averageConsumption']['additionalResidentConsumptionPercentage'])
-#                    else:
-#                        print('durchschnittlicher Verbrauch', reading['averageConsumption'])
