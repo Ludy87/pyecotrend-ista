@@ -1,13 +1,13 @@
 from __future__ import annotations
 
+from asyncio import sleep, TimeoutError
+from datetime import datetime
+from random import randint
 from typing import Any, Dict, List
 
 import aiohttp
 import json
 import logging
-
-from asyncio import sleep, TimeoutError
-from random import randint
 
 from .const import LOGIN_HEADER, LOGIN_URL, VERSION
 
@@ -186,11 +186,16 @@ class PyEcotrendIsta:
         return self._consum
 
     async def getConsumsNow(self) -> Dict[str, Any]:
+        datetimenow = datetime.now()
+        _consums: List[Dict[str, Any]] = []
         if self._consum:
             consums: List[Dict[str, Any]] = self._consum
         else:
             consums: List[Dict[str, Any]] = self.consum_small()
-        return consums[0]
+        for consum in consums:
+            if datetimenow.year == consum["year"] and datetimenow.month == (consum["month"] + 1):
+                _consums.append(consum)
+        return _consums
 
     async def getConsumNowByType(self, _type: str | None) -> Dict[str, Any]:
         if self._consum:
