@@ -1,4 +1,4 @@
-VERSION = "1.0.20"
+VERSION = "1.0.21"
 LOGIN_HEADER = {
     "Accept": "application/json, text/plain, */*",
     "Accept-Encoding": "gzip, deflate, br",
