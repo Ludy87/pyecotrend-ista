@@ -193,6 +193,11 @@ class PyEcotrendIsta:
         else:
             consums: List[Dict[str, Any]] = await self.consum_small()
         for consum in consums:
+            consum["entity_id"] = "{}_{}".format(
+                # sensor.warmwasser_xxxxxxxxx
+                consum["type"],
+                self._supportCode,
+            ).lower()
             if datetimenow.year == consum["year"] and datetimenow.month == (consum["month"] + 1):
                 _consums.append(consum)
         return _consums
