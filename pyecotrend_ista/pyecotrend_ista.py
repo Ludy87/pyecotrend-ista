@@ -29,8 +29,6 @@ class PyEcotrendIsta:
         self._email = email
         self._password = password
 
-        self._consum: List[Dict[str, Any]] = []
-
     def _isConnected(self) -> bool:
         return self._accessToken
 
@@ -149,6 +147,7 @@ class PyEcotrendIsta:
     async def consum_small(self):
         consum_raw: list = []
         retryCounter = 0
+        _consum: List[Dict[str, Any]] = []
         while not consum_raw and ("consumptions" not in consum_raw) and (retryCounter < self.maxRetries + 2):
             retryCounter += 1
             await self.login()
@@ -162,7 +161,7 @@ class PyEcotrendIsta:
             for reading in consum.get("readings"):
                 if "type" in reading:
                     if reading.get("type"):
-                        self._consum.append(
+                        _consum.append(
                             {
                                 "entity_id": "{}_{}_{}_{}".format(
                                     # sensor.yyyy_m_warmwasser_xxxxxxxxx
@@ -182,8 +181,8 @@ class PyEcotrendIsta:
                                 "date": consum["date"],
                             }
                         )
-            # consum_now.append(self._consum)
-        return self._consum
+            # consum_now.append(_consum)
+        return _consum
 
     async def getConsumsNow(self) -> Dict[str, Any]:
         datetimenow = datetime.now()
