@@ -168,7 +168,7 @@ class PyEcotrendIsta:
                                     reading["type"],
                                     consum["date"]["year"],
                                     consum["date"]["month"],
-                                    self._supportCode,
+                                    str(self._supportCode).lower(),
                                 ),
                                 "year": consum["date"]["year"],
                                 "month": consum["date"]["month"],
