@@ -188,10 +188,7 @@ class PyEcotrendIsta:
     async def getConsumsNow(self) -> Dict[str, Any]:
         datetimenow = datetime.now()
         _consums: List[Dict[str, Any]] = []
-        if self._consum:
-            consums: List[Dict[str, Any]] = self._consum
-        else:
-            consums: List[Dict[str, Any]] = await self.consum_small()
+        consums: List[Dict[str, Any]] = await self.consum_small()
         for consum in consums:
             consum["entity_id"] = "{}_{}".format(
                 # sensor.warmwasser_xxxxxxxxx
@@ -203,29 +200,20 @@ class PyEcotrendIsta:
         return _consums
 
     async def getConsumNowByType(self, _type: str | None) -> Dict[str, Any]:
-        if self._consum:
-            consums: List[Dict[str, Any]] = self._consum
-        else:
-            consums: List[Dict[str, Any]] = await self.consum_small()
+        consums: List[Dict[str, Any]] = await self.consum_small()
         for consum in consums:
             if _type == consum["type"]:
                 return consum
 
     async def getConsumById(self, entity_id: str | None) -> Dict[str, Any]:
-        if self._consum:
-            consums: List[Dict[str, Any]] = self._consum
-        else:
-            consums: List[Dict[str, Any]] = await self.consum_small()
+        consums: List[Dict[str, Any]] = await self.consum_small()
         for consum in consums:
             if entity_id == consum["entity_id"]:
                 return consum
 
     async def getConsumsByType(self, _type: str | None) -> Dict[str, Any]:
         __type: List[Dict, Any] = []
-        if self._consum:
-            consums: List[Dict[str, Any]] = self._consum
-        else:
-            consums: List[Dict[str, Any]] = await self.consum_small()
+        consums: List[Dict[str, Any]] = await self.consum_small()
         for consum in consums:
             if _type == consum["type"]:
                 __type.append(consum)
@@ -233,10 +221,7 @@ class PyEcotrendIsta:
 
     async def getConsumsByYear(self, year: int | None) -> Dict[str, Any]:
         __type: List[Dict, Any] = []
-        if self._consum:
-            consums: List[Dict[str, Any]] = self._consum
-        else:
-            consums: List[Dict[str, Any]] = await self.consum_small()
+        consums: List[Dict[str, Any]] = await self.consum_small()
         for consum in consums:
             if year == consum["year"]:
                 __type.append(consum)
@@ -244,21 +229,15 @@ class PyEcotrendIsta:
 
     async def getConsumsByMonth(self, month: int | None) -> Dict[str, Any]:
         __type: List[Dict, Any] = []
-        if self._consum:
-            consums: List[Dict[str, Any]] = self._consum
-        else:
-            consums: List[Dict[str, Any]] = await self.consum_small()
+        consums: List[Dict[str, Any]] = await self.consum_small()
         for consum in consums:
             if month == consum["month"]:
                 __type.append(consum)
         return __type
 
-    async def getConsumsByMonthYear(self, month: int | None, year: int | None) -> Dict[str, Any]:
+    async def getConsumsByYearMonth(self, month: int | None, year: int | None) -> Dict[str, Any]:
         __type: List[Dict, Any] = []
-        if self._consum:
-            consums: List[Dict[str, Any]] = self._consum
-        else:
-            consums: List[Dict[str, Any]] = await self.consum_small()
+        consums: List[Dict[str, Any]] = await self.consum_small()
         for consum in consums:
             if month == consum["month"] and year == consum["year"]:
                 __type.append(consum)
