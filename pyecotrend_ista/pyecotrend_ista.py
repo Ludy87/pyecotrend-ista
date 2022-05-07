@@ -164,10 +164,10 @@ class PyEcotrendIsta:
                         _consum.append(
                             {
                                 "entity_id": "{}_{}_{}_{}".format(
-                                    # sensor.yyyy_m_warmwasser_xxxxxxxxx
+                                    # sensor.warmwasser_yyyy_m_xxxxxxxxx
+                                    reading["type"],
                                     consum["date"]["year"],
                                     consum["date"]["month"],
-                                    reading["type"],
                                     self._supportCode,
                                 ),
                                 "year": consum["date"]["year"],
