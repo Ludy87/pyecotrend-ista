@@ -202,8 +202,9 @@ class PyEcotrendIsta:
         for consum in consums:
             if _type == consum["type"]:
                 return consum
+        return []
 
-    async def getConsumById(self, entity_id: str | None, now=False) -> List[Dict[str, Any]]:
+    async def getConsumById(self, entity_id: str | None, now=False) -> Dict[str, Any]:
         if now is False:
             consums: List[Dict[str, Any]] = await self.consum_small()
         else:
@@ -211,6 +212,7 @@ class PyEcotrendIsta:
         for consum in consums:
             if entity_id == consum["entity_id"]:
                 return consum
+        return {}
 
     async def getConsumsByType(self, _type: str | None) -> List[Dict[str, Any]]:
         __type: List[Dict[str, Any]] = []
