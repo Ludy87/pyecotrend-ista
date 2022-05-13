@@ -16,10 +16,10 @@ _LOGGER = logging.getLogger(__name__)
 
 class PyEcotrendIsta:
     def __init__(self, email: str, password: str) -> None:
-        self._accessToken = None
-        self._header = None
-        self._supportCode = None
-        self._uuid = None
+        self._accessToken: str | None = None
+        self._header: Dict[str, str] = {}
+        self._supportCode: str | None = None
+        self._uuid: str | None = None
 
         self._version = VERSION
 
@@ -29,13 +29,17 @@ class PyEcotrendIsta:
         self._email = email
         self._password = password
 
+        self._custom_types: List[str] = []
+
     def _isConnected(self) -> bool:
-        return self._accessToken
+        if self._accessToken:
+            return True
+        return False
 
     def _logoff(self) -> None:
         self._accessToken = None
 
-    async def __login(self) -> str:
+    async def __login(self) -> str | None:
         payload = {
             "email": self._email,
             "password": self._password,
@@ -59,8 +63,8 @@ class PyEcotrendIsta:
 
     async def __setAccount(self) -> None:
         self._header = LOGIN_HEADER
-        self._header.pop("Accept-Encoding")
-        self._header.pop("Content-Type")
+        del self._header["Accept-Encoding"]
+        del self._header["Content-Type"]
         self._header["User-Agent"] = await self.getUA()
         self._header["Authorization"] = "Bearer {}".format(self._accessToken)
         async with aiohttp.ClientSession() as session:
@@ -100,7 +104,7 @@ class PyEcotrendIsta:
     def getVersion(self) -> str:
         return self._version
 
-    async def login(self, forceLogin=False) -> str:
+    async def login(self, forceLogin: bool = False) -> str | None:
         if not self._isConnected() or forceLogin:
             try:
                 self._logoff()
@@ -121,8 +125,8 @@ class PyEcotrendIsta:
                 _LOGGER.error(err)
         return self._accessToken
 
-    async def consum_raw(self) -> List[Dict[str, Any]]:
-        c_raw: List[Dict[str, Any]] = []
+    async def consum_raw(self) -> Dict[str, Any]:
+        c_raw: Dict[str, Any] = {}
         timeout = aiohttp.ClientTimeout(total=12)
         async with aiohttp.ClientSession(timeout=timeout) as session:
             async with session.get(
@@ -135,53 +139,59 @@ class PyEcotrendIsta:
                     try:
                         c_raw = await response.json()
                         if "key" in c_raw:
-                            raise Exception(c_raw["key"])
+                            raise Exception("Login fail, check your input!", c_raw["key"])
                     except TimeoutError as error:
                         _LOGGER.debug(error)
                 await session.close()
         return c_raw
 
-    def getSupportCode(self) -> str:
+    def getSupportCode(self) -> str | None:
         return self._supportCode
 
     async def consum_small(self) -> List[Dict[str, Any]]:
-        consum_raw: Dict[str, Any] = []
+        consum_raw: Dict[str, Any] = {}
         retryCounter = 0
         _consum: List[Dict[str, Any]] = []
-        while not consum_raw and ("consumptions" not in consum_raw) and (retryCounter < self.maxRetries + 2):
+        while not consum_raw and (retryCounter < self.maxRetries + 2):
             retryCounter += 1
             await self.login()
             consum_raw = await self.consum_raw()
-            if "consumptions" not in consum_raw:
+            if not consum_raw.get("consumptions", []):
                 await sleep(self.retryDelay)
-        if "consumptions" not in consum_raw:
-            raise Exception("Login fail!")
-        consumptions: List[Dict[str, Any]] = consum_raw.get("consumptions")
+        if not consum_raw.get("consumptions", []):
+            raise Exception("No Data found!")
+        consumptions: List[Dict[str, Any]] = consum_raw.get("consumptions", [])
         for consum in consumptions:
-            for reading in consum.get("readings"):
-                if "type" in reading:
-                    if reading.get("type"):
-                        _consum.append(
-                            {
-                                "entity_id": "{}_{}_{}_{}".format(
-                                    # sensor.warmwasser_yyyy_m_xxxxxxxxx
-                                    reading["type"],
-                                    consum["date"]["year"],
-                                    consum["date"]["month"],
-                                    str(self._supportCode).lower(),
-                                ),
-                                "year": consum["date"]["year"],
-                                "month": consum["date"]["month"],
-                                "type": reading["type"],
-                                "value": reading["value"],
-                                "valuekwh": reading["additionalValue"],
-                                "unit": reading["unit"],
-                                "unitkwh": reading["additionalUnit"],
-                                "supportCode": self._supportCode,
-                                "date": consum["date"],
-                            }
-                        )
+            readings: List[Dict[str, Any]] = consum.get("readings", {})
+            for reading in readings:
+                if reading.get("type", ""):
+                    self._custom_types.append(reading.get("type", ""))
+                    _consum.append(
+                        {
+                            "entity_id": "{}_{}_{}_{}".format(
+                                # sensor.warmwasser_yyyy_m_xxxxxxxxx
+                                reading["type"],
+                                consum["date"]["year"],
+                                consum["date"]["month"],
+                                str(self._supportCode).lower(),
+                            ),
+                            "year": consum["date"]["year"],
+                            "month": consum["date"]["month"],
+                            "type": reading["type"],
+                            "value": reading["value"],
+                            "valuekwh": reading["additionalValue"],
+                            "unit": reading["unit"],
+                            "unitkwh": reading["additionalUnit"],
+                            "supportCode": self._supportCode,
+                            "date": consum["date"],
+                            "exception": consum["exception"],
+                        }
+                    )
         return _consum
+
+    async def getTypes(self) -> List[str]:
+        await self.consum_small()
+        return list(dict.fromkeys(self._custom_types))
 
     async def getConsumsNow(self) -> List[Dict[str, Any]]:
         datetimenow = datetime.now()
@@ -193,22 +203,23 @@ class PyEcotrendIsta:
                 consum["type"],
                 self._supportCode,
             ).lower()
-            if datetimenow.year == consum["year"] and datetimenow.month == (consum["month"] + 1):
+            if datetimenow.year == consum.get("year", 0) and datetimenow.month == (consum.get("month", 0) + 1):
                 _consums.append(consum)
         return _consums
 
-    async def getConsumNowByType(self, _type: str | None) -> List[Dict[str, Any]]:
+    async def getConsumNowByType(self, _type: str | None) -> Dict[str, Any]:
         consums: List[Dict[str, Any]] = await self.consum_small()
         for consum in consums:
             if _type == consum["type"]:
                 return consum
-        return []
+        return {}
 
-    async def getConsumById(self, entity_id: str | None, now=False) -> Dict[str, Any]:
+    async def getConsumById(self, entity_id: str | None, now: bool = False) -> Dict[str, Any]:
+        consums: List[Dict[str, Any]] = []
         if now is False:
-            consums: List[Dict[str, Any]] = await self.consum_small()
+            consums = await self.consum_small()
         else:
-            consums: List[Dict[str, Any]] = await self.getConsumsNow()
+            consums = await self.getConsumsNow()
         for consum in consums:
             if entity_id == consum["entity_id"]:
                 return consum
@@ -251,8 +262,11 @@ class PyEcotrendIsta:
         headers = {
             "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/99.0.4844.51 Safari/537.36"
         }
+        _data = headers.get("User-Agent", "")
         async with aiohttp.ClientSession() as session:
             async with session.get(url, headers=headers) as response:
                 data = await response.json(content_type=None)
+                response.close()
                 i = randint(0, len(data) - 1)
-                return data[i]["useragent"]
+                _data = data[i]["useragent"]
+        return _data
