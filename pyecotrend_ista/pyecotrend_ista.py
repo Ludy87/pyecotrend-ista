@@ -9,6 +9,8 @@ import aiohttp
 import json
 import logging
 
+from pyecotrend_ista.exception_classes import LoginError, ServerError
+
 from .const import LOGIN_HEADER, LOGIN_URL, VERSION
 
 _LOGGER = logging.getLogger(__name__)
@@ -49,8 +51,10 @@ class PyEcotrendIsta:
         async with aiohttp.ClientSession() as session:
             async with session.post(LOGIN_URL, headers=LOGIN_HEADER, data=json.dumps(payload)) as response:
                 try:
-                    if response.status != 200:
-                        raise Exception("Login fail, check your input!", await response.json())
+                    if response.status == 500:
+                        raise ServerError()
+                    elif response.status != 200:
+                        raise LoginError(await response.json())
                     else:
                         json_str_resp = await response.json()
                         self._accessToken = json_str_resp["accessToken"]
