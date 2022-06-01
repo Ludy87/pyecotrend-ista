@@ -9,7 +9,7 @@ import aiohttp
 import json
 import logging
 
-from pyecotrend_ista.exception_classes import LoginError, ServerError
+from .exception_classes import LoginError, ServerError
 
 from .const import LOGIN_HEADER, LOGIN_URL, VERSION
 
@@ -60,7 +60,7 @@ class PyEcotrendIsta:
                         self._accessToken = json_str_resp["accessToken"]
                 except Exception as err:
                     _LOGGER.debug(err)
-                    raise Exception(err)
+                    raise LoginError(err)
                 finally:
                     await session.close()
         return self._accessToken
@@ -123,10 +123,10 @@ class PyEcotrendIsta:
                         await sleep(self.retryDelay)
                     else:
                         await self.__setAccount()
-            except Exception as err:
+            except LoginError as err:
                 # Login failed
                 self._accessToken = None
-                _LOGGER.error(err)
+                _LOGGER.debug(err)
         return self._accessToken
 
     async def consum_raw(self) -> Dict[str, Any]:
