@@ -262,7 +262,7 @@ class PyEcotrendIsta:
         return __type
 
     async def getUA(self) -> str:
-        url = "https://raw.githubusercontent.com/Ludy87/pyecotrend-ista/main/pyecotrend_ista/ua.json"
+        url = "https://raw.githubusercontent.com/Ludy87/pyecotrend-ista/main/src/pyecotrend_ista/ua.json"
         headers = {
             "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/99.0.4844.51 Safari/537.36"
         }

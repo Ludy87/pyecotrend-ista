@@ -15,4 +15,4 @@ jobs:
         uses: jpetrucciani/bandit-check@master
         with:
           bandit_flags: '-s B105,B311'
-          path: './pyecotrend_ista/'
+          path: './src/pyecotrend_ista/'
