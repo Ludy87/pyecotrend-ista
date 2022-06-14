@@ -45,7 +45,7 @@ class PyEcotrendIsta:
         payload = {
             "email": self._email,
             "password": self._password,
-            "fromMobileApp": "true",
+            "fromMobileApp": "false",
         }
         LOGIN_HEADER["User-Agent"] = await self.getUA()
         async with aiohttp.ClientSession() as session:
