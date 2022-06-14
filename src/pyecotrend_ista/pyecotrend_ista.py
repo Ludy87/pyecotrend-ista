@@ -264,13 +264,18 @@ class PyEcotrendIsta:
     async def getUA(self) -> str:
         url = "https://raw.githubusercontent.com/Ludy87/pyecotrend-ista/main/src/pyecotrend_ista/ua.json"
         headers = {
-            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/99.0.4844.51 Safari/537.36"
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/101.0.4951.67 Safari/537.36"
         }
         _data = headers.get("User-Agent", "")
         async with aiohttp.ClientSession() as session:
             async with session.get(url, headers=headers) as response:
-                data = await response.json(content_type=None)
-                response.close()
-                i = randint(0, len(data) - 1)
-                _data = data[i]["useragent"]
+                try:
+                    data = await response.json(content_type=None)
+                    i = randint(0, len(data) - 1)
+                    _data = data[i]["useragent"]
+                except Exception as err:
+                    _LOGGER.info(f"Default User agent activ!\n{err}")
+                    _data = headers.get("User-Agent")
+                finally:
+                    response.close()
         return _data
