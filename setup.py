@@ -4,8 +4,6 @@ import configparser
 with open("README.md", "r") as fh:
     long_description = fh.read()
 
-version = "0.0.0"
-
 with open("./src/pyecotrend_ista/const.py") as f:
     config_string = "[dummy_section]\n" + f.read()
     config = configparser.ConfigParser(allow_no_value=True)

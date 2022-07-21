@@ -266,7 +266,6 @@ class PyEcotrendIsta:
         headers = {
             "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/101.0.4951.67 Safari/537.36"
         }
-        _data = headers.get("User-Agent", "")
         async with aiohttp.ClientSession() as session:
             async with session.get(url, headers=headers) as response:
                 try:
