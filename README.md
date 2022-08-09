@@ -14,6 +14,7 @@
 
 [✨ Wishlist from Amazon ✨](https://smile.amazon.de/registry/wishlist/2MX8QK8VE9MV1)
 
+---
 Unofficial python library for the pyecotrend-ista API
 
 ![ecotrend-ista](https://github.com/Ludy87/pyecotrend-ista/blob/main/image/logo.png?raw=true)
