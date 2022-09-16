@@ -17,7 +17,7 @@ jobs:
         with:
           ref: main
       - name: Set up Python
-        uses: actions/setup-python@v3
+        uses: actions/setup-python@v4
         with:
           python-version: '3.x'
       - name: Get Version
@@ -54,7 +54,7 @@ jobs:
         uses: actions/checkout@v3
       - name: Set up Python
         if: steps.check-tag.outputs.match == 'true'
-        uses: actions/setup-python@v3
+        uses: actions/setup-python@v4
         with:
           python-version: "3.9"
       - name: Install dependencies
