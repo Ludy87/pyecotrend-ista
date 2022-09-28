@@ -17,9 +17,10 @@ jobs:
         with:
           fetch-depth: 0
       - name: Set up Python 3.9
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v4.2.0
         with:
           python-version: 3.9
+          check-latest: true
       - name: formatting with black
         run: |
           pip install black
