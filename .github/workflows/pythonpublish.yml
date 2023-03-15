@@ -13,7 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3.2.0
+        uses: actions/checkout@v3.4.0
         with:
           ref: main
       - name: Set up Python
@@ -50,7 +50,7 @@ jobs:
           token: "${{ secrets.GITHUB_TOKEN }}"
       - name: Checkout code for release
         if: steps.check-tag.outputs.match == 'true'
-        uses: actions/checkout@v3.2.0
+        uses: actions/checkout@v3.4.0
       - name: Set up Python
         if: steps.check-tag.outputs.match == 'true'
         uses: actions/setup-python@v4.3.1
