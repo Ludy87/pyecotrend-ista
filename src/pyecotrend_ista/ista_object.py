@@ -98,11 +98,13 @@ class Costs(DataClassJsonMixin):
     costsByEnergyType: Optional[List[CostsByEnergyType]]
     exception: Optional[str]
 
+
 @dataclass_json
 @dataclass
 class Co2EmissionsBillingPeriods(DataClassJsonMixin):
     currentBillingPeriod: Any
     previousBillingPeriod: Any
+
 
 @dataclass_json
 @dataclass
