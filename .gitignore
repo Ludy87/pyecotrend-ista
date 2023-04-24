@@ -132,3 +132,6 @@ dmypy.json
 
 # Database
 *.db
+
+# Documents
+*.pdf
