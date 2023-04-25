@@ -61,7 +61,7 @@ class PyEcotrendIsta:
     async def __login(self) -> str | None:
         if self._email == "demo@ista.de" and self._password == "Ausprobieren!" and self._hass_dir:
             self._LOGGER.debug("DEMO")
-            with open(self._hass_dir + "/account.json") as f:
+            with open(self._hass_dir + "/account.json"):
                 self._accessToken = "Demo"
             return self._accessToken
         payload = {
