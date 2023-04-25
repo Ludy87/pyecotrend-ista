@@ -10,6 +10,11 @@ with open("./src/pyecotrend_ista/const.py") as f:
     config.read_string(config_string)
     version = config["dummy_section"]["VERSION"].strip('"')
 
+requirements_array = []
+with open("requirements.txt") as my_file:
+    for line in my_file:
+        requirements_array.append(line.replace("\n", ""))
+
 setuptools.setup(
     name="pyecotrend-ista",
     version=version,
@@ -29,6 +34,8 @@ setuptools.setup(
         "Development Status :: 4 - Beta",
         "Programming Language :: Python",
         "Programming Language :: Python :: 3.9",
+        "Programming Language :: Python :: 3.10",
+        "Programming Language :: Python :: 3.11",
         "License :: OSI Approved :: MIT License",
         "Operating System :: OS Independent",
         "Intended Audience :: Developers",
@@ -38,6 +45,6 @@ setuptools.setup(
         "Topic :: Software Development :: Libraries :: Python Modules",
     ],
     keywords="python api ecotrend ista",
-    install_requires=["aiohttp>=3.8.1", "dataclasses-json==0.5.7"],
-    python_requires=">=3.6",
+    install_requires=requirements_array,
+    python_requires=">=3.9",
 )
