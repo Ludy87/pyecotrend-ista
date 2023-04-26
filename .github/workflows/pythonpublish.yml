@@ -12,19 +12,6 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - name: ZIP Component Dir
-        run: |
-          cd ${{ github.workspace }}/src/pyecotrend_ista
-          zip -r pyecotrend_ista.zip ./
-      - name: Upload zip to release
-        uses: svenstaro/upload-release-action@2.5.0
-        with:
-          repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: ${{ github.workspace }}/src/pyecotrend_ista/pyecotrend_ista.zip
-          asset_name: pyecotrend_ista.zip
-          tag: ${{ github.ref }}
-          overwrite: true
       - name: Checkout repository
         uses: actions/checkout@v3.4.0
         with:
@@ -45,6 +32,19 @@ jobs:
         id: checkTag
         with: 
           tag: ${{ steps.version.outputs.version }}
+      - uses: actions/checkout@v3
+      - name: ZIP Component Dir
+        run: |
+          cd ${{ github.workspace }}/src/pyecotrend_ista
+          zip -r pyecotrend_ista.zip ./
+      - name: Upload zip to release
+        uses: svenstaro/upload-release-action@2.5.0
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: ${{ github.workspace }}/src/pyecotrend_ista/pyecotrend_ista.zip
+          asset_name: pyecotrend_ista.zip
+          tag: ${{ steps.version.outputs.version }}
+          overwrite: true
       - if: steps.checkTag.outputs.exists == 'false'
         name: Check Tag
         id: check-tag
