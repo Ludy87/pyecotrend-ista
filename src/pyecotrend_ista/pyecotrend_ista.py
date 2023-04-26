@@ -12,7 +12,7 @@ from typing import Any, Dict
 import aiohttp
 
 from .const import ACCOUNT_URL, CONSUMPTIONS_URL, LOGIN_HEADER, LOGIN_URL, MAX_RETRIES, REFRESH_TOKEN_URL, RETRY_DELAY, VERSION
-from .exception_classes import Error, LoginError, ServerError
+from .exception_classes import Error, InternalServerError, LoginError, ServerError
 from .helper_object import CustomRaw
 
 _LOGGER = logging.getLogger(__name__)
@@ -83,7 +83,10 @@ class PyEcotrendIsta:
                     elif response.status == 401:
                         raise LoginError((await response.json()).get("key", None))
                     elif response.status == 500:
-                        continue
+                        if isinstance(response.reason, str) and response.reason == "Internal Server Error":
+                            raise InternalServerError(response.reason)
+                        raise ServerError()
+                        # continue
                     elif response.status != 200:
                         raise Error(await response.json())
                     else:
@@ -198,7 +201,12 @@ class PyEcotrendIsta:
                     self._LOGGER.error(error)
                     raise LoginError(error)
                 except ServerError:
-                    await sleep(RETRY_DELAY)
+                    if retryCounter < MAX_RETRIES:
+                        await sleep(RETRY_DELAY)
+                    else:
+                        raise ServerError()
+                except InternalServerError as error:
+                    raise Exception(error.msg)
                 except Error as err:
                     raise Exception(err)
                 if not self._accessToken:
@@ -308,6 +316,12 @@ class PyEcotrendIsta:
                                     ),
                                     1,
                                 )
+                                if reading["type"] == "warmwater":
+                                    sum_by_year["ww"] = reading["unit"]
+                                elif reading["type"] == "water":
+                                    sum_by_year["w"] = reading["unit"]
+                                else:
+                                    sum_by_year["h"] = reading["additionalUnit"]
 
             indices_to_delete_costs = []
             for i, costs in enumerate(c_raw["costs"]):
@@ -372,10 +386,31 @@ class PyEcotrendIsta:
                         combined_data.append(combined_entry)
 
             total_additional_values = {}
+            total_additional_custom_values = {}
             for consumption_unit in consumptions:
                 for reading in consumption_unit["readings"]:
-                    if reading["type"] is None or reading["value"] is None:
+                    if reading["type"] is None or reading["value"] is None or reading["additionalValue"] is None:
                         continue
+
+                    if reading["type"] not in total_additional_custom_values:
+                        total_additional_custom_values[reading["type"]] = 0.0
+                    total_additional_custom_values[reading["type"]] += round(
+                        float(reading["additionalValue"].replace(",", "."))
+                        if reading["type"] == "warmwater" or reading["type"] == "water"
+                        else (
+                            float(reading["value"].replace(",", "."))
+                            if reading["value"] is not None
+                            else 0.0
+                        ),
+                        1,
+                    )
+                    if reading["type"] == "warmwater":
+                        total_additional_custom_values["ww"] = reading["additionalUnit"]
+                    elif reading["type"] == "water":
+                        total_additional_custom_values["w"] = reading["additionalUnit"]
+                    elif reading["type"] == "heating":
+                        total_additional_custom_values["h"] = reading["unit"]
+
                     if reading["type"] not in total_additional_values:
                         total_additional_values[reading["type"]] = 0.0
                     total_additional_values[reading["type"]] += round(
@@ -388,14 +423,42 @@ class PyEcotrendIsta:
                         ),
                         1,
                     )
+                    if reading["type"] == "warmwater":
+                        total_additional_values["ww"] = reading["unit"]
+                    elif reading["type"] == "water":
+                        total_additional_values["w"] = reading["unit"]
+                    elif reading["type"] == "heating":
+                        total_additional_values["h"] = reading["additionalUnit"]
 
             last_value = None
+            last_custom_value = None
             if consumptions:
                 if last_value is None:
                     last_value = {}
+                if last_custom_value is None:
+                    last_custom_value = {}
                 for reading in consumptions[0]["readings"]:
-                    if reading["type"] is None:
+                    if reading["type"] is None or reading["value"] is None or reading["additionalValue"] is None:
                         continue
+
+                    if reading["type"] not in last_custom_value:
+                        last_custom_value[reading["type"]] = 0.0
+                    last_custom_value[reading["type"]] += (
+                        float(reading["additionalValue"].replace(",", "."))
+                        if reading["type"] == "warmwater" or reading["type"] == "water"
+                        else (
+                            float(reading["value"].replace(",", "."))
+                            if reading["value"] is not None
+                            else 0.0
+                        )
+                    )
+                    if reading["type"] == "warmwater":
+                        last_custom_value["ww"] = reading["additionalUnit"]
+                    elif reading["type"] == "water":
+                        last_custom_value["w"] = reading["additionalUnit"]
+                    elif reading["type"] == "heating":
+                        last_custom_value["h"] = reading["unit"]
+
                     if reading["type"] not in last_value:
                         last_value[reading["type"]] = 0.0
                     last_value[reading["type"]] += (
@@ -407,6 +470,16 @@ class PyEcotrendIsta:
                             else 0.0
                         )
                     )
+                    if reading["type"] == "warmwater":
+                        last_value["ww"] = reading["unit"]
+                    elif reading["type"] == "water":
+                        last_value["w"] = reading["unit"]
+                    elif reading["type"] == "heating":
+                        last_value["h"] = reading["additionalUnit"]
+
+                last_custom_value["month"] = consumptions[0]["date"]["month"]
+                last_custom_value["year"] = consumptions[0]["date"]["year"]
+
                 last_value["month"] = consumptions[0]["date"]["month"]
                 last_value["year"] = consumptions[0]["date"]["year"]
 
@@ -444,7 +517,9 @@ class PyEcotrendIsta:
                     "consum_types": consum_types,
                     "combined_data": None,  # combined_data,
                     "total_additional_values": total_additional_values,
+                    "total_additional_custom_values": total_additional_custom_values,
                     "last_value": last_value,
+                    "last_custom_value": last_custom_value,
                     "last_costs": last_costs,
                     "all_dates": None,  # all_dates,
                     "sum_by_year": sum_by_year,

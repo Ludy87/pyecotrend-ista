@@ -102,6 +102,22 @@ class LastValue(DataClassJsonMixin):
     water: Optional[float] = None
     month: Optional[int] = None
     year: Optional[int] = None
+    ww: Optional[str] = None
+    w: Optional[str] = None
+    h: Optional[str] = None
+
+
+@dataclass_json
+@dataclass
+class LastCustomValue(DataClassJsonMixin):
+    heating: Optional[float] = None
+    warmwater: Optional[float] = None
+    water: Optional[float] = None
+    month: Optional[int] = None
+    year: Optional[int] = None
+    ww: Optional[str] = None
+    w: Optional[str] = None
+    h: Optional[str] = None
 
 
 @dataclass_json
@@ -129,6 +145,20 @@ class TotalAdditionalValues(DataClassJsonMixin):
     heating: Optional[float] = None
     warmwater: Optional[float] = None
     water: Optional[float] = None
+    ww: Optional[str] = None
+    w: Optional[str] = None
+    h: Optional[str] = None
+
+
+@dataclass_json
+@dataclass
+class TotalAdditionalCustomValues(DataClassJsonMixin):
+    heating: Optional[float] = None
+    warmwater: Optional[float] = None
+    water: Optional[float] = None
+    ww: Optional[str] = None
+    w: Optional[str] = None
+    h: Optional[str] = None
 
 
 @dataclass_json
@@ -137,6 +167,9 @@ class SumByYear(DataClassJsonMixin):
     heating: Optional[Dict[int, float]] = None
     warmwater: Optional[Dict[int, float]] = None
     water: Optional[Dict[int, float]] = None
+    ww: Optional[str] = None
+    w: Optional[str] = None
+    h: Optional[str] = None
 
 
 @dataclass_json
@@ -145,7 +178,9 @@ class CustomRaw(DataClassJsonMixin):
     consum_types: Optional[List[str]]
     combined_data: List[CombinedData]
     total_additional_values: TotalAdditionalValues
+    total_additional_custom_values: TotalAdditionalCustomValues
     last_value: LastValue
+    last_custom_value: LastCustomValue
     all_dates: List[Date]
     sum_by_year: SumByYear
     last_costs: Optional[LastCosts]

@@ -14,6 +14,15 @@ class ServerError(Error):
         return "Server error, go to: https://ecotrend.ista.de/error"
 
 
+class InternalServerError(Error):
+    def __init__(self, msg) -> None:
+        super().__init__(msg)
+        self.msg = msg
+
+    def __str__(self) -> str:
+        return self.res
+
+
 class LoginError(Error):
     def __init__(self, res: Any) -> None:
         super().__init__(res)
