@@ -74,7 +74,6 @@ class PyEcotrendIsta:
         while not self._accessToken:
             async with aiohttp.ClientSession(timeout=aiohttp.ClientTimeout(15)) as session:
                 async with session.post(LOGIN_URL, headers=header, data=json.dumps(payload)) as response:
-                    # try:
                     if response.status == 200:
                         json_str_resp = await response.json()
                         self._accessToken = json_str_resp["accessToken"]
@@ -397,11 +396,7 @@ class PyEcotrendIsta:
                     total_additional_custom_values[reading["type"]] += round(
                         float(reading["additionalValue"].replace(",", "."))
                         if reading["type"] == "warmwater" or reading["type"] == "water"
-                        else (
-                            float(reading["value"].replace(",", "."))
-                            if reading["value"] is not None
-                            else 0.0
-                        ),
+                        else (float(reading["value"].replace(",", ".")) if reading["value"] is not None else 0.0),
                         1,
                     )
                     if reading["type"] == "warmwater":
@@ -446,11 +441,7 @@ class PyEcotrendIsta:
                     last_custom_value[reading["type"]] += (
                         float(reading["additionalValue"].replace(",", "."))
                         if reading["type"] == "warmwater" or reading["type"] == "water"
-                        else (
-                            float(reading["value"].replace(",", "."))
-                            if reading["value"] is not None
-                            else 0.0
-                        )
+                        else (float(reading["value"].replace(",", ".")) if reading["value"] is not None else 0.0)
                     )
                     if reading["type"] == "warmwater":
                         last_custom_value["ww"] = reading["additionalUnit"]
