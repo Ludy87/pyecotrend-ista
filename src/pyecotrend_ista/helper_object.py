@@ -176,11 +176,11 @@ class SumByYear(DataClassJsonMixin):
 @dataclass
 class CustomRaw(DataClassJsonMixin):
     consum_types: Optional[List[str]]
-    combined_data: List[CombinedData]
+    combined_data: Optional[List[CombinedData]]
     total_additional_values: TotalAdditionalValues
     total_additional_custom_values: TotalAdditionalCustomValues
     last_value: LastValue
     last_custom_value: LastCustomValue
-    all_dates: List[Date]
+    all_dates: Optional[List[Date]]
     sum_by_year: SumByYear
     last_costs: Optional[LastCosts]
