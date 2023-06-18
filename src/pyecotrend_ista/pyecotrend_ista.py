@@ -61,7 +61,7 @@ class PyEcotrendIsta:
     async def __login(self) -> str | None:
         if self._email == "demo@ista.de" and self._password == "Ausprobieren!" and self._hass_dir:
             self._LOGGER.debug("DEMO")
-            with open(self._hass_dir + "/account.json"):
+            with open(self._hass_dir + "/account_de_url.json"):
                 self._accessToken = "Demo"
             return self._accessToken
         payload = {
@@ -114,7 +114,7 @@ class PyEcotrendIsta:
 
     async def __setAccount(self) -> None:
         if self._accessToken == "Demo" and self._hass_dir:
-            with open(self._hass_dir + "/account.json") as f:
+            with open(self._hass_dir + "/account_de_url.json") as f:
                 res = json.loads(f.read())
                 self._a_ads = res["ads"]
                 self._a_authcode = res["authcode"]
@@ -149,7 +149,7 @@ class PyEcotrendIsta:
         self._header = LOGIN_HEADER
         self._header["User-Agent"] = await self.getUA()
         self._header["Authorization"] = "Bearer {}".format(self._accessToken)
-        async with aiohttp.ClientSession(timeout=aiohttp.ClientTimeout(15)) as session:
+        async with aiohttp.ClientSession(timeout=aiohttp.ClientTimeout(25)) as session:
             async with session.get(ACCOUNT_URL, headers=self._header) as response:
                 res = await response.json()
                 self._a_ads = res["ads"]
@@ -233,10 +233,10 @@ class PyEcotrendIsta:
                             self._LOGGER.debug(err)
         else:
             if self._hass_dir:
-                with open(self._hass_dir + "/demo.json", encoding="utf-8") as f:
+                with open(self._hass_dir + "/demo_de_url.json", encoding="utf-8") as f:
                     c_raw = json.loads(f.read())
             else:
-                with open(os.getcwd() + "\\src\\pyecotrend_ista\\demo.json", encoding="utf-8") as f:
+                with open(os.getcwd() + "\\src\\pyecotrend_ista\\demo_de_url.json", encoding="utf-8") as f:
                     c_raw = json.loads(f.read())
         if c_raw:
             consum_types = []
