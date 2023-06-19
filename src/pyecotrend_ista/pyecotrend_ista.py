@@ -286,10 +286,8 @@ class PyEcotrendIsta:
                     indices_to_delete_consumption.append(i)
 
             for index in sorted(indices_to_delete_consumption, reverse=True):
-                try:
+                if "consumptions" in c_raw and index < len(c_raw["consumptions"]):
                     del c_raw["consumptions"][index]
-                except Exception:
-                    continue
 
             _all_date = all_dates
             new_date = []
