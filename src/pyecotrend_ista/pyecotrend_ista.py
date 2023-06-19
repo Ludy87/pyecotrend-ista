@@ -242,8 +242,9 @@ class PyEcotrendIsta:
             consum_types = []
             all_dates = []
             indices_to_delete_consumption = []
-            for i, consumption in enumerate(c_raw["consumptions"]):
-                for reading in consumption["readings"]:
+
+            for i, consumption in enumerate(c_raw.get("consumptions", [])):
+                for reading in consumption.get("readings", []):
                     consum_types.append(reading["type"])
 
                 consum_types = list(set([i for i in consum_types if i is not None]))
@@ -251,7 +252,7 @@ class PyEcotrendIsta:
                 new_readings = list()
                 all_dates.append(consumption["date"])
                 if select_month is None and select_year is None:
-                    for reading in consumption["readings"]:
+                    for reading in consumption.get("readings", []):
                         if filter_none and reading["type"] is not None:
                             new_readings.append(reading)
                         elif not filter_none:
@@ -262,19 +263,19 @@ class PyEcotrendIsta:
                     and consumption["date"]["year"] in select_year
                     and consumption["date"]["month"] in select_month
                 ):
-                    for reading in consumption["readings"]:
+                    for reading in consumption.get("readings", []):
                         if filter_none and reading["type"] is not None:
                             new_readings.append(reading)
                         elif not filter_none:
                             new_readings.append(reading)
                 elif select_year is not None and consumption["date"]["year"] in select_year and select_month is None:
-                    for reading in consumption["readings"]:
+                    for reading in consumption.get("readings", []):
                         if filter_none and reading["type"] is not None:
                             new_readings.append(reading)
                         elif not filter_none:
                             new_readings.append(reading)
                 elif select_month is not None and consumption["date"]["month"] in select_month and select_year is None:
-                    for reading in consumption["readings"]:
+                    for reading in consumption.get("readings", []):
                         if filter_none and reading["type"] is not None:
                             new_readings.append(reading)
                         elif not filter_none:
@@ -283,8 +284,12 @@ class PyEcotrendIsta:
                     consumption["readings"] = new_readings
                 else:
                     indices_to_delete_consumption.append(i)
+
             for index in sorted(indices_to_delete_consumption, reverse=True):
-                del c_raw["consumptions"][index]
+                try:
+                    del c_raw["consumptions"][index]
+                except Exception:
+                    continue
 
             _all_date = all_dates
             new_date = []
@@ -298,9 +303,9 @@ class PyEcotrendIsta:
 
             sum_by_year = {typ: {year: 0.0 for year in new_date} for typ in cost_consum_types}
 
-            for item in c_raw["consumptions"]:
-                for reading in item["readings"]:
-                    if reading["type"] is None:
+            for item in c_raw.get("consumptions", []):
+                for reading in item.get("readings", []):
+                    if reading.get("type", None) is None:
                         continue
                     for typ in cost_consum_types:
                         for year in new_date:
@@ -323,10 +328,10 @@ class PyEcotrendIsta:
                                     sum_by_year["h"] = reading["additionalUnit"]
 
             indices_to_delete_costs = []
-            for i, costs in enumerate(c_raw["costs"]):
+            for i, costs in enumerate(c_raw.get("costs", None)):
                 new_readings = list()
                 if select_month is None and select_year is None:
-                    for reading in costs["costsByEnergyType"]:
+                    for reading in costs.get("costsByEnergyType", []):
                         if filter_none and reading["type"] is not None:
                             new_readings.append(reading)
                         elif not filter_none:
@@ -337,19 +342,19 @@ class PyEcotrendIsta:
                     and costs["date"]["year"] in select_year
                     and costs["date"]["month"] in select_month
                 ):
-                    for reading in costs["costsByEnergyType"]:
+                    for reading in costs.get("costsByEnergyType", []):
                         if filter_none and reading["type"] is not None:
                             new_readings.append(reading)
                         elif not filter_none:
                             new_readings.append(reading)
                 elif select_year is not None and costs["date"]["year"] in select_year and select_month is None:
-                    for reading in costs["costsByEnergyType"]:
+                    for reading in costs.get("costsByEnergyType", []):
                         if filter_none and reading["type"] is not None:
                             new_readings.append(reading)
                         elif not filter_none:
                             new_readings.append(reading)
                 elif select_month is not None and costs["date"]["month"] in select_month and select_year is None:
-                    for reading in costs["costsByEnergyType"]:
+                    for reading in costs.get("costsByEnergyType", []):
                         if filter_none and reading["type"] is not None:
                             new_readings.append(reading)
                         elif not filter_none:
@@ -359,23 +364,28 @@ class PyEcotrendIsta:
                 else:
                     indices_to_delete_costs.append(i)
             for index in sorted(indices_to_delete_costs, reverse=True):
-                del c_raw["costs"][index]
+                if "costs" in c_raw and index < len(c_raw["costs"]):
+                    del c_raw["costs"][index]
 
-            del c_raw["consumptionsBillingPeriods"]
-            del c_raw["costsBillingPeriods"]
-            del c_raw["resident"]
-            del c_raw["co2Emissions"]
-            del c_raw["co2EmissionsBillingPeriods"]
+            for key in [
+                "consumptionsBillingPeriods",
+                "costsBillingPeriods",
+                "resident",
+                "co2Emissions",
+                "co2EmissionsBillingPeriods",
+            ]:
+                if key in c_raw:
+                    del c_raw[key]
 
-            consumptions: list = c_raw["consumptions"]
-            costs: list = c_raw["costs"]
+            consumptions: list = c_raw.get("consumptions", [])
+            costs: list = c_raw.get("costs", [])
 
             combined_data = []
             for cost_entry in costs:
                 for consumption_entry in consumptions:
                     # Überprüfen, ob die Daten das gleiche Datum haben
                     if cost_entry["date"] == consumption_entry["date"]:
-                        # Wenn ja, kombinieren Sie die Kosten- und Verbrauchsdaten in einem Eintrag
+                        # Wenn ja, kombiniere die Kosten- und Verbrauchsdaten in einem Eintrag
                         combined_entry = {
                             "date": cost_entry["date"],
                             "consumptions": consumption_entry["readings"],
@@ -387,7 +397,7 @@ class PyEcotrendIsta:
             total_additional_values = {}
             total_additional_custom_values = {}
             for consumption_unit in consumptions:
-                for reading in consumption_unit["readings"]:
+                for reading in consumption_unit.get("readings", []):
                     if reading["type"] is None or reading["value"] is None or reading["additionalValue"] is None:
                         continue
 
