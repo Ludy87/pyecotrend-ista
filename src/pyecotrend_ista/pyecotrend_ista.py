@@ -216,118 +216,115 @@ class PyEcotrendIsta:
 
     @refresh_now
     async def consum_raw(self, select_year=None, select_month=None, filter_none=True) -> Dict[str, Any]:
-        c_raw: Dict[str, Any] = {}
-        if self._accessToken != "Demo":
-            async with aiohttp.ClientSession(timeout=aiohttp.ClientTimeout(15)) as session:
-                async with session.get(CONSUMPTIONS_URL + self._uuid, headers=self._header) as response:
-                    retryCounter = 0
-                    while not c_raw and (retryCounter < MAX_RETRIES + 2):
-                        retryCounter += 1
-                        try:
-                            c_raw = await response.json()
-                            if "key" in c_raw:
-                                raise Exception("Login fail, check your input!", c_raw["key"])
-                        except TimeoutError as error:
-                            self._LOGGER.debug(error)
-                        except aiohttp.ContentTypeError as err:
-                            self._LOGGER.debug(err)
-        else:
-            if self._hass_dir:
-                with open(self._hass_dir + "/demo_de_url.json", encoding="utf-8") as f:
-                    c_raw = json.loads(f.read())
-            else:
-                with open(os.getcwd() + "\\src\\pyecotrend_ista\\demo_de_url.json", encoding="utf-8") as f:
-                    c_raw = json.loads(f.read())
-        if c_raw:
-            consum_types = []
-            all_dates = []
-            indices_to_delete_consumption = []
 
-            for i, consumption in enumerate(c_raw.get("consumptions", [])):
+        c_raw: dict[str, Any] = await self.get_raw()
+
+        if not isinstance(c_raw, dict) or (c_raw.get("consumptions", None) is None and c_raw.get("costs", None) is None):
+            return c_raw
+
+        consum_types = []
+        all_dates = []
+        indices_to_delete_consumption = []
+
+        if "consumptions" not in c_raw or not isinstance(c_raw.get("consumptions"), list):
+            c_raw["consumptions"] = []
+
+        for i, consumption in enumerate(c_raw.get("consumptions", [])):
+
+            if not isinstance(consumption, dict):
+                continue
+
+            if "readings" in consumption and isinstance(consumption.get("readings"), list):
                 for reading in consumption.get("readings", []):
                     consum_types.append(reading["type"])
 
-                consum_types = list(set([i for i in consum_types if i is not None]))
+            consum_types = list(set([i for i in consum_types if i is not None]))
 
-                new_readings = list()
+            new_readings = list()
+            if "date" in consumption:
                 all_dates.append(consumption["date"])
-                if select_month is None and select_year is None:
-                    for reading in consumption.get("readings", []):
-                        if filter_none and reading["type"] is not None:
-                            new_readings.append(reading)
-                        elif not filter_none:
-                            new_readings.append(reading)
-                elif (
-                    select_year is not None
-                    and select_month is not None
-                    and consumption["date"]["year"] in select_year
-                    and consumption["date"]["month"] in select_month
-                ):
-                    for reading in consumption.get("readings", []):
-                        if filter_none and reading["type"] is not None:
-                            new_readings.append(reading)
-                        elif not filter_none:
-                            new_readings.append(reading)
-                elif select_year is not None and consumption["date"]["year"] in select_year and select_month is None:
-                    for reading in consumption.get("readings", []):
-                        if filter_none and reading["type"] is not None:
-                            new_readings.append(reading)
-                        elif not filter_none:
-                            new_readings.append(reading)
-                elif select_month is not None and consumption["date"]["month"] in select_month and select_year is None:
-                    for reading in consumption.get("readings", []):
-                        if filter_none and reading["type"] is not None:
-                            new_readings.append(reading)
-                        elif not filter_none:
-                            new_readings.append(reading)
-                if new_readings:
-                    consumption["readings"] = new_readings
-                else:
-                    indices_to_delete_consumption.append(i)
+            if select_month is None and select_year is None:
+                for reading in consumption.get("readings", []):
+                    if filter_none and reading["type"] is not None:
+                        new_readings.append(reading)
+                    elif not filter_none:
+                        new_readings.append(reading)
+            elif (
+                select_year is not None
+                and select_month is not None
+                and consumption["date"]["year"] in select_year
+                and consumption["date"]["month"] in select_month
+            ):
+                for reading in consumption.get("readings", []):
+                    if filter_none and reading["type"] is not None:
+                        new_readings.append(reading)
+                    elif not filter_none:
+                        new_readings.append(reading)
+            elif select_year is not None and consumption["date"]["year"] in select_year and select_month is None:
+                for reading in consumption.get("readings", []):
+                    if filter_none and reading["type"] is not None:
+                        new_readings.append(reading)
+                    elif not filter_none:
+                        new_readings.append(reading)
+            elif select_month is not None and consumption["date"]["month"] in select_month and select_year is None:
+                for reading in consumption.get("readings", []):
+                    if filter_none and reading["type"] is not None:
+                        new_readings.append(reading)
+                    elif not filter_none:
+                        new_readings.append(reading)
+            if new_readings:
+                consumption["readings"] = new_readings
+            else:
+                indices_to_delete_consumption.append(i)
 
-            for index in sorted(indices_to_delete_consumption, reverse=True):
-                if "consumptions" in c_raw and index < len(c_raw["consumptions"]):
-                    del c_raw["consumptions"][index]
+        for index in sorted(indices_to_delete_consumption, reverse=True):
+            if index < len(c_raw["consumptions"]):
+                del c_raw["consumptions"][index]
 
-            _all_date = all_dates
-            new_date = []
-            sum_by_year = {}
-            for date in _all_date:
-                if select_year is None or date["year"] in select_year:
-                    new_date.append(date["year"])
-            new_date = list(dict.fromkeys(new_date))
+        _all_date = all_dates
+        new_date = []
+        sum_by_year = {}
+        for date in _all_date:
+            if select_year is None or date["year"] in select_year:
+                new_date.append(date["year"])
+        new_date = list(dict.fromkeys(new_date))
 
-            cost_consum_types = consum_types
+        cost_consum_types = consum_types
 
-            sum_by_year = {typ: {year: 0.0 for year in new_date} for typ in cost_consum_types}
+        sum_by_year = {typ: {year: 0.0 for year in new_date} for typ in cost_consum_types}
 
-            for item in c_raw.get("consumptions", []):
-                for reading in item.get("readings", []):
-                    if reading.get("type", None) is None:
-                        continue
-                    for typ in cost_consum_types:
-                        for year in new_date:
-                            if reading["type"] == typ and item["date"]["year"] == year:
-                                sum_by_year[typ][year] += round(
-                                    float(reading["value"].replace(",", "."))
-                                    if reading["type"] == "warmwater" or reading["type"] == "water"
-                                    else (
-                                        float(reading["additionalValue"].replace(",", "."))
-                                        if reading["additionalValue"] is not None
-                                        else 0.0
-                                    ),
-                                    1,
-                                )
-                                if reading["type"] == "warmwater":
-                                    sum_by_year["ww"] = reading["unit"]
-                                elif reading["type"] == "water":
-                                    sum_by_year["w"] = reading["unit"]
-                                else:
-                                    sum_by_year["h"] = reading["additionalUnit"]
+        for item in c_raw.get("consumptions", []):
+            for reading in item.get("readings", []):
+                if reading.get("type", None) is None:
+                    continue
+                for typ in cost_consum_types:
+                    for year in new_date:
+                        if reading["type"] == typ and item["date"]["year"] == year:
+                            sum_by_year[typ][year] += round(
+                                float(reading["value"].replace(",", "."))
+                                if reading["type"] == "warmwater" or reading["type"] == "water"
+                                else (
+                                    float(reading["additionalValue"].replace(",", "."))
+                                    if reading["additionalValue"] is not None
+                                    else 0.0
+                                ),
+                                1,
+                            )
+                            if reading["type"] == "warmwater":
+                                sum_by_year["ww"] = reading["unit"]
+                            elif reading["type"] == "water":
+                                sum_by_year["w"] = reading["unit"]
+                            else:
+                                sum_by_year["h"] = reading["additionalUnit"]
 
-            indices_to_delete_costs = []
-            for i, costs in enumerate(c_raw.get("costs", [])):
-                new_readings = list()
+        indices_to_delete_costs = []
+
+        if "costs" not in c_raw or not isinstance(c_raw.get("costs"), list):
+            c_raw["costs"] = []
+
+        for i, costs in enumerate(c_raw.get("costs", [])):
+            new_readings = list()
+            if "costsByEnergyType" in costs:
                 if select_month is None and select_year is None:
                     for reading in costs.get("costsByEnergyType", []):
                         if filter_none and reading["type"] is not None:
@@ -357,179 +354,201 @@ class PyEcotrendIsta:
                             new_readings.append(reading)
                         elif not filter_none:
                             new_readings.append(reading)
-                if new_readings:
-                    costs["costsByEnergyType"] = new_readings
-                else:
-                    indices_to_delete_costs.append(i)
-            for index in sorted(indices_to_delete_costs, reverse=True):
-                if "costs" in c_raw and index < len(c_raw["costs"]):
-                    del c_raw["costs"][index]
+            if new_readings:
+                costs["costsByEnergyType"] = new_readings
+            else:
+                indices_to_delete_costs.append(i)
+        for index in sorted(indices_to_delete_costs, reverse=True):
+            if "costs" in c_raw and index < len(c_raw["costs"]):
+                del c_raw["costs"][index]
 
-            for key in [
-                "consumptionsBillingPeriods",
-                "costsBillingPeriods",
-                "resident",
-                "co2Emissions",
-                "co2EmissionsBillingPeriods",
-            ]:
-                if key in c_raw:
-                    del c_raw[key]
+        for key in [
+            "consumptionsBillingPeriods",
+            "costsBillingPeriods",
+            "resident",
+            "co2Emissions",
+            "co2EmissionsBillingPeriods",
+        ]:
+            if key in c_raw:
+                del c_raw[key]
 
-            consumptions: list = c_raw.get("consumptions", [])
-            costs: list = c_raw.get("costs", [])
+        consumptions: list = c_raw.get("consumptions", [])
+        costs: list = c_raw.get("costs", [])
 
-            combined_data = []
-            for cost_entry in costs:
-                for consumption_entry in consumptions:
-                    # Überprüfen, ob die Daten das gleiche Datum haben
-                    if cost_entry["date"] == consumption_entry["date"]:
-                        # Wenn ja, kombiniere die Kosten- und Verbrauchsdaten in einem Eintrag
-                        combined_entry = {
-                            "date": cost_entry["date"],
-                            "consumptions": consumption_entry["readings"],
-                            "costs": cost_entry["costsByEnergyType"],
-                        }
+        combined_data = []
+        for cost_entry in costs:
+            for consumption_entry in consumptions:
+                # Überprüfen, ob die Daten das gleiche Datum haben
+                if cost_entry["date"] == consumption_entry["date"]:
+                    # Wenn ja, kombiniere die Kosten- und Verbrauchsdaten in einem Eintrag
+                    combined_entry = {
+                        "date": cost_entry["date"],
+                        "consumptions": consumption_entry["readings"],
+                        "costs": cost_entry["costsByEnergyType"],
+                    }
 
-                        combined_data.append(combined_entry)
+                    combined_data.append(combined_entry)
 
-            total_additional_values = {}
-            total_additional_custom_values = {}
-            for consumption_unit in consumptions:
-                for reading in consumption_unit.get("readings", []):
-                    if reading["type"] is None or reading["value"] is None or reading["additionalValue"] is None:
-                        continue
+        total_additional_values = {}
+        total_additional_custom_values = {}
+        for consumption_unit in consumptions:
+            for reading in consumption_unit.get("readings", []):
+                if reading["type"] is None or reading["value"] is None or reading["additionalValue"] is None:
+                    continue
 
-                    if reading["type"] not in total_additional_custom_values:
-                        total_additional_custom_values[reading["type"]] = 0.0
-                    total_additional_custom_values[reading["type"]] += round(
-                        float(reading["additionalValue"].replace(",", "."))
-                        if reading["type"] == "warmwater" or reading["type"] == "water"
-                        else (float(reading["value"].replace(",", ".")) if reading["value"] is not None else 0.0),
-                        1,
+                if reading["type"] not in total_additional_custom_values:
+                    total_additional_custom_values[reading["type"]] = 0.0
+                total_additional_custom_values[reading["type"]] += round(
+                    float(reading["additionalValue"].replace(",", "."))
+                    if reading["type"] == "warmwater" or reading["type"] == "water"
+                    else (float(reading["value"].replace(",", ".")) if reading["value"] is not None else 0.0),
+                    1,
+                )
+                if reading["type"] == "warmwater":
+                    total_additional_custom_values["ww"] = reading["additionalUnit"]
+                elif reading["type"] == "water":
+                    total_additional_custom_values["w"] = reading["additionalUnit"]
+                elif reading["type"] == "heating":
+                    total_additional_custom_values["h"] = reading["unit"]
+
+                if reading["type"] not in total_additional_values:
+                    total_additional_values[reading["type"]] = 0.0
+                total_additional_values[reading["type"]] += round(
+                    float(reading["value"].replace(",", "."))
+                    if reading["type"] == "warmwater" or reading["type"] == "water"
+                    else (
+                        float(reading["additionalValue"].replace(",", ".")) if reading["additionalValue"] is not None else 0.0
+                    ),
+                    1,
+                )
+                if reading["type"] == "warmwater":
+                    total_additional_values["ww"] = reading["unit"]
+                elif reading["type"] == "water":
+                    total_additional_values["w"] = reading["unit"]
+                elif reading["type"] == "heating":
+                    total_additional_values["h"] = reading["additionalUnit"]
+
+        last_value = None
+        last_custom_value = None
+        if consumptions:
+            if last_value is None:
+                last_value = {}
+            if last_custom_value is None:
+                last_custom_value = {}
+            for reading in consumptions[0]["readings"]:
+                if reading["type"] is None or reading["value"] is None or reading["additionalValue"] is None:
+                    continue
+
+                if reading["type"] not in last_custom_value:
+                    last_custom_value[reading["type"]] = 0.0
+                last_custom_value[reading["type"]] += (
+                    float(reading["additionalValue"].replace(",", "."))
+                    if reading["type"] == "warmwater" or reading["type"] == "water"
+                    else (float(reading["value"].replace(",", ".")) if reading["value"] is not None else 0.0)
+                )
+                if reading["type"] == "warmwater":
+                    last_custom_value["ww"] = reading["additionalUnit"]
+                elif reading["type"] == "water":
+                    last_custom_value["w"] = reading["additionalUnit"]
+                elif reading["type"] == "heating":
+                    last_custom_value["h"] = reading["unit"]
+
+                if reading["type"] not in last_value:
+                    last_value[reading["type"]] = 0.0
+                last_value[reading["type"]] += (
+                    float(reading["value"].replace(",", "."))
+                    if reading["type"] == "warmwater" or reading["type"] == "water"
+                    else (
+                        float(reading["additionalValue"].replace(",", ".")) if reading["additionalValue"] is not None else 0.0
                     )
-                    if reading["type"] == "warmwater":
-                        total_additional_custom_values["ww"] = reading["additionalUnit"]
-                    elif reading["type"] == "water":
-                        total_additional_custom_values["w"] = reading["additionalUnit"]
-                    elif reading["type"] == "heating":
-                        total_additional_custom_values["h"] = reading["unit"]
+                )
+                if reading["type"] == "warmwater":
+                    last_value["ww"] = reading["unit"]
+                elif reading["type"] == "water":
+                    last_value["w"] = reading["unit"]
+                elif reading["type"] == "heating":
+                    last_value["h"] = reading["additionalUnit"]
 
-                    if reading["type"] not in total_additional_values:
-                        total_additional_values[reading["type"]] = 0.0
-                    total_additional_values[reading["type"]] += round(
-                        float(reading["value"].replace(",", "."))
-                        if reading["type"] == "warmwater" or reading["type"] == "water"
-                        else (
-                            float(reading["additionalValue"].replace(",", "."))
-                            if reading["additionalValue"] is not None
-                            else 0.0
-                        ),
-                        1,
-                    )
-                    if reading["type"] == "warmwater":
-                        total_additional_values["ww"] = reading["unit"]
-                    elif reading["type"] == "water":
-                        total_additional_values["w"] = reading["unit"]
-                    elif reading["type"] == "heating":
-                        total_additional_values["h"] = reading["additionalUnit"]
+            last_custom_value["month"] = consumptions[0]["date"]["month"]
+            last_custom_value["year"] = consumptions[0]["date"]["year"]
 
-            last_value = None
-            last_custom_value = None
-            if consumptions:
-                if last_value is None:
-                    last_value = {}
-                if last_custom_value is None:
-                    last_custom_value = {}
-                for reading in consumptions[0]["readings"]:
-                    if reading["type"] is None or reading["value"] is None or reading["additionalValue"] is None:
-                        continue
+            last_value["month"] = consumptions[0]["date"]["month"]
+            last_value["year"] = consumptions[0]["date"]["year"]
 
-                    if reading["type"] not in last_custom_value:
-                        last_custom_value[reading["type"]] = 0.0
-                    last_custom_value[reading["type"]] += (
-                        float(reading["additionalValue"].replace(",", "."))
-                        if reading["type"] == "warmwater" or reading["type"] == "water"
-                        else (float(reading["value"].replace(",", ".")) if reading["value"] is not None else 0.0)
-                    )
-                    if reading["type"] == "warmwater":
-                        last_custom_value["ww"] = reading["additionalUnit"]
-                    elif reading["type"] == "water":
-                        last_custom_value["w"] = reading["additionalUnit"]
-                    elif reading["type"] == "heating":
-                        last_custom_value["h"] = reading["unit"]
+        last_costs = None
+        if costs:
+            if last_costs is None:
+                last_costs = {}
+            for costsByEnergyType in costs[0]["costsByEnergyType"]:
+                if costsByEnergyType["type"] is None:
+                    continue
+                if costsByEnergyType["type"] not in last_costs:
+                    last_costs[costsByEnergyType["type"]] = 0.0
+                last_costs[costsByEnergyType["type"]] += costsByEnergyType["value"]
+                last_costs["unit"] = costsByEnergyType["unit"]
+                if costsByEnergyType["type"] == "warmwater":
+                    if costsByEnergyType["comparedCost"]["smiley"] == ["MAD", "EQUAL"]:
+                        last_costs["ww"] = costsByEnergyType["comparedCost"]["comparedPercentage"]
+                    elif costsByEnergyType["comparedCost"]["smiley"] in ["HAPPY"]:
+                        last_costs["ww"] = costsByEnergyType["comparedCost"]["comparedPercentage"] * -1
+                elif costsByEnergyType["type"] == "water":
+                    if costsByEnergyType["comparedCost"]["smiley"] == ["MAD", "EQUAL"]:
+                        last_costs["w"] = costsByEnergyType["comparedCost"]["comparedPercentage"]
+                    elif costsByEnergyType["comparedCost"]["smiley"] in ["HAPPY"]:
+                        last_costs["w"] = costsByEnergyType["comparedCost"]["comparedPercentage"] * -1
+                elif costsByEnergyType["type"] == "heating":
+                    if costsByEnergyType["comparedCost"]["smiley"] in ["MAD", "EQUAL"]:
+                        last_costs["h"] = costsByEnergyType["comparedCost"]["comparedPercentage"]
+                    elif costsByEnergyType["comparedCost"]["smiley"] in ["HAPPY"]:
+                        last_costs["h"] = costsByEnergyType["comparedCost"]["comparedPercentage"] * -1
+            last_costs["month"] = costs[0]["date"]["month"]
+            last_costs["year"] = costs[0]["date"]["year"]
 
-                    if reading["type"] not in last_value:
-                        last_value[reading["type"]] = 0.0
-                    last_value[reading["type"]] += (
-                        float(reading["value"].replace(",", "."))
-                        if reading["type"] == "warmwater" or reading["type"] == "water"
-                        else (
-                            float(reading["additionalValue"].replace(",", "."))
-                            if reading["additionalValue"] is not None
-                            else 0.0
-                        )
-                    )
-                    if reading["type"] == "warmwater":
-                        last_value["ww"] = reading["unit"]
-                    elif reading["type"] == "water":
-                        last_value["w"] = reading["unit"]
-                    elif reading["type"] == "heating":
-                        last_value["h"] = reading["additionalUnit"]
+        return CustomRaw.from_dict(
+            {
+                "consum_types": consum_types,
+                "combined_data": None,  # combined_data,
+                "total_additional_values": total_additional_values,
+                "total_additional_custom_values": total_additional_custom_values,
+                "last_value": last_value,
+                "last_custom_value": last_custom_value,
+                "last_costs": last_costs,
+                "all_dates": None,  # all_dates,
+                "sum_by_year": sum_by_year,
+            }
+        ).to_dict()
 
-                last_custom_value["month"] = consumptions[0]["date"]["month"]
-                last_custom_value["year"] = consumptions[0]["date"]["year"]
+    async def get_raw(self) -> Dict[str, Any]:
+        raw: Dict[str, Any] = {}
 
-                last_value["month"] = consumptions[0]["date"]["month"]
-                last_value["year"] = consumptions[0]["date"]["year"]
-
-            last_costs = None
-            if costs:
-                if last_costs is None:
-                    last_costs = {}
-                for costsByEnergyType in costs[0]["costsByEnergyType"]:
-                    if costsByEnergyType["type"] is None:
-                        continue
-                    if costsByEnergyType["type"] not in last_costs:
-                        last_costs[costsByEnergyType["type"]] = 0.0
-                    last_costs[costsByEnergyType["type"]] += costsByEnergyType["value"]
-                    last_costs["unit"] = costsByEnergyType["unit"]
-                    if costsByEnergyType["type"] == "warmwater":
-                        if costsByEnergyType["comparedCost"]["smiley"] == ["MAD", "EQUAL"]:
-                            last_costs["ww"] = costsByEnergyType["comparedCost"]["comparedPercentage"]
-                        elif costsByEnergyType["comparedCost"]["smiley"] in ["HAPPY"]:
-                            last_costs["ww"] = costsByEnergyType["comparedCost"]["comparedPercentage"] * -1
-                    elif costsByEnergyType["type"] == "water":
-                        if costsByEnergyType["comparedCost"]["smiley"] == ["MAD", "EQUAL"]:
-                            last_costs["w"] = costsByEnergyType["comparedCost"]["comparedPercentage"]
-                        elif costsByEnergyType["comparedCost"]["smiley"] in ["HAPPY"]:
-                            last_costs["w"] = costsByEnergyType["comparedCost"]["comparedPercentage"] * -1
-                    elif costsByEnergyType["type"] == "heating":
-                        if costsByEnergyType["comparedCost"]["smiley"] in ["MAD", "EQUAL"]:
-                            last_costs["h"] = costsByEnergyType["comparedCost"]["comparedPercentage"]
-                        elif costsByEnergyType["comparedCost"]["smiley"] in ["HAPPY"]:
-                            last_costs["h"] = costsByEnergyType["comparedCost"]["comparedPercentage"] * -1
-                last_costs["month"] = costs[0]["date"]["month"]
-                last_costs["year"] = costs[0]["date"]["year"]
-
-            return CustomRaw.from_dict(
-                {
-                    "consum_types": consum_types,
-                    "combined_data": None,  # combined_data,
-                    "total_additional_values": total_additional_values,
-                    "total_additional_custom_values": total_additional_custom_values,
-                    "last_value": last_value,
-                    "last_custom_value": last_custom_value,
-                    "last_costs": last_costs,
-                    "all_dates": None,  # all_dates,
-                    "sum_by_year": sum_by_year,
-                }
-            ).to_dict()
-        return c_raw
+        if self._accessToken == "Demo":
+            if self._hass_dir:
+                with open(self._hass_dir + "/demo_de_url.json", encoding="utf-8") as f:
+                    return json.loads(f.read())
+            else:
+                with open(os.getcwd() + "\\src\\pyecotrend_ista\\demo_de_url.json", encoding="utf-8") as f:
+                    return json.loads(f.read())
+        async with aiohttp.ClientSession(timeout=aiohttp.ClientTimeout(15)) as session:
+            async with session.get(CONSUMPTIONS_URL + self._uuid, headers=self._header) as response:
+                retryCounter = 0
+                while not raw and (retryCounter < MAX_RETRIES + 2):
+                    retryCounter += 1
+                    try:
+                        raw = await response.json()
+                        if "key" in raw:
+                            raise Exception("Login fail, check your input!", raw["key"])
+                    except TimeoutError as error:
+                        self._LOGGER.debug(error)
+                    except aiohttp.ContentTypeError as err:
+                        self._LOGGER.debug(err)
+        return raw
 
     def getSupportCode(self) -> str | None:
+        """Returns the support code associated with the instance."""
         return self._supportCode
 
     async def getUA(self) -> str:
+        """Fetches a random User-Agent string from a public source."""
         url = "https://raw.githubusercontent.com/Ludy87/pyecotrend-ista/main/src/pyecotrend_ista/ua.json"
         headers = {
             "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/101.0.4951.67 Safari/537.36"

@@ -179,8 +179,8 @@ class CustomRaw(DataClassJsonMixin):
     combined_data: Optional[List[CombinedData]]
     total_additional_values: TotalAdditionalValues
     total_additional_custom_values: TotalAdditionalCustomValues
-    last_value: LastValue
-    last_custom_value: LastCustomValue
+    last_value: Optional[LastValue]
+    last_custom_value: Optional[LastCustomValue]
     all_dates: Optional[List[Date]]
     sum_by_year: SumByYear
     last_costs: Optional[LastCosts]
