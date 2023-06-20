@@ -326,7 +326,7 @@ class PyEcotrendIsta:
                                     sum_by_year["h"] = reading["additionalUnit"]
 
             indices_to_delete_costs = []
-            for i, costs in enumerate(c_raw.get("costs", None)):
+            for i, costs in enumerate(c_raw.get("costs", [])):
                 new_readings = list()
                 if select_month is None and select_year is None:
                     for reading in costs.get("costsByEnergyType", []):
