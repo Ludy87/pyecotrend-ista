@@ -13,7 +13,7 @@ import aiohttp
 
 from .const import ACCOUNT_URL, CONSUMPTIONS_URL, LOGIN_HEADER, LOGIN_URL, MAX_RETRIES, REFRESH_TOKEN_URL, RETRY_DELAY, VERSION
 from .exception_classes import Error, InternalServerError, LoginError, ServerError
-from .helper_object import CustomRaw
+from .helper_object_de import CustomRaw
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -216,7 +216,6 @@ class PyEcotrendIsta:
 
     @refresh_now
     async def consum_raw(self, select_year=None, select_month=None, filter_none=True) -> Dict[str, Any]:
-
         c_raw: dict[str, Any] = await self.get_raw()
 
         if not isinstance(c_raw, dict) or (c_raw.get("consumptions", None) is None and c_raw.get("costs", None) is None):
@@ -230,7 +229,6 @@ class PyEcotrendIsta:
             c_raw["consumptions"] = []
 
         for i, consumption in enumerate(c_raw.get("consumptions", [])):
-
             if not isinstance(consumption, dict):
                 continue
 
@@ -480,8 +478,14 @@ class PyEcotrendIsta:
             if last_costs is None:
                 last_costs = {}
             for costsByEnergyType in costs[0]["costsByEnergyType"]:
-                if costsByEnergyType["type"] is None:
+                if (
+                    costsByEnergyType["type"] is None
+                    or "comparedCost" not in costsByEnergyType
+                    or "smiley" not in costsByEnergyType["comparedCost"]
+                    or "comparedPercentage" not in costsByEnergyType["comparedCost"]
+                ):
                     continue
+
                 if costsByEnergyType["type"] not in last_costs:
                     last_costs[costsByEnergyType["type"]] = 0.0
                 last_costs[costsByEnergyType["type"]] += costsByEnergyType["value"]
