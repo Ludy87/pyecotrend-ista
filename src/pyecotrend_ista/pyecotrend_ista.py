@@ -479,10 +479,15 @@ class PyEcotrendIsta:
                 last_costs = {}
             for costsByEnergyType in costs[0]["costsByEnergyType"]:
                 if (
-                    costsByEnergyType["type"] is None
+                    costsByEnergyType is None
+                    or "type" not in costsByEnergyType
+                    or costsByEnergyType["type"] is None
                     or "comparedCost" not in costsByEnergyType
+                    or costsByEnergyType["comparedCost"] is None
                     or "smiley" not in costsByEnergyType["comparedCost"]
+                    or costsByEnergyType["comparedCost"]["smiley"] is None
                     or "comparedPercentage" not in costsByEnergyType["comparedCost"]
+                    or costsByEnergyType["comparedCost"]["comparedPercentage"] is None
                 ):
                     continue
 
