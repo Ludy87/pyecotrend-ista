@@ -4,6 +4,7 @@ import functools
 import json
 import logging
 import os
+import ssl
 import time
 from asyncio import TimeoutError, sleep
 from random import randint
@@ -72,7 +73,12 @@ class PyEcotrendIsta:
         header = LOGIN_HEADER
         header["User-Agent"] = await self.getUA()
         while not self._accessToken:
-            async with aiohttp.ClientSession(timeout=aiohttp.ClientTimeout(15)) as session:
+            ssl_context = ssl.create_default_context()
+            ssl_context.check_hostname = False
+            ssl_context.verify_mode = ssl.CERT_NONE
+            async with aiohttp.ClientSession(
+                timeout=aiohttp.ClientTimeout(15), connector=aiohttp.TCPConnector(ssl=ssl_context)
+            ) as session:
                 async with session.post(LOGIN_URL, headers=header, data=json.dumps(payload)) as response:
                     if response.status == 200:
                         json_str_resp = await response.json()
@@ -100,7 +106,12 @@ class PyEcotrendIsta:
         header["User-Agent"] = await self.getUA()
 
         token_pyload = {"refreshToken": self._refreshToken}
-        async with aiohttp.ClientSession(timeout=aiohttp.ClientTimeout(15)) as session:
+        ssl_context = ssl.create_default_context()
+        ssl_context.check_hostname = False
+        ssl_context.verify_mode = ssl.CERT_NONE
+        async with aiohttp.ClientSession(
+            timeout=aiohttp.ClientTimeout(15), connector=aiohttp.TCPConnector(ssl=ssl_context)
+        ) as session:
             async with session.post(REFRESH_TOKEN_URL, headers=header, data=json.dumps(token_pyload)) as response:
                 try:
                     json_str_resp = await response.json()
@@ -149,7 +160,12 @@ class PyEcotrendIsta:
         self._header = LOGIN_HEADER
         self._header["User-Agent"] = await self.getUA()
         self._header["Authorization"] = "Bearer {}".format(self._accessToken)
-        async with aiohttp.ClientSession(timeout=aiohttp.ClientTimeout(25)) as session:
+        ssl_context = ssl.create_default_context()
+        ssl_context.check_hostname = False
+        ssl_context.verify_mode = ssl.CERT_NONE
+        async with aiohttp.ClientSession(
+            timeout=aiohttp.ClientTimeout(15), connector=aiohttp.TCPConnector(ssl=ssl_context)
+        ) as session:
             async with session.get(ACCOUNT_URL, headers=self._header) as response:
                 res = await response.json()
                 self._a_ads = res["ads"]
@@ -537,7 +553,12 @@ class PyEcotrendIsta:
             else:
                 with open(os.getcwd() + "\\src\\pyecotrend_ista\\demo_de_url.json", encoding="utf-8") as f:
                     return json.loads(f.read())
-        async with aiohttp.ClientSession(timeout=aiohttp.ClientTimeout(15)) as session:
+        ssl_context = ssl.create_default_context()
+        ssl_context.check_hostname = False
+        ssl_context.verify_mode = ssl.CERT_NONE
+        async with aiohttp.ClientSession(
+            timeout=aiohttp.ClientTimeout(15), connector=aiohttp.TCPConnector(ssl=ssl_context)
+        ) as session:
             async with session.get(CONSUMPTIONS_URL + self._uuid, headers=self._header) as response:
                 retryCounter = 0
                 while not raw and (retryCounter < MAX_RETRIES + 2):
@@ -562,7 +583,12 @@ class PyEcotrendIsta:
         headers = {
             "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/101.0.4951.67 Safari/537.36"
         }
-        async with aiohttp.ClientSession(timeout=aiohttp.ClientTimeout(15)) as session:
+        ssl_context = ssl.create_default_context()
+        ssl_context.check_hostname = False
+        ssl_context.verify_mode = ssl.CERT_NONE
+        async with aiohttp.ClientSession(
+            timeout=aiohttp.ClientTimeout(15), connector=aiohttp.TCPConnector(ssl=ssl_context)
+        ) as session:
             async with session.get(url, headers=headers) as response:
                 try:
                     data = await response.json(content_type=None)
