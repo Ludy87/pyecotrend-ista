@@ -1,4 +1,4 @@
-VERSION = "2.0.18"
+VERSION = "2.0.19"
 LOGIN_HEADER = {"Content-Type": "application/json"}
 BASE_URL = "https://api.prod.eed.ista.com/"
 ACCOUNT_URL = BASE_URL + "account"
