@@ -2,18 +2,18 @@ import configparser
 
 import setuptools
 
-with open("README.md", "r") as fh:
+with open("README.md", encoding="utf-8") as fh:
     long_description = fh.read()
 
-with open("./src/pyecotrend_ista/const.py") as f:
+with open("./src/pyecotrend_ista/const.py", encoding="utf-8") as f:
     config_string = "[dummy_section]\n" + f.read()
     config = configparser.ConfigParser(allow_no_value=True)
     config.read_string(config_string)
     version = config["dummy_section"]["VERSION"].strip('"')
 
 requirements_array = []
-with open("requirements.txt") as my_file:
-    for line in my_file:
+with open("requirements.txt", encoding="utf-8") as requirements_file:
+    for line in requirements_file:
         requirements_array.append(line.replace("\n", ""))
 
 setuptools.setup(
@@ -34,6 +34,7 @@ setuptools.setup(
     classifiers=[
         "Development Status :: 4 - Beta",
         "Programming Language :: Python",
+        "Programming Language :: Python :: 3",
         "Programming Language :: Python :: 3.9",
         "Programming Language :: Python :: 3.10",
         "Programming Language :: Python :: 3.11",
