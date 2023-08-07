@@ -1,1 +1,1 @@
-""" pyecotrend ista"""
+"""pyecotrend ista."""
