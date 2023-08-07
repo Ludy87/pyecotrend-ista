@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Dict, List, Optional
+from typing import Optional
 
 from dataclasses_json import DataClassJsonMixin, dataclass_json
 
@@ -135,8 +135,8 @@ class LastCosts(DataClassJsonMixin):
 @dataclass
 class CombinedData(DataClassJsonMixin):
     date: Date
-    consumptions: List[Consumption]
-    costs: List[Cost]
+    consumptions: list[Consumption]
+    costs: list[Cost]
 
 
 @dataclass_json
@@ -164,9 +164,9 @@ class TotalAdditionalCustomValues(DataClassJsonMixin):
 @dataclass_json
 @dataclass
 class SumByYear(DataClassJsonMixin):
-    heating: Optional[Dict[int, float]] = None
-    warmwater: Optional[Dict[int, float]] = None
-    water: Optional[Dict[int, float]] = None
+    heating: Optional[dict[int, float]] = None
+    warmwater: Optional[dict[int, float]] = None
+    water: Optional[dict[int, float]] = None
     ww: Optional[str] = None
     w: Optional[str] = None
     h: Optional[str] = None
@@ -175,12 +175,12 @@ class SumByYear(DataClassJsonMixin):
 @dataclass_json
 @dataclass
 class CustomRaw(DataClassJsonMixin):
-    consum_types: Optional[List[str]]
-    combined_data: Optional[List[CombinedData]]
+    consum_types: Optional[list[str]]
+    combined_data: Optional[list[CombinedData]]
     total_additional_values: TotalAdditionalValues
     total_additional_custom_values: TotalAdditionalCustomValues
     last_value: Optional[LastValue]
     last_custom_value: Optional[LastCustomValue]
-    all_dates: Optional[List[Date]]
+    all_dates: Optional[list[Date]]
     sum_by_year: SumByYear
     last_costs: Optional[LastCosts]
