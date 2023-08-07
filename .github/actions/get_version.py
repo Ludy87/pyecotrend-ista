@@ -1,9 +1,10 @@
-import sys
 import configparser
+import sys
 
 
 def main():
-    with open("./src/pyecotrend_ista/const.py") as f:
+    """Read and print the version of pyecotrend_ista."""
+    with open("./src/pyecotrend_ista/const.py", encoding="utf-8") as f:
         config_string = "[dummy_section]\n" + f.read()
         config = configparser.ConfigParser(allow_no_value=True)
         config.read_string(config_string)
