@@ -466,7 +466,7 @@ class PyEcotrendIsta:
             if last_custom_value is None:
                 last_custom_value = {}
             for reading in consumptions[0]["readings"]:
-                if reading["type"] is None or reading["value"] is None or reading["additionalValue"] is None:
+                if reading["type"] is None or (reading["value"] is None and reading["additionalValue"] is None):
                     continue
 
                 if reading["type"] not in last_custom_value:
