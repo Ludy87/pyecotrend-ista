@@ -51,6 +51,7 @@ coverage.xml
 .hypothesis/
 .pytest_cache/
 test*.*
+test/
 
 # Translations
 *.mo
@@ -135,3 +136,7 @@ dmypy.json
 
 # Documents
 *.pdf
+
+# Dev tools
+*.lock
+*.toml
