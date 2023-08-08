@@ -1,2 +1,2 @@
 aiohttp>=3.8.1
-dataclasses-json==0.5.7
+dataclasses-json==0.5.14

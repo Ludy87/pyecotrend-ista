@@ -8,7 +8,7 @@ import ssl
 import time
 from asyncio import TimeoutError, sleep
 from random import randint
-from typing import Any, Dict
+from typing import Any
 
 import aiohttp
 
@@ -20,11 +20,11 @@ _LOGGER = logging.getLogger(__name__)
 
 
 class PyEcotrendIsta:
-    def __init__(self, email: str, password: str, logger, hass_dir: str | None = None) -> None:
+    def __init__(self, email: str, password: str, logger: logging.Logger = None, hass_dir: str | None = None) -> None:
         self._accessToken: str | None = None
         self._refreshToken: str | None = None
         self._accessTokenExpiresIn: int = 0
-        self._header: Dict[str, str] = {}
+        self._header: dict[str, str] = {}
         self._supportCode: str | None = None
         self._uuid: str = ""
 
@@ -33,7 +33,7 @@ class PyEcotrendIsta:
 
         self.start_timer: float = 0.0
 
-        self._LOGGER = logger
+        self._LOGGER = logger if logger else _LOGGER
         self._hass_dir = hass_dir
 
     @staticmethod
@@ -59,10 +59,10 @@ class PyEcotrendIsta:
     def _logoff(self) -> None:
         self._accessToken = None
 
-    async def __login(self) -> str | None:
-        if self._email == "demo@ista.de" and self._password == "Ausprobieren!" and self._hass_dir:
+    async def __login(self, debug: bool = False) -> str | None:
+        if self._email == "demo@ista.de" and self._password == "Ausprobieren!" and self._hass_dir and not debug:
             self._LOGGER.debug("DEMO")
-            with open(self._hass_dir + "/account_de_url.json"):
+            with open(self._hass_dir + "/account_de_url.json", encoding="utf-8"):
                 self._accessToken = "Demo"
             return self._accessToken
         payload = {
@@ -78,24 +78,23 @@ class PyEcotrendIsta:
             ssl_context.verify_mode = ssl.CERT_NONE
             async with aiohttp.ClientSession(
                 timeout=aiohttp.ClientTimeout(15), connector=aiohttp.TCPConnector(ssl=ssl_context)
-            ) as session:
-                async with session.post(LOGIN_URL, headers=header, data=json.dumps(payload)) as response:
-                    if response.status == 200:
-                        json_str_resp = await response.json()
-                        self._accessToken = json_str_resp["accessToken"]
-                        self._refreshToken = json_str_resp["refreshToken"]
-                        self._accessTokenExpiresIn = json_str_resp["accessTokenExpiresIn"]
-                    elif response.status == 401:
-                        raise LoginError((await response.json()).get("key", None))
-                    elif response.status == 500:
-                        if isinstance(response.reason, str) and response.reason == "Internal Server Error":
-                            raise InternalServerError(response.reason)
-                        raise ServerError()
-                        # continue
-                    elif response.status != 200:
-                        raise Error(await response.json())
-                    else:
-                        raise Exception("Unknow Error", response.status, await response.text())
+            ) as session, session.post(LOGIN_URL, headers=header, data=json.dumps(payload)) as response:
+                if response.status == 200:
+                    json_str_resp = await response.json()
+                    self._accessToken = json_str_resp["accessToken"]
+                    self._refreshToken = json_str_resp["refreshToken"]
+                    self._accessTokenExpiresIn = json_str_resp["accessTokenExpiresIn"]
+                elif response.status == 401:
+                    raise LoginError((await response.json()).get("key", None))
+                elif response.status == 500:
+                    if isinstance(response.reason, str) and response.reason == "Internal Server Error":
+                        raise InternalServerError(response.reason)
+                    raise ServerError()
+                    # continue
+                elif response.status != 200:
+                    raise Error(await response.json())
+                else:
+                    raise Exception("Unknow Error", response.status, await response.text())
         return self._accessToken
 
     async def __refresh(self) -> None:
@@ -111,21 +110,20 @@ class PyEcotrendIsta:
         ssl_context.verify_mode = ssl.CERT_NONE
         async with aiohttp.ClientSession(
             timeout=aiohttp.ClientTimeout(15), connector=aiohttp.TCPConnector(ssl=ssl_context)
-        ) as session:
-            async with session.post(REFRESH_TOKEN_URL, headers=header, data=json.dumps(token_pyload)) as response:
-                try:
-                    json_str_resp = await response.json()
-                    self._accessToken = json_str_resp["accessToken"]
-                    self._refreshToken = json_str_resp["refreshToken"]
-                    self._accessTokenExpiresIn = json_str_resp["accessTokenExpiresIn"]
-                    self._header["Authorization"] = "Bearer {}".format(self._accessToken)
-                    self.start_timer = time.time()
-                except aiohttp.ContentTypeError as err:
-                    self._LOGGER.debug(err)
+        ) as session, session.post(REFRESH_TOKEN_URL, headers=header, data=json.dumps(token_pyload)) as response:
+            try:
+                json_str_resp = await response.json()
+                self._accessToken = json_str_resp["accessToken"]
+                self._refreshToken = json_str_resp["refreshToken"]
+                self._accessTokenExpiresIn = json_str_resp["accessTokenExpiresIn"]
+                self._header["Authorization"] = f"Bearer {self._accessToken}"
+                self.start_timer = time.time()
+            except aiohttp.ContentTypeError as err:
+                self._LOGGER.debug(err)
 
     async def __setAccount(self) -> None:
         if self._accessToken == "Demo" and self._hass_dir:
-            with open(self._hass_dir + "/account_de_url.json") as f:
+            with open(self._hass_dir + "/account_de_url.json", encoding="utf-8") as f:
                 res = json.loads(f.read())
                 self._a_ads = res["ads"]
                 self._a_authcode = res["authcode"]
@@ -159,49 +157,48 @@ class PyEcotrendIsta:
             return
         self._header = LOGIN_HEADER
         self._header["User-Agent"] = await self.getUA()
-        self._header["Authorization"] = "Bearer {}".format(self._accessToken)
+        self._header["Authorization"] = f"Bearer {self._accessToken}"
         ssl_context = ssl.create_default_context()
         ssl_context.check_hostname = False
         ssl_context.verify_mode = ssl.CERT_NONE
         async with aiohttp.ClientSession(
             timeout=aiohttp.ClientTimeout(15), connector=aiohttp.TCPConnector(ssl=ssl_context)
-        ) as session:
-            async with session.get(ACCOUNT_URL, headers=self._header) as response:
-                res = await response.json()
-                self._a_ads = res["ads"]
-                self._a_authcode = res["authcode"]
-                self._a_betaPhase = res["betaPhase"]
-                self._a_consumptionUnitUuids = res["consumptionUnitUuids"]
-                self._a_country = res["country"]
-                self._a_email = res["email"]
-                self._a_emailConfirmed = res["emailConfirmed"]
-                self._a_enabled = res["enabled"]
-                self._a_fcmToken = res["fcmToken"]
-                self._a_firstName = res["firstName"]
-                self._a_isDemo = res["isDemo"]
-                self._a_keycloakId = res["keycloakId"]
-                self._a_lastName = res["lastName"]
-                self._a_locale = res["locale"]
-                self._a_marketing = res["marketing"]
-                self._a_mobileLoginStatus = res["mobileLoginStatus"]
-                self._a_notificationMethod = res["notificationMethod"]
-                self._a_notificationMethodEmailConfirmed = res["notificationMethodEmailConfirmed"]
-                self._a_password = res["password"]
-                self._a_privacy = res["privacy"]
-                self._a_residentAndConsumptionUuidsMap = res["residentAndConsumptionUuidsMap"]
-                self._a_residentTimeRangeUuids = res["residentTimeRangeUuids"]
-                self._supportCode = res["supportCode"]
-                self._a_tos = res["tos"]
-                self._a_tosUpdated = res["tosUpdated"]
-                self._a_transitionMobileNumber = res["transitionMobileNumber"]
-                self._a_unconfirmedPhoneNumber = res["unconfirmedPhoneNumber"]
-                self._a_userGroup = res["userGroup"]
-                self._uuid = res["activeConsumptionUnit"]
+        ) as session, session.get(ACCOUNT_URL, headers=self._header) as response:
+            res = await response.json()
+            self._a_ads = res["ads"]
+            self._a_authcode = res["authcode"]
+            self._a_betaPhase = res["betaPhase"]
+            self._a_consumptionUnitUuids = res["consumptionUnitUuids"]
+            self._a_country = res["country"]
+            self._a_email = res["email"]
+            self._a_emailConfirmed = res["emailConfirmed"]
+            self._a_enabled = res["enabled"]
+            self._a_fcmToken = res["fcmToken"]
+            self._a_firstName = res["firstName"]
+            self._a_isDemo = res["isDemo"]
+            self._a_keycloakId = res["keycloakId"]
+            self._a_lastName = res["lastName"]
+            self._a_locale = res["locale"]
+            self._a_marketing = res["marketing"]
+            self._a_mobileLoginStatus = res["mobileLoginStatus"]
+            self._a_notificationMethod = res["notificationMethod"]
+            self._a_notificationMethodEmailConfirmed = res["notificationMethodEmailConfirmed"]
+            self._a_password = res["password"]
+            self._a_privacy = res["privacy"]
+            self._a_residentAndConsumptionUuidsMap = res["residentAndConsumptionUuidsMap"]
+            self._a_residentTimeRangeUuids = res["residentTimeRangeUuids"]
+            self._supportCode = res["supportCode"]
+            self._a_tos = res["tos"]
+            self._a_tosUpdated = res["tosUpdated"]
+            self._a_transitionMobileNumber = res["transitionMobileNumber"]
+            self._a_unconfirmedPhoneNumber = res["unconfirmedPhoneNumber"]
+            self._a_userGroup = res["userGroup"]
+            self._uuid = res["activeConsumptionUnit"]
 
     def getVersion(self) -> str:
         return VERSION
 
-    async def login(self, forceLogin: bool = False) -> str | None:
+    async def login(self, forceLogin: bool = False, debug: bool = False) -> str | None:
         self.start_timer = time.time()
         if not self._isConnected() or forceLogin:
             self._logoff()
@@ -209,21 +206,21 @@ class PyEcotrendIsta:
             while not self._isConnected() and (retryCounter < MAX_RETRIES + 2):
                 retryCounter += 1
                 try:
-                    self._accessToken = await self.__login()
+                    self._accessToken = await self.__login(debug)
                 except LoginError as error:
                     # Login failed
                     self._accessToken = None
                     self._LOGGER.error(error)
-                    raise LoginError(error)
+                    raise LoginError from error
                 except ServerError:
                     if retryCounter < MAX_RETRIES:
                         await sleep(RETRY_DELAY)
                     else:
-                        raise ServerError()
+                        raise ServerError()  # noqa: TRY200
                 except InternalServerError as error:
-                    raise Exception(error.msg)
+                    raise Exception(error.msg)  # noqa: TRY200
                 except Error as err:
-                    raise Exception(err)
+                    raise Exception(err)  # noqa: TRY200
                 if not self._accessToken:
                     await sleep(RETRY_DELAY)
                 else:
@@ -231,7 +228,7 @@ class PyEcotrendIsta:
         return self._accessToken
 
     @refresh_now
-    async def consum_raw(self, select_year=None, select_month=None, filter_none=True) -> Dict[str, Any]:
+    async def consum_raw(self, select_year=None, select_month=None, filter_none=True) -> dict[str, Any]:
         c_raw: dict[str, Any] = await self.get_raw()
 
         if not isinstance(c_raw, dict) or (c_raw.get("consumptions", None) is None and c_raw.get("costs", None) is None):
@@ -250,11 +247,12 @@ class PyEcotrendIsta:
 
             if "readings" in consumption and isinstance(consumption.get("readings"), list):
                 for reading in consumption.get("readings", []):
-                    consum_types.append(reading["type"])
+                    if reading["additionalValue"] is not None or reading["value"] is not None:
+                        consum_types.append(reading["type"])
 
-            consum_types = list(set([i for i in consum_types if i is not None]))
+            consum_types = list({i for i in consum_types if i is not None})
 
-            new_readings = list()
+            new_readings = []
             if "date" in consumption:
                 all_dates.append(consumption["date"])
             if select_month is None and select_year is None:
@@ -314,21 +312,28 @@ class PyEcotrendIsta:
                 for typ in cost_consum_types:
                     for year in new_date:
                         if reading["type"] == typ and item["date"]["year"] == year:
-                            sum_by_year[typ][year] += round(
-                                float(reading["value"].replace(",", "."))
-                                if reading["type"] == "warmwater" or reading["type"] == "water"
-                                else (
-                                    float(reading["additionalValue"].replace(",", "."))
-                                    if reading["additionalValue"] is not None
-                                    else 0.0
-                                ),
-                                1,
-                            )
+                            if reading["value"]:
+                                sum_by_year[typ][year] += round(
+                                    float(reading["value"].replace(",", ".")),
+                                    1,
+                                )
+                            else:
+                                sum_by_year[typ][year] += round(
+                                    (
+                                        float(reading["additionalValue"].replace(",", "."))
+                                        if reading["additionalValue"] is not None
+                                        else 0.0
+                                    ),
+                                    1,
+                                )
+
                             if reading["type"] == "warmwater":
                                 sum_by_year["ww"] = reading["unit"]
                             elif reading["type"] == "water":
                                 sum_by_year["w"] = reading["unit"]
-                            else:
+                            elif reading["type"] == "heating" and reading["unit"]:
+                                sum_by_year["h"] = reading["unit"]
+                            elif reading["type"] == "heating":
                                 sum_by_year["h"] = reading["additionalUnit"]
 
         indices_to_delete_costs = []
@@ -337,7 +342,7 @@ class PyEcotrendIsta:
             c_raw["costs"] = []
 
         for i, costs in enumerate(c_raw.get("costs", [])):
-            new_readings = list()
+            new_readings = []
             if "costsByEnergyType" in costs:
                 if select_month is None and select_year is None:
                     for reading in costs.get("costsByEnergyType", []):
@@ -407,38 +412,49 @@ class PyEcotrendIsta:
         total_additional_custom_values = {}
         for consumption_unit in consumptions:
             for reading in consumption_unit.get("readings", []):
-                if reading["type"] is None or reading["value"] is None or reading["additionalValue"] is None:
+                if reading["type"] is None or (reading["value"] is None and reading["additionalValue"] is None):
                     continue
 
                 if reading["type"] not in total_additional_custom_values:
                     total_additional_custom_values[reading["type"]] = 0.0
-                total_additional_custom_values[reading["type"]] += round(
-                    float(reading["additionalValue"].replace(",", "."))
-                    if reading["type"] == "warmwater" or reading["type"] == "water"
-                    else (float(reading["value"].replace(",", ".")) if reading["value"] is not None else 0.0),
-                    1,
-                )
+                if reading["additionalValue"]:
+                    total_additional_custom_values[reading["type"]] += round(
+                        float(reading["additionalValue"].replace(",", ".")), 1
+                    )
+                else:
+                    total_additional_custom_values[reading["type"]] += round(
+                        (float(reading["value"].replace(",", ".")) if reading["value"] is not None else 0.0), 1
+                    )
+
                 if reading["type"] == "warmwater":
                     total_additional_custom_values["ww"] = reading["additionalUnit"]
                 elif reading["type"] == "water":
                     total_additional_custom_values["w"] = reading["additionalUnit"]
+                elif reading["type"] == "heating" and reading["additionalUnit"]:
+                    total_additional_custom_values["h"] = reading["additionalUnit"]
                 elif reading["type"] == "heating":
                     total_additional_custom_values["h"] = reading["unit"]
 
                 if reading["type"] not in total_additional_values:
                     total_additional_values[reading["type"]] = 0.0
-                total_additional_values[reading["type"]] += round(
-                    float(reading["value"].replace(",", "."))
-                    if reading["type"] == "warmwater" or reading["type"] == "water"
-                    else (
-                        float(reading["additionalValue"].replace(",", ".")) if reading["additionalValue"] is not None else 0.0
-                    ),
-                    1,
-                )
+                if reading["value"]:
+                    total_additional_values[reading["type"]] += round(float(reading["value"].replace(",", ".")), 1)
+                else:
+                    total_additional_values[reading["type"]] += round(
+                        (
+                            float(reading["additionalValue"].replace(",", "."))
+                            if reading["additionalValue"] is not None
+                            else 0.0
+                        ),
+                        1,
+                    )
+
                 if reading["type"] == "warmwater":
                     total_additional_values["ww"] = reading["unit"]
                 elif reading["type"] == "water":
                     total_additional_values["w"] = reading["unit"]
+                elif reading["type"] == "heating" and reading["unit"]:
+                    total_additional_values["h"] = reading["unit"]
                 elif reading["type"] == "heating":
                     total_additional_values["h"] = reading["additionalUnit"]
 
@@ -455,31 +471,36 @@ class PyEcotrendIsta:
 
                 if reading["type"] not in last_custom_value:
                     last_custom_value[reading["type"]] = 0.0
-                last_custom_value[reading["type"]] += (
-                    float(reading["additionalValue"].replace(",", "."))
-                    if reading["type"] == "warmwater" or reading["type"] == "water"
-                    else (float(reading["value"].replace(",", ".")) if reading["value"] is not None else 0.0)
-                )
+                if reading["additionalValue"]:
+                    last_custom_value[reading["type"]] += float(reading["additionalValue"].replace(",", "."))
+                else:
+                    last_custom_value[reading["type"]] += (
+                        float(reading["value"].replace(",", ".")) if reading["value"] is not None else 0.0
+                    )
+
                 if reading["type"] == "warmwater":
                     last_custom_value["ww"] = reading["additionalUnit"]
                 elif reading["type"] == "water":
                     last_custom_value["w"] = reading["additionalUnit"]
+                elif reading["type"] == "heating" and reading["additionalUnit"]:
+                    last_custom_value["h"] = reading["additionalUnit"]
                 elif reading["type"] == "heating":
                     last_custom_value["h"] = reading["unit"]
 
                 if reading["type"] not in last_value:
                     last_value[reading["type"]] = 0.0
-                last_value[reading["type"]] += (
-                    float(reading["value"].replace(",", "."))
-                    if reading["type"] == "warmwater" or reading["type"] == "water"
-                    else (
+                if reading["value"]:  # reading["type"] in ("warmwater", "water", "heating") and
+                    last_value[reading["type"]] += float(reading["value"].replace(",", "."))
+                else:
+                    last_value[reading["type"]] += (
                         float(reading["additionalValue"].replace(",", ".")) if reading["additionalValue"] is not None else 0.0
                     )
-                )
                 if reading["type"] == "warmwater":
                     last_value["ww"] = reading["unit"]
                 elif reading["type"] == "water":
                     last_value["w"] = reading["unit"]
+                elif reading["type"] == "heating" and reading["unit"] == "kWh":
+                    last_value["h"] = reading["unit"]
                 elif reading["type"] == "heating":
                     last_value["h"] = reading["additionalUnit"]
 
@@ -543,8 +564,8 @@ class PyEcotrendIsta:
             }
         ).to_dict()
 
-    async def get_raw(self) -> Dict[str, Any]:
-        raw: Dict[str, Any] = {}
+    async def get_raw(self) -> dict[str, Any]:
+        raw: dict[str, Any] = {}
 
         if self._accessToken == "Demo":
             if self._hass_dir:
@@ -558,19 +579,18 @@ class PyEcotrendIsta:
         ssl_context.verify_mode = ssl.CERT_NONE
         async with aiohttp.ClientSession(
             timeout=aiohttp.ClientTimeout(15), connector=aiohttp.TCPConnector(ssl=ssl_context)
-        ) as session:
-            async with session.get(CONSUMPTIONS_URL + self._uuid, headers=self._header) as response:
-                retryCounter = 0
-                while not raw and (retryCounter < MAX_RETRIES + 2):
-                    retryCounter += 1
-                    try:
-                        raw = await response.json()
-                        if "key" in raw:
-                            raise Exception("Login fail, check your input!", raw["key"])
-                    except TimeoutError as error:
-                        self._LOGGER.debug(error)
-                    except aiohttp.ContentTypeError as err:
-                        self._LOGGER.debug(err)
+        ) as session, session.get(CONSUMPTIONS_URL + self._uuid, headers=self._header) as response:
+            retryCounter = 0
+            while not raw and (retryCounter < MAX_RETRIES + 2):
+                retryCounter += 1
+                try:
+                    raw = await response.json()
+                    if "key" in raw:
+                        raise Exception("Login fail, check your input!", raw["key"])
+                except TimeoutError as error:
+                    self._LOGGER.debug(error)
+                except aiohttp.ContentTypeError as err:
+                    self._LOGGER.debug(err)
         return raw
 
     def getSupportCode(self) -> str | None:
@@ -581,20 +601,22 @@ class PyEcotrendIsta:
         """Fetches a random User-Agent string from a public source."""
         url = "https://raw.githubusercontent.com/Ludy87/pyecotrend-ista/main/src/pyecotrend_ista/ua.json"
         headers = {
-            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/101.0.4951.67 Safari/537.36"
+            "User-Agent": (
+                "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/101.0.4951.67"
+                " Safari/537.36"
+            )
         }
         ssl_context = ssl.create_default_context()
         ssl_context.check_hostname = False
         ssl_context.verify_mode = ssl.CERT_NONE
         async with aiohttp.ClientSession(
             timeout=aiohttp.ClientTimeout(15), connector=aiohttp.TCPConnector(ssl=ssl_context)
-        ) as session:
-            async with session.get(url, headers=headers) as response:
-                try:
-                    data = await response.json(content_type=None)
-                    i = randint(0, len(data) - 1)
-                    _data = data[i]["useragent"]
-                except Exception as err:
-                    self._LOGGER.info(f"Default User agent activ!\n{err}")
-                    _data = headers.get("User-Agent")
+        ) as session, session.get(url, headers=headers) as response:
+            try:
+                data = await response.json(content_type=None)
+                i = randint(0, len(data) - 1)
+                _data = data[i]["useragent"]
+            except Exception as err:
+                self._LOGGER.info(f"Default User agent activ!\n{err}")
+                _data = headers.get("User-Agent")
         return _data
