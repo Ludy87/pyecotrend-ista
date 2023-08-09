@@ -12,7 +12,9 @@ from typing import Any
 
 import aiohttp
 
-from .const import ACCOUNT_URL, CONSUMPTIONS_URL, LOGIN_HEADER, LOGIN_URL, MAX_RETRIES, REFRESH_TOKEN_URL, RETRY_DELAY, VERSION
+from pyecotrend_ista.login_helper import LoginHelper
+
+from .const import ACCOUNT_URL, CONSUMPTIONS_URL, LOGIN_HEADER, MAX_RETRIES, RETRY_DELAY, VERSION
 from .exception_classes import Error, InternalServerError, LoginError, ServerError
 from .helper_object_de import CustomRaw
 
@@ -35,6 +37,8 @@ class PyEcotrendIsta:
 
         self._LOGGER = logger if logger else _LOGGER
         self._hass_dir = hass_dir
+
+        self.loginhelper = LoginHelper(username=self._email, password=self._password)
 
     @staticmethod
     def refresh_now(func):
@@ -65,61 +69,19 @@ class PyEcotrendIsta:
             with open(self._hass_dir + "/account_de_url.json", encoding="utf-8"):
                 self._accessToken = "Demo"
             return self._accessToken
-        payload = {
-            "email": self._email,
-            "password": self._password,
-            "fromMobileApp": "false",
-        }
-        header = LOGIN_HEADER
-        header["User-Agent"] = await self.getUA()
-        while not self._accessToken:
-            ssl_context = ssl.create_default_context()
-            ssl_context.check_hostname = False
-            ssl_context.verify_mode = ssl.CERT_NONE
-            async with aiohttp.ClientSession(
-                timeout=aiohttp.ClientTimeout(15), connector=aiohttp.TCPConnector(ssl=ssl_context)
-            ) as session, session.post(LOGIN_URL, headers=header, data=json.dumps(payload)) as response:
-                if response.status == 200:
-                    json_str_resp = await response.json()
-                    self._accessToken = json_str_resp["accessToken"]
-                    self._refreshToken = json_str_resp["refreshToken"]
-                    self._accessTokenExpiresIn = json_str_resp["accessTokenExpiresIn"]
-                elif response.status == 401:
-                    raise LoginError((await response.json()).get("key", None))
-                elif response.status == 500:
-                    if isinstance(response.reason, str) and response.reason == "Internal Server Error":
-                        raise InternalServerError(response.reason)
-                    raise ServerError()
-                    # continue
-                elif response.status != 200:
-                    raise Error(await response.json())
-                else:
-                    raise Exception("Unknow Error", response.status, await response.text())
+        self._accessToken, self._accessTokenExpiresIn, self._refreshToken = await self.loginhelper.getToken()
         return self._accessToken
 
     async def __refresh(self) -> None:
         if self._accessToken == "Demo":
             return
         self._LOGGER.debug("refresh Token")
-        header = LOGIN_HEADER
-        header["User-Agent"] = await self.getUA()
+        self._accessToken, self._accessTokenExpiresIn, self._refreshToken = await self.loginhelper.refreshToken(
+            self._refreshToken
+        )
 
-        token_pyload = {"refreshToken": self._refreshToken}
-        ssl_context = ssl.create_default_context()
-        ssl_context.check_hostname = False
-        ssl_context.verify_mode = ssl.CERT_NONE
-        async with aiohttp.ClientSession(
-            timeout=aiohttp.ClientTimeout(15), connector=aiohttp.TCPConnector(ssl=ssl_context)
-        ) as session, session.post(REFRESH_TOKEN_URL, headers=header, data=json.dumps(token_pyload)) as response:
-            try:
-                json_str_resp = await response.json()
-                self._accessToken = json_str_resp["accessToken"]
-                self._refreshToken = json_str_resp["refreshToken"]
-                self._accessTokenExpiresIn = json_str_resp["accessTokenExpiresIn"]
-                self._header["Authorization"] = f"Bearer {self._accessToken}"
-                self.start_timer = time.time()
-            except aiohttp.ContentTypeError as err:
-                self._LOGGER.debug(err)
+        self._header["Authorization"] = f"Bearer {self._accessToken}"
+        self.start_timer = time.time()
 
     async def __setAccount(self) -> None:
         if self._accessToken == "Demo" and self._hass_dir:
@@ -234,23 +196,28 @@ class PyEcotrendIsta:
         if not isinstance(c_raw, dict) or (c_raw.get("consumptions", None) is None and c_raw.get("costs", None) is None):
             return c_raw
 
+        if "consumptions" not in c_raw or not isinstance(c_raw.get("consumptions"), list):
+            c_raw["consumptions"] = []
+
         consum_types = []
         all_dates = []
         indices_to_delete_consumption = []
 
-        if "consumptions" not in c_raw or not isinstance(c_raw.get("consumptions"), list):
-            c_raw["consumptions"] = []
-
         for i, consumption in enumerate(c_raw.get("consumptions", [])):
-            if not isinstance(consumption, dict):
+            if (
+                not isinstance(consumption, dict)
+                or "readings" not in consumption
+                or consumption.get("readings")
+                or not isinstance(consumption.get("readings"), list)
+            ):
+                consumption = {}
                 continue
 
-            if "readings" in consumption and isinstance(consumption.get("readings"), list):
-                for reading in consumption.get("readings", []):
-                    if reading["additionalValue"] is not None or reading["value"] is not None:
-                        consum_types.append(reading["type"])
+            for reading in consumption.get("readings", []):
+                if reading["additionalValue"] is not None or reading["value"] is not None:
+                    consum_types.append(reading["type"])
 
-            consum_types = list({i for i in consum_types if i is not None})
+            consum_types = list({consum_type for consum_type in consum_types if i is not None})
 
             new_readings = []
             if "date" in consumption:
@@ -306,6 +273,8 @@ class PyEcotrendIsta:
         sum_by_year = {typ: {year: 0.0 for year in new_date} for typ in cost_consum_types}
 
         for item in c_raw.get("consumptions", []):
+            if "readings" not in item or not item["readings"]:
+                continue
             for reading in item.get("readings", []):
                 if reading.get("type", None) is None:
                     continue
@@ -411,6 +380,8 @@ class PyEcotrendIsta:
         total_additional_values = {}
         total_additional_custom_values = {}
         for consumption_unit in consumptions:
+            if "readings" not in consumption_unit or not consumption_unit["readings"]:
+                continue
             for reading in consumption_unit.get("readings", []):
                 if reading["type"] is None or (reading["value"] is None and reading["additionalValue"] is None):
                     continue
@@ -460,49 +431,71 @@ class PyEcotrendIsta:
 
         last_value = None
         last_custom_value = None
+        last_year_compared_consumption = None
+
         if consumptions:
-            if last_value is None:
-                last_value = {}
-            if last_custom_value is None:
-                last_custom_value = {}
-            for reading in consumptions[0]["readings"]:
-                if reading["type"] is None or (reading["value"] is None and reading["additionalValue"] is None):
-                    continue
+            last_value = {}
+            last_custom_value = {}
+            last_year_compared_consumption = {}
 
-                if reading["type"] not in last_custom_value:
-                    last_custom_value[reading["type"]] = 0.0
-                if reading["additionalValue"]:
-                    last_custom_value[reading["type"]] += float(reading["additionalValue"].replace(",", "."))
-                else:
-                    last_custom_value[reading["type"]] += (
-                        float(reading["value"].replace(",", ".")) if reading["value"] is not None else 0.0
-                    )
+            if len(consumptions) > 0 and "readings" in consumptions[0] and consumptions[0]["readings"]:
+                for reading in consumptions[0]["readings"]:
+                    if reading["type"] is None or (reading["value"] is None and reading["additionalValue"] is None):
+                        continue
 
-                if reading["type"] == "warmwater":
-                    last_custom_value["ww"] = reading["additionalUnit"]
-                elif reading["type"] == "water":
-                    last_custom_value["w"] = reading["additionalUnit"]
-                elif reading["type"] == "heating" and reading["additionalUnit"]:
-                    last_custom_value["h"] = reading["additionalUnit"]
-                elif reading["type"] == "heating":
-                    last_custom_value["h"] = reading["unit"]
+                    if reading["comparedConsumption"]:
+                        last_year_compared_consumption[reading["type"]] = reading["comparedConsumption"]
+                        last_year_compared_consumption[reading["type"]]["comparedValue"] = float(
+                            last_year_compared_consumption[reading["type"]]["comparedValue"].replace(",", ".")
+                        )
 
-                if reading["type"] not in last_value:
-                    last_value[reading["type"]] = 0.0
-                if reading["value"]:  # reading["type"] in ("warmwater", "water", "heating") and
-                    last_value[reading["type"]] += float(reading["value"].replace(",", "."))
-                else:
-                    last_value[reading["type"]] += (
-                        float(reading["additionalValue"].replace(",", ".")) if reading["additionalValue"] is not None else 0.0
-                    )
-                if reading["type"] == "warmwater":
-                    last_value["ww"] = reading["unit"]
-                elif reading["type"] == "water":
-                    last_value["w"] = reading["unit"]
-                elif reading["type"] == "heating" and reading["unit"] == "kWh":
-                    last_value["h"] = reading["unit"]
-                elif reading["type"] == "heating":
-                    last_value["h"] = reading["additionalUnit"]
+                        if reading["value"]:
+                            last_year_compared_consumption[reading["type"]]["nowYearValue"] = float(
+                                reading["value"].replace(",", ".")
+                            )
+                        elif reading["additionalValue"]:
+                            last_year_compared_consumption[reading["type"]]["nowYearValue"] = float(
+                                reading["additionalValue"].replace(",", ".")
+                            )
+                        if "period" in last_year_compared_consumption[reading["type"]]:
+                            del last_year_compared_consumption[reading["type"]]["period"]
+
+                    if reading["type"] not in last_custom_value:
+                        last_custom_value[reading["type"]] = 0.0
+                    if reading["additionalValue"]:
+                        last_custom_value[reading["type"]] += float(reading["additionalValue"].replace(",", "."))
+                    else:
+                        last_custom_value[reading["type"]] += (
+                            float(reading["value"].replace(",", ".")) if reading["value"] is not None else 0.0
+                        )
+
+                    if reading["type"] == "warmwater":
+                        last_custom_value["ww"] = reading["additionalUnit"]
+                    elif reading["type"] == "water":
+                        last_custom_value["w"] = reading["additionalUnit"]
+                    elif reading["type"] == "heating" and reading["additionalUnit"]:
+                        last_custom_value["h"] = reading["additionalUnit"]
+                    elif reading["type"] == "heating":
+                        last_custom_value["h"] = reading["unit"]
+
+                    if reading["type"] not in last_value:
+                        last_value[reading["type"]] = 0.0
+                    if reading["value"]:  # reading["type"] in ("warmwater", "water", "heating") and
+                        last_value[reading["type"]] += float(reading["value"].replace(",", "."))
+                    else:
+                        last_value[reading["type"]] += (
+                            float(reading["additionalValue"].replace(",", "."))
+                            if reading["additionalValue"] is not None
+                            else 0.0
+                        )
+                    if reading["type"] == "warmwater":
+                        last_value["ww"] = reading["unit"]
+                    elif reading["type"] == "water":
+                        last_value["w"] = reading["unit"]
+                    elif reading["type"] == "heating" and reading["unit"] == "kWh":
+                        last_value["h"] = reading["unit"]
+                    elif reading["type"] == "heating":
+                        last_value["h"] = reading["additionalUnit"]
 
             last_custom_value["month"] = consumptions[0]["date"]["month"]
             last_custom_value["year"] = consumptions[0]["date"]["year"]
@@ -550,6 +543,7 @@ class PyEcotrendIsta:
             last_costs["month"] = costs[0]["date"]["month"]
             last_costs["year"] = costs[0]["date"]["year"]
 
+        self._LOGGER.debug(last_year_compared_consumption)
         return CustomRaw.from_dict(
             {
                 "consum_types": consum_types,
@@ -561,6 +555,7 @@ class PyEcotrendIsta:
                 "last_costs": last_costs,
                 "all_dates": None,  # all_dates,
                 "sum_by_year": sum_by_year,
+                "last_year_compared_consumption": last_year_compared_consumption,
             }
         ).to_dict()
 
@@ -588,9 +583,9 @@ class PyEcotrendIsta:
                     if "key" in raw:
                         raise Exception("Login fail, check your input!", raw["key"])
                 except TimeoutError as error:
-                    self._LOGGER.debug(error)
+                    self._LOGGER.debug("TimeoutError", error)
                 except aiohttp.ContentTypeError as err:
-                    self._LOGGER.debug(err)
+                    self._LOGGER.debug("ContentTypeError", err)
         return raw
 
     def getSupportCode(self) -> str | None:
