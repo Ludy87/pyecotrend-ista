@@ -36,12 +36,12 @@ class AverageConsumption(DataClassJsonMixin):
 
 @dataclass_json
 @dataclass
-class ComparedConsumption:
-    lastYearValue: float
-    period: Date
-    smiley: str
-    comparedPercentage: int
-    comparedValue: float
+class ComparedConsumption(DataClassJsonMixin):
+    lastYearValue: Optional[float] = None
+    period: Optional[Date] = None
+    smiley: Optional[str] = None
+    comparedPercentage: Optional[int] = None
+    comparedValue: Optional[float] = None
 
     def replace_point(self):
         for _field in self.__dataclass_fields__.values():
@@ -185,3 +185,4 @@ class CustomRaw(DataClassJsonMixin):
     all_dates: Optional[list[Date]]
     sum_by_year: SumByYear
     last_costs: Optional[LastCosts]
+    last_year_compared_consumption: Optional[dict[str, ComparedConsumption]]
