@@ -140,3 +140,6 @@ dmypy.json
 # Dev tools
 *.lock
 *.toml
+*nl*
+*.pem
+legende.*
