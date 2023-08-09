@@ -207,7 +207,7 @@ class PyEcotrendIsta:
             if (
                 not isinstance(consumption, dict)
                 or "readings" not in consumption
-                or consumption.get("readings")
+                or consumption.get("readings", None) is None
                 or not isinstance(consumption.get("readings"), list)
             ):
                 consumption = {}
@@ -543,7 +543,6 @@ class PyEcotrendIsta:
             last_costs["month"] = costs[0]["date"]["month"]
             last_costs["year"] = costs[0]["date"]["year"]
 
-        self._LOGGER.debug(last_year_compared_consumption)
         return CustomRaw.from_dict(
             {
                 "consum_types": consum_types,
