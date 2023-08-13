@@ -464,7 +464,7 @@ class PyEcotrendIsta:
                         last_value["ww"] = reading["unit"]
                     elif reading["type"] == "water":
                         last_value["w"] = reading["unit"]
-                    elif reading["type"] == "heating" and reading["unit"] == "kWh":
+                    elif reading["type"] == "heating" and reading["additionalUnit"]:
                         last_value["h"] = reading["unit"]
                     elif reading["type"] == "heating":
                         last_value["h"] = reading["additionalUnit"]
