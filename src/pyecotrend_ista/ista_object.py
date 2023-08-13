@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Any, List, Optional
+from typing import Any, Optional
 
 from dataclasses_json import DataClassJsonMixin, dataclass_json
 
@@ -70,7 +70,7 @@ class Readings(DataClassJsonMixin):
 @dataclass
 class Consumptions(DataClassJsonMixin):
     date: Optional[Date]
-    readings: Optional[List[Readings]]
+    readings: Optional[list[Readings]]
     exception: Optional[str]
 
 
@@ -95,7 +95,7 @@ class CostsByEnergyType(DataClassJsonMixin):
 @dataclass
 class Costs(DataClassJsonMixin):
     date: Date
-    costsByEnergyType: Optional[List[CostsByEnergyType]]
+    costsByEnergyType: Optional[list[CostsByEnergyType]]
     exception: Optional[str]
 
 
@@ -113,8 +113,8 @@ class IstaResult(DataClassJsonMixin):
     resident: Optional[Resident] = None
     co2Emissions: Optional[str] = None
     co2EmissionsBillingPeriods: Optional[Co2EmissionsBillingPeriods] = None
-    costs: Optional[List[Costs]] = field(default_factory=list)
-    consumptions: Optional[List[Consumptions]] = field(default_factory=list)
+    costs: Optional[list[Costs]] = field(default_factory=list)
+    consumptions: Optional[list[Consumptions]] = field(default_factory=list)
 
 
 @dataclass_json
@@ -152,8 +152,8 @@ class ResultAccount(DataClassJsonMixin):
     unconfirmedPhoneNumber: str
     password: Optional[str]
     enabled: bool
-    consumptionUnitUuids: Optional[List[str]]
-    residentTimeRangeUuids: Optional[List[str]]
+    consumptionUnitUuids: Optional[list[str]]
+    residentTimeRangeUuids: Optional[list[str]]
     ads: bool
     marketing: bool
     fcmToken: str

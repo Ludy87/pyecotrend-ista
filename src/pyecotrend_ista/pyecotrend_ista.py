@@ -4,25 +4,23 @@ import functools
 import json
 import logging
 import os
-import ssl
 import time
-from asyncio import TimeoutError, sleep
-from random import randint
 from typing import Any
 
-import aiohttp
-
-from pyecotrend_ista.login_helper import LoginHelper
+import requests
 
 from .const import ACCOUNT_URL, CONSUMPTIONS_URL, LOGIN_HEADER, MAX_RETRIES, RETRY_DELAY, VERSION
 from .exception_classes import Error, InternalServerError, LoginError, ServerError
 from .helper_object_de import CustomRaw
+from .login_helper import LoginHelper
 
 _LOGGER = logging.getLogger(__name__)
 
 
 class PyEcotrendIsta:
-    def __init__(self, email: str, password: str, logger: logging.Logger = None, hass_dir: str | None = None) -> None:
+    def __init__(
+        self, email: str, password: str, logger: logging.Logger = None, hass_dir: str | None = None, totp: str = None
+    ) -> None:
         self._accessToken: str | None = None
         self._refreshToken: str | None = None
         self._accessTokenExpiresIn: int = 0
@@ -38,20 +36,22 @@ class PyEcotrendIsta:
         self._LOGGER = logger if logger else _LOGGER
         self._hass_dir = hass_dir
 
-        self.loginhelper = LoginHelper(username=self._email, password=self._password)
+        self.loginhelper = LoginHelper(username=self._email, password=self._password, totp=totp)
+
+        self.session = self.loginhelper.session
 
     @staticmethod
-    def refresh_now(func):
+    def refresh_now(func) -> functools._Wrapped:
         @functools.wraps(func)
-        async def wrapper(self, *args, **kwargs):
+        def wrapper(self, *args, **kwargs) -> Any:
             if (
                 self._accessTokenExpiresIn > 0
                 and self._isConnected()
                 and self._refreshToken
                 and self._accessTokenExpiresIn <= (time.time() - self.start_timer).__round__(2)
             ):
-                await self.__refresh()
-            return await func(self, *args, **kwargs)
+                self.__refresh()
+            return func(self, *args, **kwargs)
 
         return wrapper
 
@@ -63,104 +63,72 @@ class PyEcotrendIsta:
     def _logoff(self) -> None:
         self._accessToken = None
 
-    async def __login(self, debug: bool = False) -> str | None:
+    def __login(self, debug: bool = False) -> str | None:
         if self._email == "demo@ista.de" and self._password == "Ausprobieren!" and self._hass_dir and not debug:
             self._LOGGER.debug("DEMO")
             with open(self._hass_dir + "/account_de_url.json", encoding="utf-8"):
                 self._accessToken = "Demo"
             return self._accessToken
-        self._accessToken, self._accessTokenExpiresIn, self._refreshToken = await self.loginhelper.getToken()
+        self._accessToken, self._accessTokenExpiresIn, self._refreshToken = self.loginhelper.getToken()
         return self._accessToken
 
-    async def __refresh(self) -> None:
+    def __refresh(self) -> None:
         if self._accessToken == "Demo":
             return
         self._LOGGER.debug("refresh Token")
-        self._accessToken, self._accessTokenExpiresIn, self._refreshToken = await self.loginhelper.refreshToken(
-            self._refreshToken
-        )
+        self._accessToken, self._accessTokenExpiresIn, self._refreshToken = self.loginhelper.refreshToken(self._refreshToken)
 
         self._header["Authorization"] = f"Bearer {self._accessToken}"
         self.start_timer = time.time()
 
-    async def __setAccount(self) -> None:
+    def __setAccountValues(self, res_json) -> None:
+        self._a_ads = res_json["ads"]
+        self._a_authcode = res_json["authcode"]
+        self._a_betaPhase = res_json["betaPhase"]
+        self._a_consumptionUnitUuids = res_json["consumptionUnitUuids"]
+        self._a_country = res_json["country"]
+        self._a_email = res_json["email"]
+        self._a_emailConfirmed = res_json["emailConfirmed"]
+        self._a_enabled = res_json["enabled"]
+        self._a_fcmToken = res_json["fcmToken"]
+        self._a_firstName = res_json["firstName"]
+        self._a_isDemo = res_json["isDemo"]
+        self._a_keycloakId = res_json["keycloakId"]
+        self._a_lastName = res_json["lastName"]
+        self._a_locale = res_json["locale"]
+        self._a_marketing = res_json["marketing"]
+        self._a_mobileLoginStatus = res_json["mobileLoginStatus"]
+        self._a_notificationMethod = res_json["notificationMethod"]
+        self._a_notificationMethodEmailConfirmed = res_json["notificationMethodEmailConfirmed"]
+        self._a_password = res_json["password"]
+        self._a_privacy = res_json["privacy"]
+        self._a_residentAndConsumptionUuidsMap = res_json["residentAndConsumptionUuidsMap"]
+        self._a_residentTimeRangeUuids = res_json["residentTimeRangeUuids"]
+        self._supportCode = res_json["supportCode"]
+        self._a_tos = res_json["tos"]
+        self._a_tosUpdated = res_json["tosUpdated"]
+        self._a_transitionMobileNumber = res_json["transitionMobileNumber"]
+        self._a_unconfirmedPhoneNumber = res_json["unconfirmedPhoneNumber"]
+        self._a_userGroup = res_json["userGroup"]
+        self._uuid = res_json["activeConsumptionUnit"]
+
+    def __setAccount(self) -> None:
         if self._accessToken == "Demo" and self._hass_dir:
             with open(self._hass_dir + "/account_de_url.json", encoding="utf-8") as f:
                 res = json.loads(f.read())
-                self._a_ads = res["ads"]
-                self._a_authcode = res["authcode"]
-                self._a_betaPhase = res["betaPhase"]
-                self._a_consumptionUnitUuids = res["consumptionUnitUuids"]
-                self._a_country = res["country"]
-                self._a_email = res["email"]
-                self._a_emailConfirmed = res["emailConfirmed"]
-                self._a_enabled = res["enabled"]
-                self._a_fcmToken = res["fcmToken"]
-                self._a_firstName = res["firstName"]
-                self._a_isDemo = res["isDemo"]
-                self._a_keycloakId = res["keycloakId"]
-                self._a_lastName = res["lastName"]
-                self._a_locale = res["locale"]
-                self._a_marketing = res["marketing"]
-                self._a_mobileLoginStatus = res["mobileLoginStatus"]
-                self._a_notificationMethod = res["notificationMethod"]
-                self._a_notificationMethodEmailConfirmed = res["notificationMethodEmailConfirmed"]
-                self._a_password = res["password"]
-                self._a_privacy = res["privacy"]
-                self._a_residentAndConsumptionUuidsMap = res["residentAndConsumptionUuidsMap"]
-                self._a_residentTimeRangeUuids = res["residentTimeRangeUuids"]
-                self._supportCode = res["supportCode"]
-                self._a_tos = res["tos"]
-                self._a_tosUpdated = res["tosUpdated"]
-                self._a_transitionMobileNumber = res["transitionMobileNumber"]
-                self._a_unconfirmedPhoneNumber = res["unconfirmedPhoneNumber"]
-                self._a_userGroup = res["userGroup"]
-                self._uuid = res["activeConsumptionUnit"]
+                self.__setAccountValues(res)
             return
         self._header = LOGIN_HEADER
-        self._header["User-Agent"] = await self.getUA()
+        self._header["User-Agent"] = self.getUA()
         self._header["Authorization"] = f"Bearer {self._accessToken}"
-        ssl_context = ssl.create_default_context()
-        ssl_context.check_hostname = False
-        ssl_context.verify_mode = ssl.CERT_NONE
-        async with aiohttp.ClientSession(
-            timeout=aiohttp.ClientTimeout(15), connector=aiohttp.TCPConnector(ssl=ssl_context)
-        ) as session, session.get(ACCOUNT_URL, headers=self._header) as response:
-            res = await response.json()
-            self._a_ads = res["ads"]
-            self._a_authcode = res["authcode"]
-            self._a_betaPhase = res["betaPhase"]
-            self._a_consumptionUnitUuids = res["consumptionUnitUuids"]
-            self._a_country = res["country"]
-            self._a_email = res["email"]
-            self._a_emailConfirmed = res["emailConfirmed"]
-            self._a_enabled = res["enabled"]
-            self._a_fcmToken = res["fcmToken"]
-            self._a_firstName = res["firstName"]
-            self._a_isDemo = res["isDemo"]
-            self._a_keycloakId = res["keycloakId"]
-            self._a_lastName = res["lastName"]
-            self._a_locale = res["locale"]
-            self._a_marketing = res["marketing"]
-            self._a_mobileLoginStatus = res["mobileLoginStatus"]
-            self._a_notificationMethod = res["notificationMethod"]
-            self._a_notificationMethodEmailConfirmed = res["notificationMethodEmailConfirmed"]
-            self._a_password = res["password"]
-            self._a_privacy = res["privacy"]
-            self._a_residentAndConsumptionUuidsMap = res["residentAndConsumptionUuidsMap"]
-            self._a_residentTimeRangeUuids = res["residentTimeRangeUuids"]
-            self._supportCode = res["supportCode"]
-            self._a_tos = res["tos"]
-            self._a_tosUpdated = res["tosUpdated"]
-            self._a_transitionMobileNumber = res["transitionMobileNumber"]
-            self._a_unconfirmedPhoneNumber = res["unconfirmedPhoneNumber"]
-            self._a_userGroup = res["userGroup"]
-            self._uuid = res["activeConsumptionUnit"]
+        response = self.session.get(ACCOUNT_URL, headers=self._header)
+        res = response.json()
+        self.__setAccountValues(res)
 
     def getVersion(self) -> str:
         return VERSION
 
-    async def login(self, forceLogin: bool = False, debug: bool = False) -> str | None:
+    def login(self, forceLogin: bool = False, debug: bool = False) -> str | None:
         self.start_timer = time.time()
         if not self._isConnected() or forceLogin:
             self._logoff()
@@ -168,7 +136,7 @@ class PyEcotrendIsta:
             while not self._isConnected() and (retryCounter < MAX_RETRIES + 2):
                 retryCounter += 1
                 try:
-                    self._accessToken = await self.__login(debug)
+                    self._accessToken = self.__login(debug)
                 except LoginError as error:
                     # Login failed
                     self._accessToken = None
@@ -176,7 +144,7 @@ class PyEcotrendIsta:
                     raise LoginError from error
                 except ServerError:
                     if retryCounter < MAX_RETRIES:
-                        await sleep(RETRY_DELAY)
+                        time.sleep(RETRY_DELAY)
                     else:
                         raise ServerError()  # noqa: TRY200
                 except InternalServerError as error:
@@ -184,14 +152,17 @@ class PyEcotrendIsta:
                 except Error as err:
                     raise Exception(err)  # noqa: TRY200
                 if not self._accessToken:
-                    await sleep(RETRY_DELAY)
+                    time.sleep(RETRY_DELAY)
                 else:
-                    await self.__setAccount()
+                    self.__setAccount()
         return self._accessToken
 
+    def logout(self) -> None:
+        self.loginhelper.logout(self._refreshToken)
+
     @refresh_now
-    async def consum_raw(self, select_year=None, select_month=None, filter_none=True) -> dict[str, Any]:
-        c_raw: dict[str, Any] = await self.get_raw()
+    def consum_raw(self, select_year=None, select_month=None, filter_none=True) -> dict[str, Any]:
+        c_raw: dict[str, Any] = self.get_raw()
 
         if not isinstance(c_raw, dict) or (c_raw.get("consumptions", None) is None and c_raw.get("costs", None) is None):
             return c_raw
@@ -394,7 +365,8 @@ class PyEcotrendIsta:
                     )
                 else:
                     total_additional_custom_values[reading["type"]] += round(
-                        (float(reading["value"].replace(",", ".")) if reading["value"] is not None else 0.0), 1
+                        (float(reading["value"].replace(",", ".")) if reading["value"] is not None else 0.0),
+                        1,
                     )
 
                 if reading["type"] == "warmwater":
@@ -558,7 +530,7 @@ class PyEcotrendIsta:
             }
         ).to_dict()
 
-    async def get_raw(self) -> dict[str, Any]:
+    def get_raw(self) -> dict[str, Any]:
         raw: dict[str, Any] = {}
 
         if self._accessToken == "Demo":
@@ -568,49 +540,27 @@ class PyEcotrendIsta:
             else:
                 with open(os.getcwd() + "\\src\\pyecotrend_ista\\demo_de_url.json", encoding="utf-8") as f:
                     return json.loads(f.read())
-        ssl_context = ssl.create_default_context()
-        ssl_context.check_hostname = False
-        ssl_context.verify_mode = ssl.CERT_NONE
-        async with aiohttp.ClientSession(
-            timeout=aiohttp.ClientTimeout(15), connector=aiohttp.TCPConnector(ssl=ssl_context)
-        ) as session, session.get(CONSUMPTIONS_URL + self._uuid, headers=self._header) as response:
-            retryCounter = 0
-            while not raw and (retryCounter < MAX_RETRIES + 2):
-                retryCounter += 1
-                try:
-                    raw = await response.json()
-                    if "key" in raw:
-                        raise Exception("Login fail, check your input!", raw["key"])
-                except TimeoutError as error:
-                    self._LOGGER.debug("TimeoutError", error)
-                except aiohttp.ContentTypeError as err:
-                    self._LOGGER.debug("ContentTypeError", err)
+        response = self.session.get(CONSUMPTIONS_URL + self._uuid, headers=self._header)
+        retryCounter = 0
+        while not raw and (retryCounter < MAX_RETRIES + 2):
+            retryCounter += 1
+            try:
+                raw = response.json()
+                if "key" in raw:
+                    raise Exception("Login fail, check your input!", raw["key"])
+            except TimeoutError as error:
+                self._LOGGER.debug("TimeoutError", error)
+            except requests.JSONDecodeError as err:
+                self._LOGGER.debug("JSONDecodeError", err)
         return raw
 
     def getSupportCode(self) -> str | None:
         """Returns the support code associated with the instance."""
         return self._supportCode
 
-    async def getUA(self) -> str:
-        """Fetches a random User-Agent string from a public source."""
-        url = "https://raw.githubusercontent.com/Ludy87/pyecotrend-ista/main/src/pyecotrend_ista/ua.json"
-        headers = {
-            "User-Agent": (
-                "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/101.0.4951.67"
-                " Safari/537.36"
-            )
-        }
-        ssl_context = ssl.create_default_context()
-        ssl_context.check_hostname = False
-        ssl_context.verify_mode = ssl.CERT_NONE
-        async with aiohttp.ClientSession(
-            timeout=aiohttp.ClientTimeout(15), connector=aiohttp.TCPConnector(ssl=ssl_context)
-        ) as session, session.get(url, headers=headers) as response:
-            try:
-                data = await response.json(content_type=None)
-                i = randint(0, len(data) - 1)
-                _data = data[i]["useragent"]
-            except Exception as err:
-                self._LOGGER.info(f"Default User agent activ!\n{err}")
-                _data = headers.get("User-Agent")
-        return _data
+    def getUA(self) -> str:
+        """Set User-Agent string."""
+        return (
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/101.0.4951.67"
+            " Safari/537.36"
+        )
