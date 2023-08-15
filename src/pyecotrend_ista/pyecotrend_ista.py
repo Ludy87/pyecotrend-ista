@@ -19,7 +19,13 @@ _LOGGER = logging.getLogger(__name__)
 
 class PyEcotrendIsta:
     def __init__(
-        self, email: str, password: str, logger: logging.Logger = None, hass_dir: str | None = None, totp: str = None
+        self,
+        email: str,
+        password: str,
+        logger: logging.Logger = None,
+        hass_dir: str | None = None,
+        totp: str = None,
+        session: Any = None,
     ) -> None:
         self._accessToken: str | None = None
         self._refreshToken: str | None = None
@@ -36,7 +42,7 @@ class PyEcotrendIsta:
         self._LOGGER = logger if logger else _LOGGER
         self._hass_dir = hass_dir
 
-        self.loginhelper = LoginHelper(username=self._email, password=self._password, totp=totp)
+        self.loginhelper = LoginHelper(username=self._email, password=self._password, totp=totp, session=session)
 
         self.session = self.loginhelper.session
 
