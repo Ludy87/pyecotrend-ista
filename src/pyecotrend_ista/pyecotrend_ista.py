@@ -14,8 +14,6 @@ from .exception_classes import Error, InternalServerError, LoginError, ServerErr
 from .helper_object_de import CustomRaw
 from .login_helper import LoginHelper
 
-_LOGGER = logging.getLogger(__name__)
-
 
 class PyEcotrendIsta:
     def __init__(
@@ -39,10 +37,12 @@ class PyEcotrendIsta:
 
         self.start_timer: float = 0.0
 
-        self._LOGGER = logger if logger else _LOGGER
+        self._LOGGER = logger if logger else logging.getLogger(__name__)
         self._hass_dir = hass_dir
 
-        self.loginhelper = LoginHelper(username=self._email, password=self._password, totp=totp, session=session)
+        self.loginhelper = LoginHelper(
+            username=self._email, password=self._password, totp=totp, session=session, logger=self._LOGGER
+        )
 
         self.session = self.loginhelper.session
 
@@ -124,7 +124,7 @@ class PyEcotrendIsta:
                 res = json.loads(f.read())
                 self.__setAccountValues(res)
             return
-        self._header = LOGIN_HEADER
+        self._header = {"Content-Type": "application/json"}
         self._header["User-Agent"] = self.getUA()
         self._header["Authorization"] = f"Bearer {self._accessToken}"
         response = self.session.get(ACCOUNT_URL, headers=self._header)
@@ -155,6 +155,8 @@ class PyEcotrendIsta:
                         raise ServerError()  # noqa: TRY200
                 except InternalServerError as error:
                     raise Exception(error.msg)  # noqa: TRY200
+                except requests.ReadTimeout:
+                    time.sleep(RETRY_DELAY)
                 except Error as err:
                     raise Exception(err)  # noqa: TRY200
                 if not self._accessToken:

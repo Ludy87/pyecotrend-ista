@@ -171,6 +171,12 @@ class KeycloakRPTNotFound(KeycloakOperationError):
     pass
 
 
+class KeycloakCodeNotFound(KeycloakOperationError):
+    """Keycloak Code not found exception."""
+
+    pass
+
+
 class KeycloakAuthorizationConfigError(KeycloakOperationError):
     """Keycloak authorization config exception."""
 

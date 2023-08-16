@@ -5,6 +5,7 @@ import base64
 import hashlib
 import html
 import json
+import logging
 import re
 import secrets
 import urllib.parse
@@ -25,6 +26,7 @@ from .const import (
 )
 from .exception_classes import (
     KeycloakAuthenticationError,
+    KeycloakCodeNotFound,
     KeycloakGetError,
     KeycloakInvalidTokenError,
     KeycloakOperationError,
@@ -46,7 +48,7 @@ class LoginHelper:
     auth_code = None
     form_action = None
 
-    def __init__(self, username: str, password: str, totp: str = None, session: requests.Session = None) -> None:
+    def __init__(self, username: str, password: str, totp: str = None, session: requests.Session = None, logger=None) -> None:
         """Initializes the object with username and password."""
         self.username = username
         self.password = password
@@ -63,6 +65,8 @@ class LoginHelper:
             self.session = requests.Session()
 
         self.session.verify = True
+
+        self.logger = logger if logger else logging.getLogger(__name__)
 
     def _login(self) -> None:
         """Logs in to ista."""
@@ -88,24 +92,20 @@ class LoginHelper:
             if resp.status_code == 200:
                 form_action = re.search(r'<form\s+.*?\s+action="(.*?)"', resp.text, re.DOTALL)
                 if form_action and form_action.group(1):
-                    raise KeycloakAuthenticationError(
-                        error_message="Authentication failed, check your credentials. If you have activated 2-factor authentication, remember to enter the OTP code.",
-                        response_code=resp.status_code,
-                        response_body=resp.content,
-                    )
+                    self._login()
             else:
                 raise_error_from_response(resp, KeycloakAuthenticationError)
 
         # If Location header is not present raise exception.
         if "Location" not in resp.headers:
-            raise KeycloakInvalidTokenError("Code not found")
+            raise KeycloakCodeNotFound("header[Location] not found", response_code=resp.status_code)
         redirect = resp.headers["Location"]
         query = urllib.parse.urlparse(redirect).fragment
         redirect_params = urllib.parse.parse_qs(query)
 
         # If code is not in redirect_params or len redirect_params code is less than 1
         if "code" not in redirect_params or len(redirect_params["code"]) < 1:
-            raise Exception()
+            raise KeycloakCodeNotFound("header[Location] Code not found", response_code=resp.status_code)
         return redirect_params["code"][0]
 
     def _getCookieAndAction(self) -> tuple:
@@ -160,7 +160,6 @@ class LoginHelper:
             "code_verifier": self.code_verifier,
         }
         if self.totp:
-            print(f"otp: {self.totp}")
             _data["totp"] = self.totp
         resp: requests.Response = self.session.post(
             url=PROVIDER_URL + "token",
