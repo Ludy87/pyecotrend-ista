@@ -25,7 +25,7 @@ class PyEcotrendIsta:
         logger: logging.Logger = None,
         hass_dir: str | None = None,
         totp: str = None,
-        session: Any = None,
+        session: requests.Session = None,
     ) -> None:
         self._accessToken: str | None = None
         self._refreshToken: str | None = None
@@ -554,7 +554,7 @@ class PyEcotrendIsta:
                 raw = response.json()
                 if "key" in raw:
                     raise Exception("Login fail, check your input!", raw["key"])
-            except TimeoutError as error:
+            except requests.Timeout as error:
                 self._LOGGER.debug("TimeoutError", error)
             except requests.JSONDecodeError as err:
                 self._LOGGER.debug("JSONDecodeError", err)
