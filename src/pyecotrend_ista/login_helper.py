@@ -50,7 +50,7 @@ class LoginHelper:
         """Initializes the object with username and password."""
         self.username = username
         self.password = password
-        self.topt = totp
+        self.totp = totp
 
         _code_challenge = hashlib.sha256(self.code_verifier.encode("utf-8")).digest()
         _code_challenge = base64.urlsafe_b64encode(_code_challenge).decode("utf-8")
@@ -89,7 +89,9 @@ class LoginHelper:
                 form_action = re.search(r'<form\s+.*?\s+action="(.*?)"', resp.text, re.DOTALL)
                 if form_action and form_action.group(1):
                     raise KeycloakAuthenticationError(
-                        error_message="Authentication failed, check your credentials. If you have activated 2-factor authentication, remember to enter the OTP code."
+                        error_message="Authentication failed, check your credentials. If you have activated 2-factor authentication, remember to enter the OTP code.",
+                        response_code=resp.status_code,
+                        response_body=resp.content,
                     )
             else:
                 raise_error_from_response(resp, KeycloakAuthenticationError)
@@ -157,8 +159,9 @@ class LoginHelper:
             "code": self.auth_code,
             "code_verifier": self.code_verifier,
         }
-        if self.topt:
-            _data["totp"] = self.topt
+        if self.totp:
+            print(f"otp: {self.totp}")
+            _data["totp"] = self.totp
         resp: requests.Response = self.session.post(
             url=PROVIDER_URL + "token",
             data=_data,
