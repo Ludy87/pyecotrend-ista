@@ -26,6 +26,7 @@ from .const import (
 from .exception_classes import (
     KeycloakAuthenticationError,
     KeycloakGetError,
+    KeycloakInvalidTokenError,
     KeycloakOperationError,
     KeycloakPostError,
 )
@@ -65,7 +66,10 @@ class LoginHelper:
 
     def _login(self) -> None:
         """Logs in to ista."""
-        self.auth_code = self._getAuthCode()
+        try:
+            self.auth_code = self._getAuthCode()
+        except KeycloakAuthenticationError as error:
+            raise KeycloakAuthenticationError(error) from error
 
     def _getAuthCode(self) -> str:
         """Get auth code from ista."""
@@ -78,12 +82,21 @@ class LoginHelper:
             timeout=60,
             allow_redirects=False,
         )
-        # If the response code is 302
-        raise_error_from_response(resp, KeycloakPostError, expected_codes=[302])
+        # If the response code is not 302
+        # raise_error_from_response(resp, KeycloakAuthenticationError, expected_codes=[302])
+        if resp.status_code != 302:
+            if resp.status_code == 200:
+                form_action = re.search(r'<form\s+.*?\s+action="(.*?)"', resp.text, re.DOTALL)
+                if form_action and form_action.group(1):
+                    raise KeycloakAuthenticationError(
+                        error_message="Authentication failed, check your credentials. If you have activated 2-factor authentication, remember to enter the OTP code."
+                    )
+            else:
+                raise_error_from_response(resp, KeycloakAuthenticationError)
 
         # If Location header is not present raise exception.
         if "Location" not in resp.headers:
-            raise Exception()
+            raise KeycloakInvalidTokenError("Code not found")
         redirect = resp.headers["Location"]
         query = urllib.parse.urlparse(redirect).fragment
         redirect_params = urllib.parse.parse_qs(query)
@@ -95,6 +108,7 @@ class LoginHelper:
 
     def _getCookieAndAction(self) -> tuple:
         """Get cookie and action from openid - connect."""
+        form_action = None
         resp: requests.Response = self.session.get(
             url=PROVIDER_URL + "auth",
             params={
@@ -114,7 +128,9 @@ class LoginHelper:
 
         cookie = resp.headers["Set-Cookie"]
         cookie = "; ".join(c.split(";")[0] for c in cookie.split(", "))
-        form_action = html.unescape(re.search(r'<form\s+.*?\s+action="(.*?)"', resp.text, re.DOTALL).group(1))
+        search = re.search(r'<form\s+.*?\s+action="(.*?)"', resp.text, re.DOTALL)
+        if search:
+            form_action = html.unescape(search.group(1))
         return cookie, form_action
 
     def refreshToken(self, refresh_token) -> tuple:
@@ -149,9 +165,10 @@ class LoginHelper:
             timeout=60,
             allow_redirects=False,
         )
+        raise_error_from_response(response=resp, error=KeycloakPostError)
         # If the response code is not 200 raise an exception.
         if resp.status_code != 200:
-            raise Exception()
+            raise KeycloakInvalidTokenError()
         result = resp.json()
 
         return result["access_token"], result["expires_in"], result["refresh_token"]
