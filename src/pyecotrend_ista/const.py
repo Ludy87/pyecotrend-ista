@@ -1,10 +1,8 @@
-VERSION = "2.2.5"
-LOGIN_HEADER = {"Content-Type": "application/json"}
+VERSION = "2.2.6"
+
 BASE_URL = "https://api.prod.eed.ista.com/"
 ACCOUNT_URL = BASE_URL + "account"
 CONSUMPTIONS_URL = BASE_URL + "consumptions?consumptionUnitUuid="
-LOGIN_URL = BASE_URL + "login"
-REFRESH_TOKEN_URL = BASE_URL + "account/refresh-token"
 
 PROVIDER_URL = "https://keycloak.ista.com/realms/eed-prod/protocol/openid-connect/"
 REDIRECT_URI = "https://ecotrend.ista.de/login-redirect"
