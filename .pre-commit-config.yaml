@@ -54,6 +54,8 @@ repos:
       - id: forbid-new-submodules
       - id: mixed-line-ending
         args: [--fix=crlf]
+        exclude_types: [png,yaml]
+        exclude: (\.md|\.yml)$
       - id: trailing-whitespace
       # - id: pretty-format-json
       #   args: [--autofix,--no-ensure-ascii]
@@ -77,4 +79,5 @@ repos:
     rev: v3.14.0
     hooks:
       - id: pyupgrade
-        args: [--py39-plus, --keep-runtime-typing]
+        args: [--py39-plus]
+        exclude: ^.*object.*\.py$
