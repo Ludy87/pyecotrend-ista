@@ -41,8 +41,8 @@ repos:
     hooks:
       - id: check-ast
       - id: check-yaml
-      # - id: check-json
-      #   exclude: (.vscode|.devcontainer)
+      - id: check-json
+        exclude: (.vscode|.devcontainer)
       - id: check-added-large-files
         args: [--maxkb=800]
       - id: debug-statements
@@ -57,8 +57,9 @@ repos:
         exclude_types: [png,yaml]
         exclude: (\.md|\.yml)$
       - id: trailing-whitespace
-      # - id: pretty-format-json
-      #   args: [--autofix,--no-ensure-ascii]
+      - id: pretty-format-json
+        args: [--autofix,--no-ensure-ascii]
+        exclude: ^src/(.*url|.+ua)\.json$
   - repo: https://github.com/cdce8p/python-typing-update
     rev: v0.6.0
     hooks:
