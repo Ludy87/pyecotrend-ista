@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import functools
 import json
 import logging
 import os
@@ -20,10 +19,10 @@ class PyEcotrendIsta:
         self,
         email: str,
         password: str,
-        logger: logging.Logger = None,
+        logger: logging.Logger | None = None,
         hass_dir: str | None = None,
-        totp: str = None,
-        session: requests.Session = None,
+        totp: str | None = None,
+        session: requests.Session | None = None,
     ) -> None:
         self._accessToken: str | None = None
         self._refreshToken: str | None = None
@@ -46,20 +45,16 @@ class PyEcotrendIsta:
 
         self.session = self.loginhelper.session
 
-    @staticmethod
-    def refresh_now(func) -> functools._Wrapped:
-        @functools.wraps(func)
-        def wrapper(self, *args, **kwargs) -> Any:
-            if (
-                self._accessTokenExpiresIn > 0
-                and self._isConnected()
-                and self._refreshToken
-                and self._accessTokenExpiresIn <= (time.time() - self.start_timer).__round__(2)
-            ):
-                self.__refresh()
-            return func(self, *args, **kwargs)
-
-        return wrapper
+    @property
+    def accessToken(self):
+        if (
+            self._accessTokenExpiresIn > 0
+            and self._isConnected()
+            and self._refreshToken
+            and self._accessTokenExpiresIn <= (time.time() - self.start_timer).__round__(2)
+        ):
+            self.__refresh()
+        return self._accessToken
 
     def _isConnected(self) -> bool:
         if self._accessToken:
@@ -74,18 +69,19 @@ class PyEcotrendIsta:
             self._LOGGER.debug("DEMO")
             with open(self._hass_dir + "/account_de_url.json", encoding="utf-8"):
                 self._accessToken = "Demo"
-            return self._accessToken
+            return self.accessToken
         self._accessToken, self._accessTokenExpiresIn, self._refreshToken = self.loginhelper.getToken()
-        return self._accessToken
+        return self.accessToken
 
     def __refresh(self) -> None:
         if self._accessToken == "Demo":
             return
-        self._LOGGER.debug("refresh Token")
         self._accessToken, self._accessTokenExpiresIn, self._refreshToken = self.loginhelper.refreshToken(self._refreshToken)
+        new_token = self._accessToken
 
-        self._header["Authorization"] = f"Bearer {self._accessToken}"
+        self._header["Authorization"] = f"Bearer {new_token}"
         self.start_timer = time.time()
+        self._LOGGER.debug("refresh Token %s", self.start_timer)
 
     def __setAccountValues(self, res_json) -> None:
         self._a_ads = res_json["ads"]
@@ -126,7 +122,7 @@ class PyEcotrendIsta:
             return
         self._header = {"Content-Type": "application/json"}
         self._header["User-Agent"] = self.getUA()
-        self._header["Authorization"] = f"Bearer {self._accessToken}"
+        self._header["Authorization"] = f"Bearer {self.accessToken}"
         response = self.session.get(ACCOUNT_URL, headers=self._header)
         res = response.json()
         self.__setAccountValues(res)
@@ -147,7 +143,7 @@ class PyEcotrendIsta:
                     # Login failed
                     self._accessToken = None
                     self._LOGGER.error(error)
-                    raise LoginError from error
+                    raise LoginError(error.res) from error
                 except ServerError:
                     if retryCounter < MAX_RETRIES:
                         time.sleep(RETRY_DELAY)
@@ -159,17 +155,20 @@ class PyEcotrendIsta:
                     time.sleep(RETRY_DELAY)
                 except Error as err:
                     raise Exception(err)  # noqa: TRY200
-                if not self._accessToken:
+                if not self.accessToken:
                     time.sleep(RETRY_DELAY)
                 else:
                     self.__setAccount()
-        return self._accessToken
+        return self.accessToken
+
+    def userinfo(self, token):
+        return self.loginhelper.userinfo(token=token)
 
     def logout(self) -> None:
         self.loginhelper.logout(self._refreshToken)
 
-    @refresh_now
-    def consum_raw(self, select_year=None, select_month=None, filter_none=True) -> dict[str, Any]:
+    # @refresh_now
+    def consum_raw(self, select_year=None, select_month=None, filter_none=True) -> dict[str, Any]:  # noqa: C901
         c_raw: dict[str, Any] = self.get_raw()
 
         if not isinstance(c_raw, dict) or (c_raw.get("consumptions", None) is None and c_raw.get("costs", None) is None):
@@ -541,7 +540,7 @@ class PyEcotrendIsta:
     def get_raw(self) -> dict[str, Any]:
         raw: dict[str, Any] = {}
 
-        if self._accessToken == "Demo":
+        if self.accessToken == "Demo":
             if self._hass_dir:
                 with open(self._hass_dir + "/demo_de_url.json", encoding="utf-8") as f:
                     return json.loads(f.read())

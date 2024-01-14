@@ -32,7 +32,7 @@ class InternalServerError(Error):
 
     def __str__(self) -> str:
         """Convert to string. This is useful for debugging."""
-        return self.res
+        return self.msg
 
 
 class LoginError(Error):
