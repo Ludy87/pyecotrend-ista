@@ -12,6 +12,8 @@ import urllib.parse
 from typing import Any
 
 import requests
+from requests.adapters import HTTPAdapter
+from urllib3.util.retry import Retry
 
 from .const import (
     CLIENT_ID,
@@ -48,14 +50,16 @@ class LoginHelper:
     auth_code = None
     form_action = None
 
-    def __init__(self, username: str, password: str, totp: str = None, session: requests.Session = None, logger=None) -> None:
+    def __init__(
+        self, username: str, password: str, totp: str | None = None, session: requests.Session | None = None, logger=None
+    ) -> None:
         """Initializes the object with username and password."""
         self.username = username
         self.password = password
         self.totp = totp
 
-        _code_challenge = hashlib.sha256(self.code_verifier.encode("utf-8")).digest()
-        _code_challenge = base64.urlsafe_b64encode(_code_challenge).decode("utf-8")
+        __code_challenge: bytes = hashlib.sha256(self.code_verifier.encode("utf-8")).digest()
+        _code_challenge: str = base64.urlsafe_b64encode(__code_challenge).decode("utf-8")
 
         self.code_challenge = _code_challenge.rstrip("=")
 
@@ -65,8 +69,21 @@ class LoginHelper:
             self.session = requests.Session()
 
         self.session.verify = True
+        retries = Retry(total=5, backoff_factor=1, status_forcelist=[502, 503, 504, 408])
+        self.session.mount("https://", HTTPAdapter(max_retries=retries))
 
         self.logger = logger if logger else logging.getLogger(__name__)
+
+    def _send_request(self, method, url, **kwargs) -> requests.Response:
+        if self.session is None:
+            raise ValueError("Session object is not initialized.")
+        try:
+            response = self.session.request(method, url, **kwargs)
+            response.raise_for_status()
+            return response
+        except requests.RequestException as e:
+            self.logger.error("Request error: %s", e)
+            raise KeycloakOperationError from e
 
     def _login(self) -> None:
         """Logs in to ista."""
@@ -79,13 +96,15 @@ class LoginHelper:
         """Get auth code from ista."""
         cookie, form_action = self._getCookieAndAction()
 
-        resp: requests.Response = self.session.post(
-            url=form_action,
-            data={"username": self.username, "password": self.password},
+        resp: requests.Response = self._send_request(
+            "POST",
+            form_action,
+            data={"username": self.username, "password": self.password, "login": "Login", "credentialId": None},
             headers={"Cookie": cookie},
             timeout=60,
             allow_redirects=False,
         )
+
         # If the response code is not 302
         # raise_error_from_response(resp, KeycloakAuthenticationError, expected_codes=[302])
         if resp.status_code != 302:
@@ -111,7 +130,8 @@ class LoginHelper:
     def _getCookieAndAction(self) -> tuple:
         """Get cookie and action from openid - connect."""
         form_action = None
-        resp: requests.Response = self.session.get(
+        resp: requests.Response = self._send_request(
+            "GET",
             url=PROVIDER_URL + "auth",
             params={
                 "response_mode": RESPONSE_MODE,  # fragment
@@ -125,6 +145,7 @@ class LoginHelper:
             timeout=60,
             allow_redirects=False,
         )
+
         # If the response code is not 200 raise an exception.
         raise_error_from_response(resp, KeycloakGetError)
 
@@ -137,7 +158,8 @@ class LoginHelper:
 
     def refreshToken(self, refresh_token) -> tuple:
         """Refresh Token."""
-        resp: requests.Response = self.session.post(
+        resp: requests.Response = self._send_request(
+            "POST",
             url=PROVIDER_URL + "token",
             data={
                 "grant_type": GRANT_TYPE_REFRESH_TOKEN,
@@ -145,6 +167,7 @@ class LoginHelper:
                 "refresh_token": refresh_token,
             },
         )
+
         result = resp.json()
 
         return result["access_token"], result["expires_in"], result["refresh_token"]
@@ -161,12 +184,14 @@ class LoginHelper:
         }
         if self.totp:
             _data["totp"] = self.totp
-        resp: requests.Response = self.session.post(
+        resp: requests.Response = self._send_request(
+            "POST",
             url=PROVIDER_URL + "token",
             data=_data,
             timeout=60,
             allow_redirects=False,
         )
+
         raise_error_from_response(response=resp, error=KeycloakPostError)
         # If the response code is not 200 raise an exception.
         if resp.status_code != 200:
@@ -178,17 +203,26 @@ class LoginHelper:
     def userinfo(self, token) -> Any:
         """."""
         header = {"Authorization": "Bearer " + token}
-        resp: requests.Response = self.session.get(url=PROVIDER_URL + "userinfo", headers=header)
+        resp: requests.Response = self._send_request("GET", url=PROVIDER_URL + "userinfo", headers=header)
+        return resp.json()
+
+    def well_know(self) -> Any:
+        resp: requests.Response = self._send_request(
+            "GET", url="https://keycloak.ista.com/realms/eed-prod/.well-known/openid-configuration"
+        )
+        raise_error_from_response(resp, KeycloakGetError)
         return resp.json()
 
     def logout(self, token) -> dict | Any | bytes | dict[str, str]:
-        resp: requests.Response = self.session.post(
+        resp: requests.Response = self._send_request(
+            "POST",
             url=PROVIDER_URL + "logout",
             data={
                 "client_id": CLIENT_ID,
                 "refresh_token": token,
             },
         )
+
         return raise_error_from_response(resp, KeycloakPostError)
 
 
