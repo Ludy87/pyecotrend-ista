@@ -10,9 +10,12 @@ ci:
   skip: []
   submodules: false
 
+default_language_version:
+    python: python3.9
+
 repos:
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.1.11
+    rev: v0.1.14
     hooks:
       - id: ruff
         exclude: ^.github
@@ -80,5 +83,5 @@ repos:
     rev: v3.15.0
     hooks:
       - id: pyupgrade
-        args: [--py39-plus]
+        args: [--py39-plus, --keep-runtime-typing]
         exclude: ^.*object.*\.py$
