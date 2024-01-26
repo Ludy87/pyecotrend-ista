@@ -7,8 +7,6 @@ from typing import Any
 class Error(Exception):
     """This is a class to catch exceptions that are thrown when trying to create a node."""
 
-    pass
-
 
 class ServerError(Error):
     """Create ServerError."""
@@ -114,88 +112,58 @@ class KeycloakError(Exception):
 class KeycloakAuthenticationError(KeycloakError):
     """Keycloak authentication error exception."""
 
-    pass
-
 
 class KeycloakConnectionError(KeycloakError):
     """Keycloak connection error exception."""
-
-    pass
 
 
 class KeycloakOperationError(KeycloakError):
     """Keycloak operation error exception."""
 
-    pass
-
 
 class KeycloakDeprecationError(KeycloakError):
     """Keycloak deprecation error exception."""
-
-    pass
 
 
 class KeycloakGetError(KeycloakOperationError):
     """Keycloak request get error exception."""
 
-    pass
-
 
 class KeycloakPostError(KeycloakOperationError):
     """Keycloak request post error exception."""
-
-    pass
 
 
 class KeycloakPutError(KeycloakOperationError):
     """Keycloak request put error exception."""
 
-    pass
-
 
 class KeycloakDeleteError(KeycloakOperationError):
     """Keycloak request delete error exception."""
-
-    pass
 
 
 class KeycloakSecretNotFound(KeycloakOperationError):
     """Keycloak secret not found exception."""
 
-    pass
-
 
 class KeycloakRPTNotFound(KeycloakOperationError):
     """Keycloak RPT not found exception."""
-
-    pass
 
 
 class KeycloakCodeNotFound(KeycloakOperationError):
     """Keycloak Code not found exception."""
 
-    pass
-
 
 class KeycloakAuthorizationConfigError(KeycloakOperationError):
     """Keycloak authorization config exception."""
-
-    pass
 
 
 class KeycloakInvalidTokenError(KeycloakOperationError):
     """Keycloak invalid token exception."""
 
-    pass
-
 
 class KeycloakPermissionFormatError(KeycloakOperationError):
     """Keycloak permission format exception."""
 
-    pass
-
 
 class PermissionDefinitionError(Exception):
     """Keycloak permission definition exception."""
-
-    pass

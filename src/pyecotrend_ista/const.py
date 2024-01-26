@@ -1,4 +1,4 @@
-VERSION = "2.3.0"
+VERSION = "3.0.0"
 
 BASE_URL = "https://api.prod.eed.ista.com/"
 ACCOUNT_URL = BASE_URL + "account"
@@ -16,3 +16,5 @@ GRANT_TYPE_AUTHORIZATION_CODE = "authorization_code"
 
 MAX_RETRIES = 3
 RETRY_DELAY = 2
+
+TIMEOUT = 10
