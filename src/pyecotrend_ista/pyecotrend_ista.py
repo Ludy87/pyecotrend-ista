@@ -104,7 +104,7 @@ class PyEcotrendIsta:
         self._a_notificationMethodEmailConfirmed = res_json["notificationMethodEmailConfirmed"]
         self._a_password = res_json["password"]
         self._a_privacy = res_json["privacy"]
-        self._a_residentAndConsumptionUuidsMap = res_json["residentAndConsumptionUuidsMap"]
+        self._residentAndConsumptionUuidsMap: dict[str, str] = res_json["residentAndConsumptionUuidsMap"]  # multi
         self._a_residentTimeRangeUuids = res_json["residentTimeRangeUuids"]
         self._supportCode = res_json["supportCode"]
         self._a_tos = res_json["tos"]
@@ -112,7 +112,7 @@ class PyEcotrendIsta:
         self._a_transitionMobileNumber = res_json["transitionMobileNumber"]
         self._a_unconfirmedPhoneNumber = res_json["unconfirmedPhoneNumber"]
         self._a_userGroup = res_json["userGroup"]
-        self._uuid = res_json["activeConsumptionUnit"]
+        self._uuid = res_json["activeConsumptionUnit"]  # single
 
     def __setAccount(self) -> None:
         if self._accessToken == "Demo" and self._hass_dir:
@@ -167,9 +167,17 @@ class PyEcotrendIsta:
     def logout(self) -> None:
         self.loginhelper.logout(self._refreshToken)
 
+    def getUUIDs(self) -> list[str]:
+        uuids = []
+        for _, value in self._residentAndConsumptionUuidsMap.items():
+            uuids.append(value)
+        return uuids
+
     # @refresh_now
-    def consum_raw(self, select_year=None, select_month=None, filter_none=True) -> dict[str, Any]:  # noqa: C901
-        c_raw: dict[str, Any] = self.get_raw()
+    def consum_raw(  # noqa: C901
+        self, select_year=None, select_month=None, filter_none=True, obj_uuid: str | None = None
+    ) -> dict[str, Any]:  # noqa: C901
+        c_raw: dict[str, Any] = self.get_raw(obj_uuid)
 
         if not isinstance(c_raw, dict) or (c_raw.get("consumptions", None) is None and c_raw.get("costs", None) is None):
             return c_raw
@@ -537,7 +545,7 @@ class PyEcotrendIsta:
             }
         ).to_dict()
 
-    def get_raw(self) -> dict[str, Any]:
+    def get_raw(self, obj_uuid: str | None = None) -> dict[str, Any]:
         raw: dict[str, Any] = {}
 
         if self.accessToken == "Demo":
@@ -547,7 +555,9 @@ class PyEcotrendIsta:
             else:
                 with open(os.getcwd() + "\\src\\pyecotrend_ista\\demo_de_url.json", encoding="utf-8") as f:
                     return json.loads(f.read())
-        response = self.session.get(CONSUMPTIONS_URL + self._uuid, headers=self._header)
+        if obj_uuid is None:
+            obj_uuid = self._uuid
+        response = self.session.get(CONSUMPTIONS_URL + obj_uuid, headers=self._header)
         retryCounter = 0
         while not raw and (retryCounter < MAX_RETRIES + 2):
             retryCounter += 1
