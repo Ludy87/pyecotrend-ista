@@ -25,6 +25,7 @@ from .const import (
     RESPONSE_MODE,
     RESPONSE_TPYE,
     SCOPE,
+    TIMEOUT,
 )
 from .exception_classes import (
     KeycloakAuthenticationError,
@@ -101,7 +102,7 @@ class LoginHelper:
             form_action,
             data={"username": self.username, "password": self.password, "login": "Login", "credentialId": None},
             headers={"Cookie": cookie},
-            timeout=60,
+            timeout=TIMEOUT,
             allow_redirects=False,
         )
 
@@ -142,7 +143,7 @@ class LoginHelper:
                 "code_challenge": self.code_challenge,
                 "code_challenge_method": CODE_CHALLENGE_METHODE,
             },
-            timeout=60,
+            timeout=TIMEOUT,
             allow_redirects=False,
         )
 
@@ -188,7 +189,7 @@ class LoginHelper:
             "POST",
             url=PROVIDER_URL + "token",
             data=_data,
-            timeout=60,
+            timeout=TIMEOUT,
             allow_redirects=False,
         )
 
