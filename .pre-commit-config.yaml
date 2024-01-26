@@ -10,9 +10,6 @@ ci:
   skip: []
   submodules: false
 
-default_language_version:
-    python: python3.11
-
 repos:
   - repo: https://github.com/astral-sh/ruff-pre-commit
     rev: v0.1.14
@@ -22,6 +19,15 @@ repos:
         args:
           - --fix
           - --line-length=127
+  - repo: https://github.com/PyCQA/autoflake
+    rev: v2.2.1
+    hooks:
+      - id: autoflake
+        args:
+          - "--in-place"
+          - "--remove-duplicate-keys"
+          - "--remove-unused-variables"
+          - "--remove-all-unused-imports"
   - repo: https://github.com/psf/black-pre-commit-mirror
     rev: 23.12.1
     hooks:
@@ -56,10 +62,11 @@ repos:
         exclude_types: [json]
       - id: forbid-new-submodules
       - id: mixed-line-ending
-        args: [--fix=crlf]
+        args: [--fix=lf]
         exclude_types: [png,yaml]
         exclude: (\.md|\.yml)$
       - id: trailing-whitespace
+        exclude_types: [json]
       - id: pretty-format-json
         args: [--autofix,--no-ensure-ascii]
         exclude: ^src/(.*url|.+ua)\.json$
@@ -73,7 +80,7 @@ repos:
       - id: python-typing-update
         stages: [manual]
         args:
-          - --py39-plus
+          - --py311-plus
           - --force
           - --keep-updates
         files: ^(src|tests)/.+\.py$
@@ -83,5 +90,5 @@ repos:
     rev: v3.15.0
     hooks:
       - id: pyupgrade
-        args: [--py39-plus, --keep-runtime-typing]
+        args: [--py311-plus]
         exclude: ^.*object.*\.py$
