@@ -64,7 +64,7 @@ repos:
       - id: mixed-line-ending
         args: [--fix=lf]
         exclude_types: [png,yaml]
-        exclude: (\.md|\.yml)$
+        exclude: (\.md|\.yml|\.jpg|\.png)$
       - id: trailing-whitespace
         exclude_types: [json]
       - id: pretty-format-json
