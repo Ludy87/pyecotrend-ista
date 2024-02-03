@@ -2,11 +2,11 @@ name: Upload Python Package Pypi
 
 on:
   release:
-    types: [ created ]
+    types: [created]
   push:
-    branches: [ main ]
+    branches: [main]
     paths-ignore:
-      - '.github/**'
+      - ".github/**"
 
 jobs:
   deploy:
