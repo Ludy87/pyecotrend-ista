@@ -153,8 +153,7 @@ class LoginHelper:
 
         cookie = resp.headers["Set-Cookie"]
         cookie = "; ".join(c.split(";")[0] for c in cookie.split(", "))
-        search = re.search(r'<form\s+.*?\s+action="(.*?)"', resp.text, re.DOTALL)
-        if search:
+        if search := re.search(r'<form\s+.*?\s+action="(.*?)"', resp.text, re.DOTALL):
             form_action = html.unescape(search.group(1))
         return cookie, form_action
 
