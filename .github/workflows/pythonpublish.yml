@@ -55,7 +55,7 @@ jobs:
           fi
       - name: Build
         if: steps.check-tag.outputs.match == 'true'
-        uses: softprops/action-gh-release@v2.0.2
+        uses: softprops/action-gh-release@v2.0.4
         with:
           tag_name: ${{ steps.version.outputs.version }}
           name: v${{ steps.version.outputs.version }}
