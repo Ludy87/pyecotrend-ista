@@ -8,7 +8,7 @@ from typing import Any
 
 import requests
 
-from .const import ACCOUNT_URL, CONSUMPTIONS_URL, MAX_RETRIES, RETRY_DELAY, VERSION
+from .const import ACCOUNT_URL, CONSUMPTIONS_URL, MAX_RETRIES, RETRY_DELAY, VERSION, CONSUMPTION_UNIT_DETAILS_URL
 from .exception_classes import Error, InternalServerError, LoginError, ServerError
 from .helper_object_de import CustomRaw
 from .login_helper import LoginHelper
@@ -570,6 +570,21 @@ class PyEcotrendIsta:
             except requests.JSONDecodeError as err:
                 self._LOGGER.debug("JSONDecodeError", err)
         return raw
+    
+    def get_consumption_unit_details(self) -> dict[str, Any]:
+        """Get consumption unit details."""
+        try:
+            with self.session.get(CONSUMPTION_UNIT_DETAILS_URL, headers=self._header) as r:
+                r.raise_for_status()
+                try:
+                    return r.json()
+                except requests.JSONDecodeError as e:
+                    self._LOGGER.debug("JSONDecodeError: %s", e)
+                    raise ServerError from e
+        except (requests.RequestException, requests.Timeout) as e:
+            self._LOGGER.debug("RequestException: %s", e)
+            raise ServerError from e
+
 
     def getSupportCode(self) -> str | None:
         """Returns the support code associated with the instance."""
