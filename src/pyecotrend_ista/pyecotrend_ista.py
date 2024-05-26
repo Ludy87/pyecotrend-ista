@@ -570,7 +570,7 @@ class PyEcotrendIsta:
             except requests.JSONDecodeError as err:
                 self._LOGGER.debug("JSONDecodeError", err)
         return raw
-    
+
     def get_consumption_unit_details(self) -> dict[str, Any]:
         """Get consumption unit details."""
         try:
@@ -584,7 +584,6 @@ class PyEcotrendIsta:
         except (requests.RequestException, requests.Timeout) as e:
             self._LOGGER.debug("RequestException: %s", e)
             raise ServerError from e
-
 
     def getSupportCode(self) -> str | None:
         """Returns the support code associated with the instance."""
