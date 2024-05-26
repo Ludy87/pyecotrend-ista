@@ -3,6 +3,7 @@ VERSION = "3.0.0"
 BASE_URL = "https://api.prod.eed.ista.com/"
 ACCOUNT_URL = BASE_URL + "account"
 CONSUMPTIONS_URL = BASE_URL + "consumptions?consumptionUnitUuid="
+CONSUMPTION_UNIT_DETAILS_URL = BASE_URL + "menu"
 
 PROVIDER_URL = "https://keycloak.ista.com/realms/eed-prod/protocol/openid-connect/"
 REDIRECT_URI = "https://ecotrend.ista.de/login-redirect"
