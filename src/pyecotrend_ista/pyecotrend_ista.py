@@ -8,7 +8,7 @@ from typing import Any
 
 import requests
 
-from .const import ACCOUNT_URL, CONSUMPTIONS_URL, MAX_RETRIES, RETRY_DELAY, VERSION, CONSUMPTION_UNIT_DETAILS_URL
+from .const import ACCOUNT_URL, CONSUMPTION_UNIT_DETAILS_URL, CONSUMPTIONS_URL, MAX_RETRIES, RETRY_DELAY, VERSION
 from .exception_classes import Error, InternalServerError, LoginError, ServerError
 from .helper_object_de import CustomRaw
 from .login_helper import LoginHelper
