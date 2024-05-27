@@ -1,4 +1,4 @@
-VERSION = "3.2.0"
+VERSION = "3.1.1"
 
 BASE_URL = "https://api.prod.eed.ista.com/"
 ACCOUNT_URL = BASE_URL + "account"
