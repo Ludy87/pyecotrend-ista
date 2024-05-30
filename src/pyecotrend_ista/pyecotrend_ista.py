@@ -8,7 +8,7 @@ from typing import Any
 
 import requests
 
-from .const import ACCOUNT_URL, CONSUMPTION_UNIT_DETAILS_URL, CONSUMPTIONS_URL, MAX_RETRIES, RETRY_DELAY, VERSION
+from .const import ACCOUNT_URL, CONSUMPTION_UNIT_DETAILS_URL, CONSUMPTIONS_URL, MAX_RETRIES, RETRY_DELAY, VERSION, DEMO_USER_TOKEN
 from .exception_classes import Error, InternalServerError, LoginError, ServerError
 from .helper_object_de import CustomRaw
 from .login_helper import LoginHelper
@@ -65,17 +65,17 @@ class PyEcotrendIsta:
         self._accessToken = None
 
     def __login(self, debug: bool = False) -> str | None:
-        if self._email == "demo@ista.de" and self._password == "Ausprobieren!" and self._hass_dir and not debug:
+        if self._email == "demo@ista.de":
             self._LOGGER.debug("DEMO")
-            with open(self._hass_dir + "/account_de_url.json", encoding="utf-8"):
-                self._accessToken = "Demo"
+            token = self.demo_user_login()
+            self._accessToken = token["accessToken"]
+            self._accessTokenExpiresIn = token["accessTokenExpiresIn"]
+            self._refreshToken = token["refreshToken"]
             return self.accessToken
         self._accessToken, self._accessTokenExpiresIn, self._refreshToken = self.loginhelper.getToken()
         return self.accessToken
 
     def __refresh(self) -> None:
-        if self._accessToken == "Demo":
-            return
         self._accessToken, self._accessTokenExpiresIn, self._refreshToken = self.loginhelper.refreshToken(self._refreshToken)
         new_token = self._accessToken
 
@@ -595,3 +595,18 @@ class PyEcotrendIsta:
             "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/101.0.4951.67"
             " Safari/537.36"
         )
+
+    def demo_user_login(self) -> dict[str, Any]:
+        """Retrieve authentication tokens for demo user."""
+        try:
+            self._header["User-Agent"] = self.getUA()
+            with self.session.get(DEMO_USER_TOKEN, headers=self._header, ) as r:
+                r.raise_for_status()
+                try:
+                    return r.json()
+                except requests.JSONDecodeError as e:
+                    self._LOGGER.debug("JSONDecodeError: %s", e)
+                    raise ServerError from e
+        except (requests.RequestException, requests.Timeout) as e:
+            self._LOGGER.debug("RequestException: %s", e)
+            raise ServerError from e
