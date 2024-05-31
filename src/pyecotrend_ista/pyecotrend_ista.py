@@ -564,11 +564,11 @@ class PyEcotrendIsta:
             try:
                 raw = response.json()
                 if "key" in raw:
-                    raise Exception("Login fail, check your input!", raw["key"])
+                    raise LoginError(f"Login fail, check your input! {raw["key"]}")
             except requests.Timeout as error:
-                self._LOGGER.debug("TimeoutError", error)
+                self._LOGGER.debug("TimeoutError: %s", error)
             except requests.JSONDecodeError as err:
-                self._LOGGER.debug("JSONDecodeError", err)
+                self._LOGGER.debug("JSONDecodeError: %s", err)
         return raw
 
     def get_consumption_unit_details(self) -> dict[str, Any]:
