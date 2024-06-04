@@ -1,8 +1,6 @@
 from __future__ import annotations
 
-import json
 import logging
-import os
 import time
 from typing import Any
 
@@ -115,11 +113,6 @@ class PyEcotrendIsta:
         self._uuid = res_json["activeConsumptionUnit"]  # single
 
     def __setAccount(self) -> None:
-        if self._accessToken == "Demo" and self._hass_dir:
-            with open(self._hass_dir + "/account_de_url.json", encoding="utf-8") as f:
-                res = json.loads(f.read())
-                self.__setAccountValues(res)
-            return
         self._header = {"Content-Type": "application/json"}
         self._header["User-Agent"] = self.getUA()
         self._header["Authorization"] = f"Bearer {self.accessToken}"
@@ -548,13 +541,6 @@ class PyEcotrendIsta:
     def get_raw(self, obj_uuid: str | None = None) -> dict[str, Any]:
         raw: dict[str, Any] = {}
 
-        if self.accessToken == "Demo":
-            if self._hass_dir:
-                with open(self._hass_dir + "/demo_de_url.json", encoding="utf-8") as f:
-                    return json.loads(f.read())
-            else:
-                with open(os.getcwd() + "\\src\\pyecotrend_ista\\demo_de_url.json", encoding="utf-8") as f:
-                    return json.loads(f.read())
         if obj_uuid is None:
             obj_uuid = self._uuid
         response = self.session.get(CONSUMPTIONS_URL + obj_uuid, headers=self._header)
@@ -564,11 +550,11 @@ class PyEcotrendIsta:
             try:
                 raw = response.json()
                 if "key" in raw:
-                    raise Exception("Login fail, check your input!", raw["key"])
+                    raise LoginError("Login fail, check your input! %s".format(raw["key"]))
             except requests.Timeout as error:
-                self._LOGGER.debug("TimeoutError", error)
+                self._LOGGER.debug("TimeoutError %s", error)
             except requests.JSONDecodeError as err:
-                self._LOGGER.debug("JSONDecodeError", err)
+                self._LOGGER.debug("JSONDecodeError %s", err)
         return raw
 
     def get_consumption_unit_details(self) -> dict[str, Any]:
