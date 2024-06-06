@@ -6,7 +6,15 @@ from typing import Any
 
 import requests
 
-from .const import ACCOUNT_URL, CONSUMPTION_UNIT_DETAILS_URL, CONSUMPTIONS_URL, MAX_RETRIES, RETRY_DELAY, VERSION, DEMO_USER_TOKEN
+from .const import (
+    ACCOUNT_URL,
+    CONSUMPTION_UNIT_DETAILS_URL,
+    CONSUMPTIONS_URL,
+    DEMO_USER_TOKEN,
+    MAX_RETRIES,
+    RETRY_DELAY,
+    VERSION,
+)
 from .exception_classes import Error, InternalServerError, LoginError, ServerError
 from .helper_object_de import CustomRaw
 from .login_helper import LoginHelper
