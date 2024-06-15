@@ -10,7 +10,7 @@ import logging
 import re
 import secrets
 import urllib.parse
-from typing import Any
+from typing import Any, cast
 
 import requests
 from requests.adapters import HTTPAdapter
@@ -36,6 +36,7 @@ from .exception_classes import (
     KeycloakOperationError,
     KeycloakPostError,
 )
+from .types import GetTokenResponse
 
 
 class LoginHelper:
@@ -289,7 +290,7 @@ class LoginHelper:
 
         return result["access_token"], result["expires_in"], result["refresh_token"]
 
-    def getToken(self) -> tuple:
+    def getToken(self) -> GetTokenResponse:
         """Retrieve access and refresh tokens using the obtained authorization code.
 
         Raises
@@ -302,9 +303,9 @@ class LoginHelper:
 
         Returns
         -------
-        tuple[str, int, str]
-            Tuple containing the access token, its expiration time in seconds,
-            and the refresh token obtained from the authentication server.
+        GetTokenResponse
+            A TypedDict containing authentication tokens including 'accessToken',
+            'accessTokenExpiresIn', and 'refreshToken'.
 
         """
         self._login()
@@ -329,9 +330,9 @@ class LoginHelper:
         # If the response code is not 200 raise an exception.
         if resp.status_code != 200:
             raise KeycloakInvalidTokenError()
-        result = resp.json()
 
-        return result["access_token"], result["expires_in"], result["refresh_token"]
+        return cast(GetTokenResponse, resp.json())
+
 
     def userinfo(self, token) -> Any:
         """."""
