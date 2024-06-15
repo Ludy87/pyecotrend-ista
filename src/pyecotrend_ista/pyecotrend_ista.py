@@ -58,7 +58,9 @@ class PyEcotrendIsta:
         """
 
         if hass_dir:
-            warnings.warn("The 'hass_dir' parameter is deprecated and will be removed in a future release.", DeprecationWarning)
+            warnings.warn(
+                "The 'hass_dir' parameter is deprecated and will be removed in a future release.", DeprecationWarning
+            )
 
         self._accessToken: str | None = None
         self._refreshToken: str | None = None
@@ -823,7 +825,7 @@ class PyEcotrendIsta:
             try:
                 raw = response.json()
                 if "key" in raw:
-                    raise LoginError(f"Login fail, check your input! {raw["key"]}")
+                    raise LoginError("Login fail, check your input! %s", raw["key"])
             except requests.Timeout as error:
                 self._LOGGER.debug("TimeoutError: %s", error)
             except requests.JSONDecodeError as err:
@@ -903,7 +905,10 @@ class PyEcotrendIsta:
         """
         try:
             self._header["User-Agent"] = self.getUA()
-            with self.session.get(DEMO_USER_TOKEN, headers=self._header, ) as r:
+            with self.session.get(
+                DEMO_USER_TOKEN,
+                headers=self._header,
+            ) as r:
                 r.raise_for_status()
                 try:
                     return r.json()
