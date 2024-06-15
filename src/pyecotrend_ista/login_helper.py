@@ -1,4 +1,4 @@
-"""Login helper file."""
+"""Login helper for Keycloak."""
 
 from __future__ import annotations
 
@@ -39,7 +39,33 @@ from .exception_classes import (
 
 
 class LoginHelper:
-    """Login helper for keycloak."""
+    """Login helper for Keycloak.
+
+    Attributes
+    ----------
+    code_verifier : str
+        Random URL-safe string used in OAuth2 code exchange.
+    code_challenge : str | None
+        Base64 URL-safe encoded SHA-256 hash of `code_verifier`, used in OAuth2 code exchange.
+    session : requests.Session | None
+        Optional session object for making HTTP requests.
+    username : str
+        Username for authentication.
+    password : str
+        Password for authentication.
+    cookie : str | None
+        Authentication cookie.
+    auth_code : str | None
+        Authorization code.
+    form_action : str | None
+        Form action URL for authentication.
+
+    Notes
+    -----
+    This class provides utility methods for handling authentication and session management
+    using Keycloak.
+
+    """
 
     code_verifier = secrets.token_urlsafe(32)
     code_challenge = None
@@ -53,9 +79,29 @@ class LoginHelper:
     form_action = None
 
     def __init__(
-        self, username: str, password: str, totp: str | None = None, session: requests.Session | None = None, logger=None
+        self,
+        username: str,
+        password: str,
+        totp: str | None = None,
+        session: requests.Session | None = None,
+        logger=None,
     ) -> None:
-        """Initializes the object with username and password."""
+        """Initialize the object with username and password.
+
+        Parameters
+        ----------
+        username : str
+            Username for authentication.
+        password : str
+            Password for authentication.
+        totp : str, optional
+            Time-based One-Time Password if enabled, by default None.
+        session : requests.Session, optional
+            Optional session object for making HTTP requests, by default None.
+        logger : logging.Logger, optional
+            Logger object for logging messages, by default None.
+
+        """
         self.username = username
         self.password = password
         self.totp = totp
@@ -77,6 +123,30 @@ class LoginHelper:
         self.logger = logger if logger else logging.getLogger(__name__)
 
     def _send_request(self, method, url, **kwargs) -> requests.Response:
+        """Send an HTTP request using the session object.
+
+        Parameters
+        ----------
+        method : str
+            HTTP method for the request (e.g., 'GET', 'POST', 'PUT', 'DELETE').
+        url : str
+            URL to send the request to.
+        **kwargs : dict
+            Additional keyword arguments to pass to `session.request`.
+
+        Returns
+        -------
+        requests.Response
+            Response object returned by the HTTP request.
+
+        Raises
+        ------
+        ValueError
+            If `self.session` is not initialized (i.e., is `None`).
+        KeycloakOperationError
+            If an HTTP request exception (`requests.RequestException`) occurs.
+
+        """
         if self.session is None:
             raise ValueError("Session object is not initialized.")
         try:
@@ -88,14 +158,35 @@ class LoginHelper:
             raise KeycloakOperationError from e
 
     def _login(self) -> None:
-        """Logs in to ista."""
+        """Log in to ista EcoTrend.
+
+        Raises
+        ------
+        KeycloakAuthenticationError
+            If an authentication error occurs during the login process.
+        """
         try:
             self.auth_code = self._getAuthCode()
         except KeycloakAuthenticationError as error:
             raise KeycloakAuthenticationError(error) from error
 
     def _getAuthCode(self) -> str:
-        """Get auth code from ista."""
+        """
+        Retrieve the authentication code for ista EcoTrend.
+
+        Returns
+        -------
+        str
+            The authentication code obtained from the ista EcoTrend API.
+
+        Raises
+        ------
+        KeycloakAuthenticationError
+            If an authentication error occurs during the login process.
+        KeycloakCodeNotFound
+            If the authentication code ('code') is not found in the redirection URL parameters.
+
+        """
         cookie, form_action = self._getCookieAndAction()
 
         resp: requests.Response = self._send_request(
@@ -130,7 +221,19 @@ class LoginHelper:
         return redirect_params["code"][0]
 
     def _getCookieAndAction(self) -> tuple:
-        """Get cookie and action from openid - connect."""
+        """Retrieve the cookie and action URL from the OpenID Connect provider.
+
+        Returns
+        -------
+        tuple[str, str]
+            A tuple containing the cookie obtained from the response headers and the action URL extracted from the HTML form.
+
+        Raises
+        ------
+        KeycloakGetError
+            If the GET request to the OpenID Connect provider returns a non-200 status code.
+
+        """
         form_action = None
         resp: requests.Response = self._send_request(
             "GET",
@@ -159,7 +262,19 @@ class LoginHelper:
         return cookie, form_action
 
     def refreshToken(self, refresh_token) -> tuple:
-        """Refresh Token."""
+        """Refresh the access token using the provided refresh token.
+
+        Parameters
+        ----------
+        refresh_token : str
+            The refresh token obtained from previous authentication.
+
+        Returns
+        -------
+        tuple[str, int, str]
+            Tuple containing the refreshed access token, its expiration time in seconds,
+            and the new refresh token.
+        """
         resp: requests.Response = self._send_request(
             "POST",
             url=PROVIDER_URL + "token",
@@ -175,7 +290,23 @@ class LoginHelper:
         return result["access_token"], result["expires_in"], result["refresh_token"]
 
     def getToken(self) -> tuple:
-        """Get access and refresh tokens."""
+        """Retrieve access and refresh tokens using the obtained authorization code.
+
+        Raises
+        ------
+        KeycloakPostError
+            If there's an error during the POST request to retrieve tokens.
+
+        KeycloakInvalidTokenError
+            If the response status code is not 200, indicating an invalid token.
+
+        Returns
+        -------
+        tuple[str, int, str]
+            Tuple containing the access token, its expiration time in seconds,
+            and the refresh token obtained from the authentication server.
+
+        """
         self._login()
         _data = {
             "grant_type": GRANT_TYPE_AUTHORIZATION_CODE,
@@ -216,6 +347,24 @@ class LoginHelper:
         return resp.json()
 
     def logout(self, token) -> dict | Any | bytes | dict[str, str]:
+        """Log out the user session from the identity provider.
+
+        Parameters
+        ----------
+        token : str
+            Refresh token associated with the user session.
+
+        Returns
+        -------
+        Union[dict, Any, bytes, dict[str, str]]
+            Response data from the logout request. The exact type may vary based on the response content.
+
+        Raises
+        ------
+        KeycloakPostError
+            If an error occurs during the POST request to logout the user.
+
+        """
         resp: requests.Response = self._send_request(
             "POST",
             url=PROVIDER_URL + "logout",
