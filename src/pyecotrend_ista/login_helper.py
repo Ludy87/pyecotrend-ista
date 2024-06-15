@@ -2,13 +2,9 @@
 
 from __future__ import annotations
 
-import base64
-import hashlib
 import html
-import json
 import logging
 import re
-import secrets
 import urllib.parse
 from typing import Any
 
@@ -18,7 +14,6 @@ from urllib3.util.retry import Retry
 
 from .const import (
     CLIENT_ID,
-    CODE_CHALLENGE_METHODE,
     GRANT_TYPE_AUTHORIZATION_CODE,
     GRANT_TYPE_REFRESH_TOKEN,
     PROVIDER_URL,
@@ -43,10 +38,6 @@ class LoginHelper:
 
     Attributes
     ----------
-    code_verifier : str
-        Random URL-safe string used in OAuth2 code exchange.
-    code_challenge : str | None
-        Base64 URL-safe encoded SHA-256 hash of `code_verifier`, used in OAuth2 code exchange.
     session : requests.Session | None
         Optional session object for making HTTP requests.
     username : str
@@ -66,9 +57,6 @@ class LoginHelper:
     using Keycloak.
 
     """
-
-    code_verifier = secrets.token_urlsafe(32)
-    code_challenge = None
 
     session = None
 
@@ -105,11 +93,6 @@ class LoginHelper:
         self.username = username
         self.password = password
         self.totp = totp
-
-        __code_challenge: bytes = hashlib.sha256(self.code_verifier.encode("utf-8")).digest()
-        _code_challenge: str = base64.urlsafe_b64encode(__code_challenge).decode("utf-8")
-
-        self.code_challenge = _code_challenge.rstrip("=")
 
         if session:
             self.session = session
@@ -244,8 +227,6 @@ class LoginHelper:
                 "client_id": CLIENT_ID,
                 "scope": SCOPE,
                 "redirect_uri": REDIRECT_URI,
-                "code_challenge": self.code_challenge,
-                "code_challenge_method": CODE_CHALLENGE_METHODE,
             },
             timeout=TIMEOUT,
             allow_redirects=False,
@@ -313,7 +294,6 @@ class LoginHelper:
             "client_id": CLIENT_ID,  # ecotrend
             "redirect_uri": REDIRECT_URI,
             "code": self.auth_code,
-            "code_verifier": self.code_verifier,
         }
         if self.totp:
             _data["totp"] = self.totp
@@ -339,12 +319,6 @@ class LoginHelper:
         resp: requests.Response = self._send_request("GET", url=PROVIDER_URL + "userinfo", headers=header)
         return resp.json()
 
-    def well_know(self) -> Any:
-        resp: requests.Response = self._send_request(
-            "GET", url="https://keycloak.ista.com/realms/eed-prod/.well-known/openid-configuration"
-        )
-        raise_error_from_response(resp, KeycloakGetError)
-        return resp.json()
 
     def logout(self, token) -> dict | Any | bytes | dict[str, str]:
         """Log out the user session from the identity provider.
@@ -375,18 +349,6 @@ class LoginHelper:
         )
 
         return raise_error_from_response(resp, KeycloakPostError)
-
-
-def _b64_decode(data) -> str:
-    """Decode base64 data and pad with spaces to 4 - byte boundary."""
-    data += "=" * (4 - len(data) % 4)
-    return base64.b64decode(data).decode("utf-8")
-
-
-def jwt_payload_decode(jwt) -> str:
-    """Decodes and returns the JSON Web Token."""
-    _, payload, _ = jwt.split(".")
-    return json.dumps(json.loads(_b64_decode(payload)), indent=4)
 
 
 def raise_error_from_response(
