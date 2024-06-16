@@ -5,8 +5,8 @@ from __future__ import annotations
 import html
 import logging
 import re
-import urllib.parse
 from typing import Any, cast
+import urllib.parse
 
 import requests
 from requests.adapters import HTTPAdapter
@@ -40,17 +40,17 @@ class LoginHelper:
 
     Attributes
     ----------
-    session : requests.Session | None
+    session : requests.Session
         Optional session object for making HTTP requests.
     username : str
         Username for authentication.
     password : str
         Password for authentication.
-    cookie : str | None
+    cookie : str
         Authentication cookie.
-    auth_code : str | None
+    auth_code : str
         Authorization code.
-    form_action : str | None
+    form_action : str
         Form action URL for authentication.
 
     Notes
@@ -60,13 +60,10 @@ class LoginHelper:
 
     """
 
-    session = None
-
-    username = None
-    password = None
-    cookie = None
-    auth_code = None
-    form_action = None
+    session: requests.Session
+    cookie: str
+    auth_code: str
+    form_action: str
 
     def __init__(
         self,
@@ -92,14 +89,12 @@ class LoginHelper:
             Logger object for logging messages, by default None.
 
         """
-        self.username = username
-        self.password = password
-        self.totp = totp
+        self.username: str = username
+        self.password: str = password
+        self.totp: str | None = totp
 
-        if session:
-            self.session = session
-        else:
-            self.session = requests.Session()
+
+        self.session = session or requests.Session()
 
         self.session.verify = True
         retries = Retry(total=5, backoff_factor=1, status_forcelist=[502, 503, 504, 408])
@@ -136,7 +131,7 @@ class LoginHelper:
             raise ValueError("Session object is not initialized.")
         try:
             response = self.session.request(method, url, **kwargs)
-            self.logger.debug("Performed % request: %s [%s]:\n%s", method, url, response.status_code, response.text)
+            self.logger.debug("Performed % request: %s [%s]:\n%s", method, url, response.status_code, response.text[:100])
             response.raise_for_status()
         except requests.RequestException as e:
             raise KeycloakOperationError from e
@@ -154,7 +149,7 @@ class LoginHelper:
         try:
             self.auth_code = self._get_auth_code()
         except KeycloakAuthenticationError as error:
-            raise KeycloakAuthenticationError(error) from error
+            raise KeycloakAuthenticationError(error.error_message) from error
 
     def _get_auth_code(self) -> str:
         """
@@ -178,7 +173,12 @@ class LoginHelper:
         resp: requests.Response = self._send_request(
             "POST",
             form_action,
-            data={"username": self.username, "password": self.password, "login": "Login", "credentialId": None},
+            data={
+                "username": self.username,
+                "password": self.password,
+                "login": "Login",
+                "credentialId": None,
+            },
             headers={"Cookie": cookie},
             timeout=TIMEOUT,
             allow_redirects=False,
@@ -273,7 +273,7 @@ class LoginHelper:
 
         return result["access_token"], result["expires_in"], result["refresh_token"]
 
-    def getToken(self) -> GetTokenResponse:
+    def get_token(self) -> GetTokenResponse:
         """Retrieve access and refresh tokens using the obtained authorization code.
 
         Raises
@@ -316,16 +316,36 @@ class LoginHelper:
         return cast(GetTokenResponse, resp.json())
 
     def userinfo(self, token) -> Any:
-        """."""
+        """Retrieve user information from the Keycloak provider.
+
+        This method sends a GET request to the Keycloak `userinfo` endpoint using the provided
+        token in the Authorization header. It returns the JSON response containing user information.
+
+        Parameters
+        ----------
+        token : str
+            The access token to be used for authorization.
+
+        Returns
+        -------
+        Any
+            A dictionary containing the user information if the request is successful, or an empty
+            dictionary if the user is a demo user.
+
+        Raises
+        ------
+        KeycloakOperationError
+            If the request fails due to a Keycloak operation error.
+        """
+        if self.username == DEMO_USER_ACCOUNT:
+            return {}
+
         header = {"Authorization": f"Bearer {token}"}
         url = f"{PROVIDER_URL}userinfo"
-        try:
-            resp: requests.Response = self._send_request("GET", url=url, headers=header)
-        except KeycloakOperationError:
-            if self.username == DEMO_USER_ACCOUNT:
-                return {}
-        else:
-            return resp.json()
+
+        resp: requests.Response = self._send_request("GET", url=url, headers=header)
+
+        return resp.json()
 
     def logout(self, token) -> dict | Any | bytes | dict[str, str]:
         """Log out the user session from the identity provider.
