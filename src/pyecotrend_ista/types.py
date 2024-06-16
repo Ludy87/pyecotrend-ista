@@ -8,18 +8,18 @@ class GetTokenResponse(TypedDict):
 
     Attributes
     ----------
-    accessToken : str
+    access_token : str
         The access token issued by the authentication provider.
-    accessTokenExpiresIn : int
+    expires_in : int
         The number of seconds until the access token expires.
-    refreshToken : str
+    refresh_token : str
         The refresh token that can be used to obtain new access tokens.
-    refreshTokenExpiresIn : int
+    refresh_expires_in : int
         The number of seconds until the refresh token expires.
 
     """
 
-    accessToken: str
-    accessTokenExpiresIn: int
-    refreshToken: str
-    refreshTokenExpiresIn: int
+    access_token: str
+    expires_in: int
+    refresh_token: str
+    refresh_expires_in: int

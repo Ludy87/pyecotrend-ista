@@ -108,7 +108,7 @@ class PyEcotrendIsta:
             self._accessTokenExpiresIn > 0
             and self._is_connected()
             and self._refreshToken
-            and self._accessTokenExpiresIn <= (time.time() - self.start_timer).__round__(2)
+            and self._accessTokenExpiresIn <= time.time() - self.start_timer
         ):
             self.__refresh()
         return self._accessToken
@@ -922,7 +922,10 @@ class PyEcotrendIsta:
             ) as r:
                 r.raise_for_status()
                 try:
-                    return cast(GetTokenResponse, r.json())
+                    data = r.json()
+                    key = iter(GetTokenResponse.__annotations__)
+                    token = dict((next(key), value) for value in data.values())
+                    return cast(GetTokenResponse, token)
                 except requests.JSONDecodeError as e:
                     self._LOGGER.debug("JSONDecodeError: %s", e)
                     raise ServerError from e

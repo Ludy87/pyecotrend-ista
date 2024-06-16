@@ -25,10 +25,15 @@ def mock_requests_login(requests_mock):
     requests_mock.post(
         PROVIDER_URL + "token",
         json={
-            "accessToken": "ACCESS_TOKEN",
-            "accessTokenExpiresIn": 60,
-            "refreshToken": "REFRESH_TOKEN",
-            "refreshTokenExpiresIn": 5184000,
+            "access_token": "ACCESS_TOKEN",
+            "expires_in": 60,
+            "refresh_expires_in": 5183999,
+            "refresh_token": "REFRESH_TOKEN",
+            "token_type": "Bearer",
+            "id_token": "ID_TOKEN",
+            "not-before-policy": 0,
+            "session_state": "SESSION_STATE",
+            "scope": "openid profile email",
         },
     )
     requests_mock.get(
