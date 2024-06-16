@@ -272,7 +272,6 @@ class LoginHelper:
 
         return result["access_token"], result["expires_in"], result["refresh_token"]
 
-
     def getToken(self) -> GetTokenResponse:
         """Retrieve access and refresh tokens using the obtained authorization code.
 
@@ -315,13 +314,11 @@ class LoginHelper:
 
         return cast(GetTokenResponse, resp.json())
 
-
     def userinfo(self, token) -> Any:
         """."""
         header = {"Authorization": "Bearer " + token}
         resp: requests.Response = self._send_request("GET", url=PROVIDER_URL + "userinfo", headers=header)
         return resp.json()
-
 
     def logout(self, token) -> dict | Any | bytes | dict[str, str]:
         """Log out the user session from the identity provider.
