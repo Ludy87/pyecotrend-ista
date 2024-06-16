@@ -5,7 +5,7 @@ from __future__ import annotations
 import logging
 import time
 import warnings
-from typing import Any
+from typing import Any, cast
 
 import requests
 
@@ -21,6 +21,7 @@ from .const import (
 from .exception_classes import Error, InternalServerError, LoginError, ServerError, deprecated
 from .helper_object_de import CustomRaw
 from .login_helper import LoginHelper
+from .types import GetTokenResponse
 
 
 class PyEcotrendIsta:
@@ -145,14 +146,17 @@ class PyEcotrendIsta:
 
         """
         if self._email == "demo@ista.de":
-            self._LOGGER.debug("DEMO")
+            self._LOGGER.debug("Logging in as demo user")
             token = self.demo_user_login()
+        else:
+            token = self.loginhelper.getToken()
+
+        if token:
             self._accessToken = token["accessToken"]
             self._accessTokenExpiresIn = token["accessTokenExpiresIn"]
             self._refreshToken = token["refreshToken"]
-            return self.access_token
-        self._accessToken, self._accessTokenExpiresIn, self._refreshToken = self.loginhelper.get_token()
-        return self.access_token
+            return self.accessToken
+        return None
 
     def __refresh(self) -> None:
         """Refresh the access token using the refresh token.
@@ -895,13 +899,13 @@ class PyEcotrendIsta:
             " Safari/537.36"
         )
 
-    def demo_user_login(self) -> dict[str, Any]:
+    def demo_user_login(self) -> GetTokenResponse:
         """Retrieve authentication tokens for the demo user.
 
         Returns
         -------
-        dict[str, Any]
-            A dictionary containing authentication tokens including 'accessToken',
+        GetTokenResponse
+            A TypedDict containing authentication tokens including 'accessToken',
             'accessTokenExpiresIn', and 'refreshToken'.
 
         Raises
@@ -918,7 +922,7 @@ class PyEcotrendIsta:
             ) as r:
                 r.raise_for_status()
                 try:
-                    return r.json()
+                    return cast(GetTokenResponse, r.json())
                 except requests.JSONDecodeError as e:
                     self._LOGGER.debug("JSONDecodeError: %s", e)
                     raise ServerError from e
