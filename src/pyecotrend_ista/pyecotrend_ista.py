@@ -939,7 +939,7 @@ class PyEcotrendIsta:
                 try:
                     data = r.json()
                     key = iter(GetTokenResponse.__annotations__)
-                    token = {next(key): value for value in data.values()}
+                    token = dict((next(key), value) for value in data.values())
                     return cast(GetTokenResponse, token)
                 except requests.JSONDecodeError as e:
                     self._LOGGER.debug("JSONDecodeError: %s", e)
