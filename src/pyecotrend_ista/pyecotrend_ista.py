@@ -18,7 +18,14 @@ from .const import (
     RETRY_DELAY,
     VERSION,
 )
-from .exception_classes import Error, InternalServerError, LoginError, ServerError, deprecated
+from .exception_classes import (
+    Error,
+    InternalServerError,
+    KeycloakOperationError,
+    LoginError,
+    ServerError,
+    deprecated,
+)
 from .helper_object_de import CustomRaw
 from .login_helper import LoginHelper
 from .types import GetTokenResponse
@@ -151,7 +158,12 @@ class PyEcotrendIsta:
         else:
             token = self.loginhelper.getToken()
 
-        if token:
+        if token and "accessToken" in token and "accessTokenExpiresIn" in token and "refreshToken" in token:
+            self._accessToken = token["accessToken"]
+            self._accessTokenExpiresIn = token["accessTokenExpiresIn"]
+            self._refreshToken = token["refreshToken"]
+            return self._accessToken
+        elif token and "access_token" in token and "expires_in" in token and "refresh_token" in token:
             self._accessToken = token["access_token"]
             self._accessTokenExpiresIn = token["expires_in"]
             self._refreshToken = token["refresh_token"]
@@ -290,7 +302,7 @@ class PyEcotrendIsta:
                 except LoginError as error:
                     # Login failed
                     self._accessToken = None
-                    self._LOGGER.exception(error)
+                    self._LOGGER.exception("Login error")
                     raise LoginError(error.res) from error
                 except ServerError:
                     if retryCounter < MAX_RETRIES:
@@ -364,7 +376,10 @@ class PyEcotrendIsta:
         >>> client.logout()
 
         """
-        self.loginhelper.logout(self._refreshToken)
+        try:
+            self.loginhelper.logout(self._refreshToken)
+        except KeycloakOperationError:
+            return
 
     def get_uuids(self) -> list[str]:
         """Retrieve UUIDs of consumption units registered in the account.
@@ -924,7 +939,7 @@ class PyEcotrendIsta:
                 try:
                     data = r.json()
                     key = iter(GetTokenResponse.__annotations__)
-                    token = dict((next(key), value) for value in data.values())
+                    token = {next(key): value for value in data.values()}
                     return cast(GetTokenResponse, token)
                 except requests.JSONDecodeError as e:
                     self._LOGGER.debug("JSONDecodeError: %s", e)

@@ -137,7 +137,8 @@ class LoginHelper:
             response = self.session.request(method, url, **kwargs)
             response.raise_for_status()
         except requests.RequestException as e:
-            self.logger.exception("Request error: %s", e.__str__())
+            if self.username != "demo@ista.de":
+                self.logger.exception("Request error")
             raise KeycloakOperationError from e
         else:
             return response
@@ -317,8 +318,26 @@ class LoginHelper:
     def userinfo(self, token) -> Any:
         """."""
         header = {"Authorization": "Bearer " + token}
-        resp: requests.Response = self._send_request("GET", url=PROVIDER_URL + "userinfo", headers=header)
-        return resp.json()
+        try:
+            resp: requests.Response = self._send_request("GET", url=PROVIDER_URL + "userinfo", headers=header)
+        except KeycloakOperationError:
+            return {
+                "sub": "52fd69f2-b03e-4903-a4e9-1c16076d5e91",
+                "demoUser": True,
+                "country": "DE",
+                "email_verified": False,
+                "mobileNumber": "123456789",
+                "preferred_username": "26e93f1a-c828-11ea-87d0-0242ac130003",
+                "given_name": "Max",
+                "locale": "de_DE",
+                "name": "Max Istamann",
+                "family_name": "Istamann",
+                "userGroup": "demo",
+                "email": "demo-52fd69f2-b03e-4903-a4e9-1c16076d5e91@ista.de",
+                "mobileLoginStatus": None,
+            }
+        else:
+            return resp.json()
 
     def logout(self, token) -> dict | Any | bytes | dict[str, str]:
         """Log out the user session from the identity provider.
