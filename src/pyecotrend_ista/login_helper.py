@@ -104,7 +104,7 @@ class LoginHelper:
         retries = Retry(total=5, backoff_factor=1, status_forcelist=[502, 503, 504, 408])
         self.session.mount("https://", HTTPAdapter(max_retries=retries))
 
-        self.logger = logger if logger else logging.getLogger(__name__)
+        self.logger = logger or  logging.getLogger(__name__)
 
     def _send_request(self, method, url, **kwargs) -> requests.Response:
         """Send an HTTP request using the session object.
@@ -135,11 +135,14 @@ class LoginHelper:
             raise ValueError("Session object is not initialized.")
         try:
             response = self.session.request(method, url, **kwargs)
+            self.logger.debug(
+            "Performed % request: %s [%s]:\n%s", method, url, response.status_code, response.text
+            )
             response.raise_for_status()
         except requests.RequestException as e:
             raise KeycloakOperationError from e
-        else:
-            return response
+
+        return response
 
     def _login(self) -> None:
         """Log in to ista EcoTrend.
