@@ -1,11 +1,11 @@
 """Fixtures for Tests."""
 
 import pytest
-from pyecotrend_ista.const import ACCOUNT_URL, DEMO_USER_TOKEN, PROVIDER_URL
+from pyecotrend_ista.const import ACCOUNT_URL, DEMO_USER_ACCOUNT, DEMO_USER_TOKEN, PROVIDER_URL
 from pyecotrend_ista.pyecotrend_ista import PyEcotrendIsta
 
 TEST_EMAIL = "max.istamann@test.com"
-DEMO_EMAIL = "demo@ista.de"
+DEMO_EMAIL = DEMO_USER_ACCOUNT
 TEST_PASSWORD = "password"
 
 
