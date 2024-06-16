@@ -6,7 +6,8 @@ import warnings
 from collections.abc import Callable
 from typing import Any, TypeVar
 
-T = TypeVar('T')
+T = TypeVar("T")
+
 
 def deprecated(func: Callable[..., T], alias_func: str | None = None) -> Callable[..., T]:
     """Decorate a function as deprecated and emit a warning when called.
@@ -36,6 +37,8 @@ def deprecated(func: Callable[..., T], alias_func: str | None = None) -> Callabl
         return func(*args, **kwargs)
 
     return deprecated_func
+
+
 class Error(Exception):
     """This is a class to catch exceptions that are thrown when trying to create a node."""
 
