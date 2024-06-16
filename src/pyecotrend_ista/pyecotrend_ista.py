@@ -28,7 +28,7 @@ from .exception_classes import (
 )
 from .helper_object_de import CustomRaw
 from .login_helper import LoginHelper
-from .types import GetTokenResponse
+from .types import AccountResponse, GetTokenResponse
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -38,6 +38,9 @@ class PyEcotrendIsta:
 
     This class provides methods to authenticate and interact with the ista EcoTrend API.
     """
+
+    _account: AccountResponse
+    _uuid: str
 
     def __init__(
         self,
@@ -86,7 +89,6 @@ class PyEcotrendIsta:
         self._accessTokenExpiresIn: int = 0
         self._header: dict[str, str] = {}
         self._supportCode: str | None = None
-        self._uuid: str = ""
 
         self._email = email.strip()
         self._password = password
@@ -185,7 +187,11 @@ class PyEcotrendIsta:
         This method assumes `self._refreshToken` is already set.
 
         """
-        self._accessToken, self._accessTokenExpiresIn, self._refreshToken = self.loginhelper.refresh_token(self._refreshToken)
+        (
+            self._accessToken,
+            self._accessTokenExpiresIn,
+            self._refreshToken,
+        ) = self.loginhelper.refresh_token(self._refreshToken)
         new_token = self._accessToken
 
         self._header["Authorization"] = f"Bearer {new_token}"
@@ -195,62 +201,30 @@ class PyEcotrendIsta:
             time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(self.start_timer)),
         )
 
-    def __set_account_values(self, res_json: dict[str, Any]) -> None:
-        """Set account values based on the provided JSON response.
-
-        Parameters
-        ----------
-        res_json : dict
-            JSON response containing account information.
-
-        Notes
-        -----
-        Sets instance variables for various account details based on keys in `res_json`.
-
-        """
-        self._a_ads = res_json["ads"]
-        self._a_authcode = res_json["authcode"]
-        self._a_betaPhase = res_json["betaPhase"]
-        self._a_consumptionUnitUuids = res_json["consumptionUnitUuids"]
-        self._a_country = res_json["country"]
-        self._a_email = res_json["email"]
-        self._a_emailConfirmed = res_json["emailConfirmed"]
-        self._a_enabled = res_json["enabled"]
-        self._a_fcmToken = res_json["fcmToken"]
-        self._a_firstName = res_json["firstName"]
-        self._a_isDemo = res_json["isDemo"]
-        self._a_keycloakId = res_json["keycloakId"]
-        self._a_lastName = res_json["lastName"]
-        self._a_locale = res_json["locale"]
-        self._a_marketing = res_json["marketing"]
-        self._a_mobileLoginStatus = res_json["mobileLoginStatus"]
-        self._a_notificationMethod = res_json["notificationMethod"]
-        self._a_notificationMethodEmailConfirmed = res_json["notificationMethodEmailConfirmed"]
-        self._a_password = res_json["password"]
-        self._a_privacy = res_json["privacy"]
-        self._residentAndConsumptionUuidsMap: dict[str, str] = res_json["residentAndConsumptionUuidsMap"]  # multi
-        self._a_residentTimeRangeUuids = res_json["residentTimeRangeUuids"]
-        self._supportCode = res_json["supportCode"]
-        self._a_tos = res_json["tos"]
-        self._a_tosUpdated = res_json["tosUpdated"]
-        self._a_transitionMobileNumber = res_json["transitionMobileNumber"]
-        self._a_unconfirmedPhoneNumber = res_json["unconfirmedPhoneNumber"]
-        self._a_userGroup = res_json["userGroup"]
-        self._uuid = res_json["activeConsumptionUnit"]  # single
-
     def __set_account(self) -> None:
         """Fetch and set account information from the API.
 
         This method performs an API request to retrieve account information
         and sets instance variables accordingly using __set_account_values.
         """
-        self._header = {"Content-Type": "application/json"}
-        self._header["User-Agent"] = self.get_user_agent()
-        self._header["Authorization"] = f"Bearer {self.access_token}"
-        response = self.session.get(ACCOUNT_URL, headers=self._header)
-        _LOGGER.debug("Performed GET request: %s [%s]:\n%s", ACCOUNT_URL, response.status_code, response.text)
-        res = response.json()
-        self.__set_account_values(res)
+        self._header = {
+            "Content-Type": "application/json",
+            "User-Agent": self.get_user_agent(),
+            "Authorization": f"Bearer {self.access_token}",
+        }
+        try:
+            with self.session.get(ACCOUNT_URL, headers=self._header) as r:
+                _LOGGER.debug("Performed GET request: %s [%s]:\n%s", ACCOUNT_URL, r.status_code, r.text)
+                r.raise_for_status()
+                try:
+                    data = r.json()
+                except requests.JSONDecodeError as e:
+                    raise ServerError from e
+        except (requests.RequestException, requests.Timeout) as e:
+            raise ServerError from e
+
+        self._account = cast(AccountResponse, data)
+        self._uuid = data["activeConsumptionUnit"]
 
     def get_version(self) -> str:
         """Get the version of the PyEcotrendIsta client.
@@ -410,10 +384,10 @@ class PyEcotrendIsta:
         ['uuid1', 'uuid2', 'uuid3']
 
         """
-        uuids = []
-        for _, value in self._residentAndConsumptionUuidsMap.items():
-            uuids.append(value)
-        return uuids
+        return list(self._account.get("residentAndConsumptionUuidsMap", {}).values())
+
+
+
 
     getUUIDs = deprecated(get_uuids, "getUUIDs")
 
