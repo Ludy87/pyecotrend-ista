@@ -866,7 +866,7 @@ class PyEcotrendIsta:
             except requests.Timeout:
                 _LOGGER.exception("Exception: The request timed out")
             except requests.JSONDecodeError:
-                _LOGGER.exception("Exception: Faile to parse server response")
+                _LOGGER.exception("Exception: Failed to parse server response")
         return raw
 
     def get_consumption_unit_details(self) -> dict[str, Any]:
