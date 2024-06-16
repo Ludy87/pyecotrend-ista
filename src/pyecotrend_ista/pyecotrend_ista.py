@@ -21,7 +21,6 @@ from .const import (
 from .exception_classes import (
     Error,
     InternalServerError,
-    KeycloakOperationError,
     LoginError,
     ServerError,
     deprecated,
