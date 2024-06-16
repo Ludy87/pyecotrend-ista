@@ -136,10 +136,11 @@ class LoginHelper:
         try:
             response = self.session.request(method, url, **kwargs)
             response.raise_for_status()
-            return response
         except requests.RequestException as e:
-            self.logger.error("Request error: %s", e)
+            self.logger.exception("Request error: %s", e.__str__())
             raise KeycloakOperationError from e
+        else:
+            return response
 
     def _login(self) -> None:
         """Log in to ista EcoTrend.
