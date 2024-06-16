@@ -18,7 +18,7 @@ from .const import (
     RETRY_DELAY,
     VERSION,
 )
-from .exception_classes import Error, InternalServerError, LoginError, ServerError
+from .exception_classes import Error, InternalServerError, LoginError, ServerError, deprecated
 from .helper_object_de import CustomRaw
 from .login_helper import LoginHelper
 from .types import GetTokenResponse
@@ -60,7 +60,9 @@ class PyEcotrendIsta:
 
         if hass_dir:
             warnings.warn(
-                "The 'hass_dir' parameter is deprecated and will be removed in a future release.", DeprecationWarning
+                "The 'hass_dir' parameter is deprecated and will be removed in a future release.",
+                DeprecationWarning,
+                stacklevel=2,
             )
 
         self._accessToken: str | None = None
@@ -85,7 +87,7 @@ class PyEcotrendIsta:
         self.session = self.loginhelper.session
 
     @property
-    def accessToken(self):
+    def access_token(self):
         """Retrieve the access token, refreshing it if necessary.
 
         This property checks if the access token is still valid. If the token has expired and the client is connected,
@@ -104,14 +106,14 @@ class PyEcotrendIsta:
         """
         if (
             self._accessTokenExpiresIn > 0
-            and self._isConnected()
+            and self._is_connected()
             and self._refreshToken
             and self._accessTokenExpiresIn <= (time.time() - self.start_timer).__round__(2)
         ):
             self.__refresh()
         return self._accessToken
 
-    def _isConnected(self) -> bool:
+    def _is_connected(self) -> bool:
         """Check if the client is connected by verifying the presence of an access token.
 
         Returns
@@ -131,16 +133,11 @@ class PyEcotrendIsta:
         """
         self._accessToken = None
 
-    def __login(self, debug: bool = False) -> str | None:
+    def __login(self) -> str | None:
         """Perform the login process to obtain an access token.
 
         If the email is a demo account, it logs in using a demo user login function.
         For other accounts, it retrieves a token using a login helper.
-
-        Parameters
-        ----------
-        debug : bool, optional
-            [DEPRECATED] Whether to enable debug logging. Default is False.
 
         Returns
         -------
@@ -159,7 +156,6 @@ class PyEcotrendIsta:
             self._accessTokenExpiresIn = token["accessTokenExpiresIn"]
             self._refreshToken = token["refreshToken"]
             return self.accessToken
-
         return None
 
     def __refresh(self) -> None:
@@ -173,14 +169,14 @@ class PyEcotrendIsta:
         This method assumes `self._refreshToken` is already set.
 
         """
-        self._accessToken, self._accessTokenExpiresIn, self._refreshToken = self.loginhelper.refreshToken(self._refreshToken)
+        self._accessToken, self._accessTokenExpiresIn, self._refreshToken = self.loginhelper.refresh_token(self._refreshToken)
         new_token = self._accessToken
 
         self._header["Authorization"] = f"Bearer {new_token}"
         self.start_timer = time.time()
         self._LOGGER.debug("refresh Token %s", self.start_timer)
 
-    def __setAccountValues(self, res_json: dict[str, Any]) -> None:
+    def __set_account_values(self, res_json: dict[str, Any]) -> None:
         """Set account values based on the provided JSON response.
 
         Parameters
@@ -223,20 +219,20 @@ class PyEcotrendIsta:
         self._a_userGroup = res_json["userGroup"]
         self._uuid = res_json["activeConsumptionUnit"]  # single
 
-    def __setAccount(self) -> None:
+    def __set_account(self) -> None:
         """Fetch and set account information from the API.
 
         This method performs an API request to retrieve account information
-        and sets instance variables accordingly using __setAccountValues.
+        and sets instance variables accordingly using __set_account_values.
         """
         self._header = {"Content-Type": "application/json"}
-        self._header["User-Agent"] = self.getUA()
-        self._header["Authorization"] = f"Bearer {self.accessToken}"
+        self._header["User-Agent"] = self.get_user_agent()
+        self._header["Authorization"] = f"Bearer {self.access_token}"
         response = self.session.get(ACCOUNT_URL, headers=self._header)
         res = response.json()
-        self.__setAccountValues(res)
+        self.__set_account_values(res)
 
-    def getVersion(self) -> str:
+    def get_version(self) -> str:
         """Get the version of the PyEcotrendIsta client.
 
         Returns
@@ -246,6 +242,8 @@ class PyEcotrendIsta:
 
         """
         return VERSION
+
+    getVersion = deprecated(get_version, "getVersion")
 
     def login(self, forceLogin: bool = False, debug: bool = False) -> str | None:
         """Perform the login process if not already connected or forced.
@@ -275,16 +273,20 @@ class PyEcotrendIsta:
 
         """
         if debug:
-            warnings.warn("The 'debug' parameter is deprecated and will be removed in a future release.", DeprecationWarning)
+            warnings.warn(
+                "The 'debug' parameter is deprecated and will be removed in a future release.",
+                DeprecationWarning,
+                stacklevel=2,
+            )
 
         self.start_timer = time.time()
-        if not self._isConnected() or forceLogin:
+        if not self._is_connected() or forceLogin:
             self._logoff()
             retryCounter = 0
-            while not self._isConnected() and (retryCounter < MAX_RETRIES + 2):
+            while not self._is_connected() and (retryCounter < MAX_RETRIES + 2):
                 retryCounter += 1
                 try:
-                    self._accessToken = self.__login(debug)
+                    self._accessToken = self.__login()
                 except LoginError as error:
                     # Login failed
                     self._accessToken = None
@@ -301,11 +303,11 @@ class PyEcotrendIsta:
                     time.sleep(RETRY_DELAY)
                 except Error as err:
                     raise Exception(err)  # noqa: TRY200
-                if not self.accessToken:
+                if not self.access_token:
                     time.sleep(RETRY_DELAY)
                 else:
-                    self.__setAccount()
-        return self.accessToken
+                    self.__set_account()
+        return self.access_token
 
     def userinfo(self, token):
         """Retrieve user information using the provided access token.
@@ -364,7 +366,7 @@ class PyEcotrendIsta:
         """
         self.loginhelper.logout(self._refreshToken)
 
-    def getUUIDs(self) -> list[str]:
+    def get_uuids(self) -> list[str]:
         """Retrieve UUIDs of consumption units registered in the account.
 
         Returns
@@ -382,7 +384,7 @@ class PyEcotrendIsta:
         -------
         >>> client = PyEcotrendIsta(email='user@example.com', password='password')
         >>> client.login()
-        >>> uuids = client.getUUIDs()
+        >>> uuids = client.get_uuids()
         >>> print(uuids)
         ['uuid1', 'uuid2', 'uuid3']
 
@@ -391,6 +393,8 @@ class PyEcotrendIsta:
         for _, value in self._residentAndConsumptionUuidsMap.items():
             uuids.append(value)
         return uuids
+
+    getUUIDs = deprecated(get_uuids, "getUUIDs")
 
     # @refresh_now
     def consum_raw(  # noqa: C901
@@ -864,7 +868,7 @@ class PyEcotrendIsta:
             self._LOGGER.debug("RequestException: %s", e)
             raise ServerError from e
 
-    def getSupportCode(self) -> str | None:
+    def get_support_code(self) -> str | None:
         """Return the support code associated with the instance.
 
         Returns
@@ -875,7 +879,9 @@ class PyEcotrendIsta:
         """
         return self._supportCode
 
-    def getUA(self) -> str:
+    getSupportCode = deprecated(get_support_code, "getSupportCode")
+
+    def get_user_agent(self) -> str:
         """Return the User-Agent string used for HTTP requests.
 
         Returns
@@ -909,7 +915,7 @@ class PyEcotrendIsta:
 
         """
         try:
-            self._header["User-Agent"] = self.getUA()
+            self._header["User-Agent"] = self.get_user_agent()
             with self.session.get(
                 DEMO_USER_TOKEN,
                 headers=self._header,

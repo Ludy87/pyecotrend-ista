@@ -2,13 +2,9 @@
 
 from __future__ import annotations
 
-import base64
-import hashlib
 import html
-import json
 import logging
 import re
-import secrets
 import urllib.parse
 from typing import Any, cast
 
@@ -18,7 +14,6 @@ from urllib3.util.retry import Retry
 
 from .const import (
     CLIENT_ID,
-    CODE_CHALLENGE_METHODE,
     GRANT_TYPE_AUTHORIZATION_CODE,
     GRANT_TYPE_REFRESH_TOKEN,
     PROVIDER_URL,
@@ -44,10 +39,6 @@ class LoginHelper:
 
     Attributes
     ----------
-    code_verifier : str
-        Random URL-safe string used in OAuth2 code exchange.
-    code_challenge : str | None
-        Base64 URL-safe encoded SHA-256 hash of `code_verifier`, used in OAuth2 code exchange.
     session : requests.Session | None
         Optional session object for making HTTP requests.
     username : str
@@ -67,9 +58,6 @@ class LoginHelper:
     using Keycloak.
 
     """
-
-    code_verifier = secrets.token_urlsafe(32)
-    code_challenge = None
 
     session = None
 
@@ -106,11 +94,6 @@ class LoginHelper:
         self.username = username
         self.password = password
         self.totp = totp
-
-        __code_challenge: bytes = hashlib.sha256(self.code_verifier.encode("utf-8")).digest()
-        _code_challenge: str = base64.urlsafe_b64encode(__code_challenge).decode("utf-8")
-
-        self.code_challenge = _code_challenge.rstrip("=")
 
         if session:
             self.session = session
@@ -167,11 +150,11 @@ class LoginHelper:
             If an authentication error occurs during the login process.
         """
         try:
-            self.auth_code = self._getAuthCode()
+            self.auth_code = self._get_auth_code()
         except KeycloakAuthenticationError as error:
             raise KeycloakAuthenticationError(error) from error
 
-    def _getAuthCode(self) -> str:
+    def _get_auth_code(self) -> str:
         """
         Retrieve the authentication code for ista EcoTrend.
 
@@ -188,7 +171,7 @@ class LoginHelper:
             If the authentication code ('code') is not found in the redirection URL parameters.
 
         """
-        cookie, form_action = self._getCookieAndAction()
+        cookie, form_action = self._get_cookie_and_action()
 
         resp: requests.Response = self._send_request(
             "POST",
@@ -221,7 +204,7 @@ class LoginHelper:
             raise KeycloakCodeNotFound("header[Location] Code not found", response_code=resp.status_code)
         return redirect_params["code"][0]
 
-    def _getCookieAndAction(self) -> tuple:
+    def _get_cookie_and_action(self) -> tuple:
         """Retrieve the cookie and action URL from the OpenID Connect provider.
 
         Returns
@@ -245,8 +228,6 @@ class LoginHelper:
                 "client_id": CLIENT_ID,
                 "scope": SCOPE,
                 "redirect_uri": REDIRECT_URI,
-                "code_challenge": self.code_challenge,
-                "code_challenge_method": CODE_CHALLENGE_METHODE,
             },
             timeout=TIMEOUT,
             allow_redirects=False,
@@ -262,7 +243,7 @@ class LoginHelper:
             form_action = html.unescape(search.group(1))
         return cookie, form_action
 
-    def refreshToken(self, refresh_token) -> tuple:
+    def refresh_token(self, refresh_token) -> tuple:
         """Refresh the access token using the provided refresh token.
 
         Parameters
@@ -290,6 +271,7 @@ class LoginHelper:
 
         return result["access_token"], result["expires_in"], result["refresh_token"]
 
+
     def getToken(self) -> GetTokenResponse:
         """Retrieve access and refresh tokens using the obtained authorization code.
 
@@ -314,7 +296,6 @@ class LoginHelper:
             "client_id": CLIENT_ID,  # ecotrend
             "redirect_uri": REDIRECT_URI,
             "code": self.auth_code,
-            "code_verifier": self.code_verifier,
         }
         if self.totp:
             _data["totp"] = self.totp
@@ -340,12 +321,6 @@ class LoginHelper:
         resp: requests.Response = self._send_request("GET", url=PROVIDER_URL + "userinfo", headers=header)
         return resp.json()
 
-    def well_know(self) -> Any:
-        resp: requests.Response = self._send_request(
-            "GET", url="https://keycloak.ista.com/realms/eed-prod/.well-known/openid-configuration"
-        )
-        raise_error_from_response(resp, KeycloakGetError)
-        return resp.json()
 
     def logout(self, token) -> dict | Any | bytes | dict[str, str]:
         """Log out the user session from the identity provider.
@@ -378,36 +353,34 @@ class LoginHelper:
         return raise_error_from_response(resp, KeycloakPostError)
 
 
-def _b64_decode(data) -> str:
-    """Decode base64 data and pad with spaces to 4 - byte boundary."""
-    data += "=" * (4 - len(data) % 4)
-    return base64.b64decode(data).decode("utf-8")
-
-
-def jwt_payload_decode(jwt) -> str:
-    """Decodes and returns the JSON Web Token."""
-    _, payload, _ = jwt.split(".")
-    return json.dumps(json.loads(_b64_decode(payload)), indent=4)
-
-
 def raise_error_from_response(
     response: requests.Response, error, expected_codes=None, skip_exists=False
 ) -> dict | Any | bytes | dict[str, str]:
     """Raise an exception for the response.
 
-    :param response: The response object
-    :type response: Response
-    :param error: Error object to raise
-    :type error: dict or Exception
-    :param expected_codes: Set of expected codes, which should not raise the exception
-    :type expected_codes: Sequence[int]
-    :param skip_exists: Indicates whether the response on already existing object should be ignored
-    :type skip_exists: bool
+    Parameters
+    ----------
+    response : Response
+        The response object.
+    error : dict or Exception
+        Error object to raise.
+    expected_codes : Sequence[int], optional
+        Set of expected codes, which should not raise the exception.
+    skip_exists : bool, optional
+        Indicates whether the response on already existing object should be ignored.
 
-    :returns: Content of the response message
-    :type: bytes or dict
-    :raises KeycloakError: In case of unexpected status codes
+    Returns
+    -------
+    bytes or dict
+        Content of the response message.
 
+    Raises
+    ------
+    KeycloakError
+        In case of unexpected status codes.
+
+    Notes
+    -----
     Source from https://github.com/marcospereirampj/python-keycloak/blob/c98189ca6951f12f1023ed3370c9aaa0d81e4aa4/src/keycloak/exceptions.py
     """  # noqa: DAR401,DAR402
     if expected_codes is None:

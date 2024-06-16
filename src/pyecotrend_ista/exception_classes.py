@@ -2,7 +2,41 @@
 
 from __future__ import annotations
 
-from typing import Any
+import warnings
+from collections.abc import Callable
+from typing import Any, TypeVar
+
+T = TypeVar("T")
+
+
+def deprecated(func: Callable[..., T], alias_func: str | None = None) -> Callable[..., T]:
+    """Decorate a function as deprecated and emit a warning when called.
+
+    Parameters
+    ----------
+    func: Callable[..., T])
+        The function to be marked as deprecated.
+    alias_func : str, optional
+        The real function name to show as deprecated, in case the function was called through an alias.
+
+
+    Returns
+    -------
+    Callable[..., T]
+        A wrapper function that emits a deprecation warning when called.
+
+    """
+
+    def deprecated_func(*args, **kwargs):
+        if alias_func:
+            warning_message = f"The `{alias_func}` function is deprecated and will be removed in a future release. Use `{func.__name__}` instead."
+        else:
+            warning_message = f"The `{func.__name__}` function is deprecated and will be removed in a future release."
+
+        warnings.warn(warning_message, category=DeprecationWarning, stacklevel=2)
+        return func(*args, **kwargs)
+
+    return deprecated_func
 
 
 class Error(Exception):
@@ -114,16 +148,8 @@ class KeycloakAuthenticationError(KeycloakError):
     """Keycloak authentication error exception."""
 
 
-class KeycloakConnectionError(KeycloakError):
-    """Keycloak connection error exception."""
-
-
 class KeycloakOperationError(KeycloakError):
     """Keycloak operation error exception."""
-
-
-class KeycloakDeprecationError(KeycloakError):
-    """Keycloak deprecation error exception."""
 
 
 class KeycloakGetError(KeycloakOperationError):
@@ -134,37 +160,9 @@ class KeycloakPostError(KeycloakOperationError):
     """Keycloak request post error exception."""
 
 
-class KeycloakPutError(KeycloakOperationError):
-    """Keycloak request put error exception."""
-
-
-class KeycloakDeleteError(KeycloakOperationError):
-    """Keycloak request delete error exception."""
-
-
-class KeycloakSecretNotFound(KeycloakOperationError):
-    """Keycloak secret not found exception."""
-
-
-class KeycloakRPTNotFound(KeycloakOperationError):
-    """Keycloak RPT not found exception."""
-
-
 class KeycloakCodeNotFound(KeycloakOperationError):
     """Keycloak Code not found exception."""
 
 
-class KeycloakAuthorizationConfigError(KeycloakOperationError):
-    """Keycloak authorization config exception."""
-
-
 class KeycloakInvalidTokenError(KeycloakOperationError):
     """Keycloak invalid token exception."""
-
-
-class KeycloakPermissionFormatError(KeycloakOperationError):
-    """Keycloak permission format exception."""
-
-
-class PermissionDefinitionError(Exception):
-    """Keycloak permission definition exception."""
