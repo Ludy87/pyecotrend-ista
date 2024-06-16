@@ -386,9 +386,6 @@ class PyEcotrendIsta:
         """
         return list(self._account.get("residentAndConsumptionUuidsMap", {}).values())
 
-
-
-
     getUUIDs = deprecated(get_uuids, "getUUIDs")
 
     # @refresh_now
