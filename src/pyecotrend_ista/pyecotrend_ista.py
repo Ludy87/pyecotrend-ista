@@ -157,13 +157,7 @@ class PyEcotrendIsta:
             token = self.demo_user_login()
         else:
             token = self.loginhelper.getToken()
-
-        if token and "accessToken" in token and "accessTokenExpiresIn" in token and "refreshToken" in token:
-            self._accessToken = token["accessToken"]
-            self._accessTokenExpiresIn = token["accessTokenExpiresIn"]
-            self._refreshToken = token["refreshToken"]
-            return self._accessToken
-        elif token and "access_token" in token and "expires_in" in token and "refresh_token" in token:
+        if token:
             self._accessToken = token["access_token"]
             self._accessTokenExpiresIn = token["expires_in"]
             self._refreshToken = token["refresh_token"]
