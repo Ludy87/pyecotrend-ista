@@ -12,7 +12,6 @@ CLIENT_ID = "ecotrend"
 SCOPE = "openid"
 RESPONSE_MODE = "fragment"
 RESPONSE_TPYE = "code"
-CODE_CHALLENGE_METHODE = "S256"
 GRANT_TYPE_REFRESH_TOKEN = "refresh_token"
 GRANT_TYPE_AUTHORIZATION_CODE = "authorization_code"
 

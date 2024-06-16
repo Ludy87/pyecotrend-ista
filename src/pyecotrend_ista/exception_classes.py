@@ -148,16 +148,8 @@ class KeycloakAuthenticationError(KeycloakError):
     """Keycloak authentication error exception."""
 
 
-class KeycloakConnectionError(KeycloakError):
-    """Keycloak connection error exception."""
-
-
 class KeycloakOperationError(KeycloakError):
     """Keycloak operation error exception."""
-
-
-class KeycloakDeprecationError(KeycloakError):
-    """Keycloak deprecation error exception."""
 
 
 class KeycloakGetError(KeycloakOperationError):
@@ -168,37 +160,9 @@ class KeycloakPostError(KeycloakOperationError):
     """Keycloak request post error exception."""
 
 
-class KeycloakPutError(KeycloakOperationError):
-    """Keycloak request put error exception."""
-
-
-class KeycloakDeleteError(KeycloakOperationError):
-    """Keycloak request delete error exception."""
-
-
-class KeycloakSecretNotFound(KeycloakOperationError):
-    """Keycloak secret not found exception."""
-
-
-class KeycloakRPTNotFound(KeycloakOperationError):
-    """Keycloak RPT not found exception."""
-
-
 class KeycloakCodeNotFound(KeycloakOperationError):
     """Keycloak Code not found exception."""
 
 
-class KeycloakAuthorizationConfigError(KeycloakOperationError):
-    """Keycloak authorization config exception."""
-
-
 class KeycloakInvalidTokenError(KeycloakOperationError):
     """Keycloak invalid token exception."""
-
-
-class KeycloakPermissionFormatError(KeycloakOperationError):
-    """Keycloak permission format exception."""
-
-
-class PermissionDefinitionError(Exception):
-    """Keycloak permission definition exception."""
