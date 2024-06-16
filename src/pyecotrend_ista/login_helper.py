@@ -223,7 +223,7 @@ class LoginHelper:
         form_action = None
         resp: requests.Response = self._send_request(
             "GET",
-            url=PROVIDER_URL + "auth",
+            url=f"{PROVIDER_URL}auth",
             params={
                 "response_mode": RESPONSE_MODE,  # fragment
                 "response_type": RESPONSE_TPYE,  # code
@@ -261,7 +261,7 @@ class LoginHelper:
         """
         resp: requests.Response = self._send_request(
             "POST",
-            url=PROVIDER_URL + "token",
+            url=f"{PROVIDER_URL}token",
             data={
                 "grant_type": GRANT_TYPE_REFRESH_TOKEN,
                 "client_id": CLIENT_ID,  # ecotrend
@@ -302,7 +302,7 @@ class LoginHelper:
             _data["totp"] = self.totp
         resp: requests.Response = self._send_request(
             "POST",
-            url=PROVIDER_URL + "token",
+            url=f"{PROVIDER_URL}token",
             data=_data,
             timeout=TIMEOUT,
             allow_redirects=False,
@@ -317,9 +317,10 @@ class LoginHelper:
 
     def userinfo(self, token) -> Any:
         """."""
-        header = {"Authorization": "Bearer " + token}
+        header = {"Authorization": f"Bearer {token}"}
+        url = f"{PROVIDER_URL}userinfo"
         try:
-            resp: requests.Response = self._send_request("GET", url=PROVIDER_URL + "userinfo", headers=header)
+            resp: requests.Response = self._send_request("GET", url=url, headers=header)
         except KeycloakOperationError:
             if self.username == DEMO_USER_ACCOUNT:
                 return {}
@@ -347,7 +348,7 @@ class LoginHelper:
         """
         resp: requests.Response = self._send_request(
             "POST",
-            url=PROVIDER_URL + "logout",
+            url=f"{PROVIDER_URL}logout",
             data={
                 "client_id": CLIENT_ID,
                 "refresh_token": token,

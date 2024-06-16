@@ -10,11 +10,8 @@ from typing import Any, cast
 import requests
 
 from .const import (
-    ACCOUNT_URL,
-    CONSUMPTION_UNIT_DETAILS_URL,
-    CONSUMPTIONS_URL,
+    API_BASE_URL,
     DEMO_USER_ACCOUNT,
-    DEMO_USER_TOKEN,
     MAX_RETRIES,
     RETRY_DELAY,
     VERSION,
@@ -212,9 +209,10 @@ class PyEcotrendIsta:
             "User-Agent": self.get_user_agent(),
             "Authorization": f"Bearer {self.access_token}",
         }
+        url = f"{API_BASE_URL}account"
         try:
-            with self.session.get(ACCOUNT_URL, headers=self._header) as r:
-                _LOGGER.debug("Performed GET request: %s [%s]:\n%s", ACCOUNT_URL, r.status_code, r.text)
+            with self.session.get(url, headers=self._header) as r:
+                _LOGGER.debug("Performed GET request: %s [%s]:\n%s", url, r.status_code, r.text)
                 r.raise_for_status()
                 try:
                     data = r.json()
@@ -385,9 +383,6 @@ class PyEcotrendIsta:
 
         """
         return list(self._account.get("residentAndConsumptionUuidsMap", {}).values())
-
-
-
 
     getUUIDs = deprecated(get_uuids, "getUUIDs")
 
@@ -822,13 +817,12 @@ class PyEcotrendIsta:
 
         if obj_uuid is None:
             obj_uuid = self._uuid
-        response = self.session.get(CONSUMPTIONS_URL + obj_uuid, headers=self._header)
-        _LOGGER.debug(
-            "Performed GET request: %s [%s]:\n%s",
-            CONSUMPTIONS_URL + obj_uuid,
-            response.status_code,
-            response.text,
-        )
+        params = {
+            "consumptionUnitUuid": obj_uuid or self._uuid
+        }
+        url = f"{API_BASE_URL}consumptions"
+        response = self.session.get(url, params=params, headers=self._header, )
+        _LOGGER.debug("Performed GET request: %s [%s]:\n%s", url, response.status_code, response.text)
 
         retryCounter = 0
         while not raw and (retryCounter < MAX_RETRIES + 2):
@@ -858,14 +852,10 @@ class PyEcotrendIsta:
             exceptions occur (e.g., network issues, timeouts).
 
         """
+        url = f"{API_BASE_URL}menu"
         try:
-            with self.session.get(CONSUMPTION_UNIT_DETAILS_URL, headers=self._header) as r:
-                _LOGGER.debug(
-                    "Performed GET request: %s [%s]:\n%s",
-                    CONSUMPTION_UNIT_DETAILS_URL,
-                    r.status_code,
-                    r.text,
-                )
+            with self.session.get(url, headers=self._header) as r:
+                _LOGGER.debug("Performed GET request: %s [%s]:\n%s", url, r.status_code, r.text)
 
                 r.raise_for_status()
                 try:
@@ -921,10 +911,11 @@ class PyEcotrendIsta:
             If there is an issue with the server response or decoding JSON data.
 
         """
+        url = f"{API_BASE_URL}demo-user-token"
         try:
             self._header["User-Agent"] = self.get_user_agent()
-            with self.session.get(DEMO_USER_TOKEN, headers=self._header) as r:
-                _LOGGER.debug("Performed GET request %s [%s]:\n%s", DEMO_USER_TOKEN, r.status_code, r.text)
+            with self.session.get(url, headers=self._header) as r:
+                _LOGGER.debug("Performed GET request %s [%s]:\n%s", url, r.status_code, r.text)
 
                 r.raise_for_status()
                 try:

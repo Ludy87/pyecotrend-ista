@@ -1,8 +1,8 @@
 """Fixtures for Tests."""
 
 import pytest
-from pyecotrend_ista.const import ACCOUNT_URL, DEMO_USER_ACCOUNT, DEMO_USER_TOKEN, PROVIDER_URL
-from pyecotrend_ista.pyecotrend_ista import PyEcotrendIsta
+from pyecotrend_ista import PyEcotrendIsta
+from pyecotrend_ista.const import API_BASE_URL, DEMO_USER_ACCOUNT, PROVIDER_URL
 
 TEST_EMAIL = "max.istamann@test.com"
 DEMO_EMAIL = DEMO_USER_ACCOUNT
@@ -37,7 +37,7 @@ def mock_requests_login(requests_mock):
         },
     )
     requests_mock.get(
-        DEMO_USER_TOKEN,
+        f"{API_BASE_URL}demo-user-token",
         json={
             "accessToken": "ACCESS_TOKEN",
             "accessTokenExpiresIn": 60,
@@ -57,7 +57,7 @@ def mock_requests_login(requests_mock):
         headers={"Location": "https://ecotrend.ista.de/login-redirect#state=STATE&session_state=SESSION_STATE&code=AUTH_CODE"},
     )
     requests_mock.get(
-        ACCOUNT_URL,
+        f"{API_BASE_URL}account",
         json={
             "firstName": "Max",
             "lastName": "Istamann",

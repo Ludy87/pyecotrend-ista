@@ -1,7 +1,7 @@
 """Tests for Login methods."""
 
 import pytest
-from pyecotrend_ista.pyecotrend_ista import PyEcotrendIsta
+from pyecotrend_ista import PyEcotrendIsta
 
 from tests.conftest import DEMO_EMAIL, TEST_EMAIL
 

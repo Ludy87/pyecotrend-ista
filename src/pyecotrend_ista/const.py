@@ -1,12 +1,10 @@
+"""Constants for PyEcotrendIsta."""
+
 VERSION = "3.2.3"
 
-BASE_URL = "https://api.prod.eed.ista.com/"
-ACCOUNT_URL = BASE_URL + "account"
-CONSUMPTIONS_URL = BASE_URL + "consumptions?consumptionUnitUuid="
-CONSUMPTION_UNIT_DETAILS_URL = BASE_URL + "menu"
+API_BASE_URL = "https://api.prod.eed.ista.com/"
 
 DEMO_USER_ACCOUNT = "demo@ista.de"
-DEMO_USER_TOKEN = BASE_URL + "demo-user-token"
 
 PROVIDER_URL = "https://keycloak.ista.com/realms/eed-prod/protocol/openid-connect/"
 REDIRECT_URI = "https://ecotrend.ista.de/login-redirect"
