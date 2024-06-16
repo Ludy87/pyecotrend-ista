@@ -4,7 +4,7 @@ target-version = "py311"
 
 [lint]
 extend-select = ["I", "TRY", "UP", "D", "W"]
-extend-ignore = ["D213", "D202", "D203", "D213", "UP038"]
+extend-ignore = ["D213", "D202", "D203", "D213", "UP038", "TRY003"]
 
 [lint.pydocstyle]
 convention = "numpy"

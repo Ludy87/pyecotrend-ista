@@ -166,11 +166,11 @@ class LoginHelper:
             If an authentication error occurs during the login process.
         """
         try:
-            self.auth_code = self._getAuthCode()
+            self.auth_code = self._get_auth_code()
         except KeycloakAuthenticationError as error:
             raise KeycloakAuthenticationError(error) from error
 
-    def _getAuthCode(self) -> str:
+    def _get_auth_code(self) -> str:
         """
         Retrieve the authentication code for ista EcoTrend.
 
@@ -187,7 +187,7 @@ class LoginHelper:
             If the authentication code ('code') is not found in the redirection URL parameters.
 
         """
-        cookie, form_action = self._getCookieAndAction()
+        cookie, form_action = self._get_cookie_and_action()
 
         resp: requests.Response = self._send_request(
             "POST",
@@ -220,7 +220,7 @@ class LoginHelper:
             raise KeycloakCodeNotFound("header[Location] Code not found", response_code=resp.status_code)
         return redirect_params["code"][0]
 
-    def _getCookieAndAction(self) -> tuple:
+    def _get_cookie_and_action(self) -> tuple:
         """Retrieve the cookie and action URL from the OpenID Connect provider.
 
         Returns
@@ -261,7 +261,7 @@ class LoginHelper:
             form_action = html.unescape(search.group(1))
         return cookie, form_action
 
-    def refreshToken(self, refresh_token) -> tuple:
+    def refresh_token(self, refresh_token) -> tuple:
         """Refresh the access token using the provided refresh token.
 
         Parameters
@@ -289,7 +289,7 @@ class LoginHelper:
 
         return result["access_token"], result["expires_in"], result["refresh_token"]
 
-    def getToken(self) -> tuple:
+    def get_token(self) -> tuple:
         """Retrieve access and refresh tokens using the obtained authorization code.
 
         Raises
@@ -394,19 +394,29 @@ def raise_error_from_response(
 ) -> dict | Any | bytes | dict[str, str]:
     """Raise an exception for the response.
 
-    :param response: The response object
-    :type response: Response
-    :param error: Error object to raise
-    :type error: dict or Exception
-    :param expected_codes: Set of expected codes, which should not raise the exception
-    :type expected_codes: Sequence[int]
-    :param skip_exists: Indicates whether the response on already existing object should be ignored
-    :type skip_exists: bool
+    Parameters
+    ----------
+    response : Response
+        The response object.
+    error : dict or Exception
+        Error object to raise.
+    expected_codes : Sequence[int], optional
+        Set of expected codes, which should not raise the exception.
+    skip_exists : bool, optional
+        Indicates whether the response on already existing object should be ignored.
 
-    :returns: Content of the response message
-    :type: bytes or dict
-    :raises KeycloakError: In case of unexpected status codes
+    Returns
+    -------
+    bytes or dict
+        Content of the response message.
 
+    Raises
+    ------
+    KeycloakError
+        In case of unexpected status codes.
+
+    Notes
+    -----
     Source from https://github.com/marcospereirampj/python-keycloak/blob/c98189ca6951f12f1023ed3370c9aaa0d81e4aa4/src/keycloak/exceptions.py
     """  # noqa: DAR401,DAR402
     if expected_codes is None:
