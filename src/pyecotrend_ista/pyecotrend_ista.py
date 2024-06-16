@@ -925,4 +925,3 @@ class PyEcotrendIsta:
         except (requests.RequestException, requests.Timeout) as e:
             self._LOGGER.debug("RequestException: %s", e)
             raise ServerError from e
-
