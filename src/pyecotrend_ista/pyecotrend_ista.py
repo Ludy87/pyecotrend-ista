@@ -370,10 +370,8 @@ class PyEcotrendIsta:
         >>> client.logout()
 
         """
-        try:
+        if self.loginhelper.username != "demo@ista.de":
             self.loginhelper.logout(self._refreshToken)
-        except KeycloakOperationError:
-            return
 
     def get_uuids(self) -> list[str]:
         """Retrieve UUIDs of consumption units registered in the account.
