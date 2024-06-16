@@ -8,6 +8,7 @@
 [![GitHub license](https://img.shields.io/github/license/Ludy87/pyecotrend-ista?style=for-the-badge&logo=github)](https://github.com/Ludy87/pyecotrend-ista/blob/main/LICENSE)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg?style=for-the-badge&logo=code%20style-black)](https://github.com/psf/black)
 ![GitHub Release Date](https://img.shields.io/github/release-date/Ludy87/pyecotrend-ista?style=for-the-badge&logo=github)
+[![codecov](https://codecov.io/github/Ludy87/pyecotrend-ista/branch/main/graph/badge.svg?token=BHU8J3OVRT)](https://codecov.io/github/Ludy87/pyecotrend-ista)
 
 [!["Buy Me A Coffee"](https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png)](https://www.buymeacoffee.com/ludy87)
 
