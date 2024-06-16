@@ -23,6 +23,7 @@ from .helper_object_de import CustomRaw
 from .login_helper import LoginHelper
 from .types import GetTokenResponse
 
+_LOGGER = logging.getLogger(__name__)
 
 class PyEcotrendIsta:
     """A Python client for interacting with the ista EcoTrend API.
@@ -48,7 +49,7 @@ class PyEcotrendIsta:
         password : str
             The password used to log in to the ista EcoTrend API.
         logger : logging.Logger, optional
-            An optional logger instance for logging messages. Default is None.
+            [DEPRECATED] An optional logger instance for logging messages. Default is None.
         hass_dir : str, optional
             [DEPRECATED] An optional directory for Home Assistant configuration. Default is None.
         totp : str, optional
@@ -65,6 +66,13 @@ class PyEcotrendIsta:
                 stacklevel=2,
             )
 
+        if logger:
+            warnings.warn(
+                "The 'logger' parameter is deprecated and will be removed in a future release.",
+                DeprecationWarning,
+                stacklevel=2,
+            )
+
         self._accessToken: str | None = None
         self._refreshToken: str | None = None
         self._accessTokenExpiresIn: int = 0
@@ -77,11 +85,13 @@ class PyEcotrendIsta:
 
         self.start_timer: float = 0.0
 
-        self._LOGGER = logger if logger else logging.getLogger(__name__)
-        self._hass_dir = hass_dir
 
         self.loginhelper = LoginHelper(
-            username=self._email, password=self._password, totp=totp, session=session, logger=self._LOGGER
+            username=self._email,
+            password=self._password,
+            totp=totp,
+            session=session,
+            logger=_LOGGER,
         )
 
         self.session = self.loginhelper.session
@@ -146,7 +156,7 @@ class PyEcotrendIsta:
 
         """
         if self._email == "demo@ista.de":
-            self._LOGGER.debug("Logging in as demo user")
+            _LOGGER.debug("Logging in as demo user")
             token = self.demo_user_login()
         else:
             token = self.loginhelper.getToken()
@@ -174,7 +184,10 @@ class PyEcotrendIsta:
 
         self._header["Authorization"] = f"Bearer {new_token}"
         self.start_timer = time.time()
-        self._LOGGER.debug("refresh Token %s", self.start_timer)
+        _LOGGER.debug(
+            "Initialized start timer for refresh token at %s",
+            time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(self.start_timer)),
+        )
 
     def __set_account_values(self, res_json: dict[str, Any]) -> None:
         """Set account values based on the provided JSON response.
@@ -229,6 +242,9 @@ class PyEcotrendIsta:
         self._header["User-Agent"] = self.get_user_agent()
         self._header["Authorization"] = f"Bearer {self.access_token}"
         response = self.session.get(ACCOUNT_URL, headers=self._header)
+        _LOGGER.debug(
+            "Performed GET request: %s [%s]:\n%s", ACCOUNT_URL, response.status_code, response.text
+        )
         res = response.json()
         self.__set_account_values(res)
 
@@ -290,7 +306,6 @@ class PyEcotrendIsta:
                 except LoginError as error:
                     # Login failed
                     self._accessToken = None
-                    self._LOGGER.exception(error)
                     raise LoginError(error.res) from error
                 except ServerError:
                     if retryCounter < MAX_RETRIES:
@@ -298,11 +313,11 @@ class PyEcotrendIsta:
                     else:
                         raise ServerError()  # noqa: TRY200
                 except InternalServerError as error:
-                    raise Exception(error.msg)  # noqa: TRY200
+                    raise Exception(error.msg)  # noqa: TRY002
                 except requests.ReadTimeout:
                     time.sleep(RETRY_DELAY)
                 except Error as err:
-                    raise Exception(err)  # noqa: TRY200
+                    raise Exception(err)  # noqa: TRY002
                 if not self.access_token:
                     time.sleep(RETRY_DELAY)
                 else:
@@ -828,6 +843,13 @@ class PyEcotrendIsta:
         if obj_uuid is None:
             obj_uuid = self._uuid
         response = self.session.get(CONSUMPTIONS_URL + obj_uuid, headers=self._header)
+        _LOGGER.debug(
+            "Performed GET request: %s [%s]:\n%s",
+            CONSUMPTIONS_URL + obj_uuid,
+            response.status_code,
+            response.text,
+        )
+
         retryCounter = 0
         while not raw and (retryCounter < MAX_RETRIES + 2):
             retryCounter += 1
@@ -835,10 +857,10 @@ class PyEcotrendIsta:
                 raw = response.json()
                 if "key" in raw:
                     raise LoginError("Login fail, check your input! %s", raw["key"])
-            except requests.Timeout as error:
-                self._LOGGER.debug("TimeoutError: %s", error)
-            except requests.JSONDecodeError as err:
-                self._LOGGER.debug("JSONDecodeError: %s", err)
+            except requests.Timeout:
+                _LOGGER.exception("Exception: The request timed out")
+            except requests.JSONDecodeError:
+                _LOGGER.exception("Exception: Faile to parse server response")
         return raw
 
     def get_consumption_unit_details(self) -> dict[str, Any]:
@@ -858,14 +880,19 @@ class PyEcotrendIsta:
         """
         try:
             with self.session.get(CONSUMPTION_UNIT_DETAILS_URL, headers=self._header) as r:
+                _LOGGER.debug(
+                    "Performed GET request: %s [%s]:\n%s",
+                    CONSUMPTION_UNIT_DETAILS_URL,
+                    r.status_code,
+                    r.text,
+                )
+
                 r.raise_for_status()
                 try:
                     return r.json()
                 except requests.JSONDecodeError as e:
-                    self._LOGGER.debug("JSONDecodeError: %s", e)
                     raise ServerError from e
         except (requests.RequestException, requests.Timeout) as e:
-            self._LOGGER.debug("RequestException: %s", e)
             raise ServerError from e
 
     def get_support_code(self) -> str | None:
@@ -916,10 +943,11 @@ class PyEcotrendIsta:
         """
         try:
             self._header["User-Agent"] = self.get_user_agent()
-            with self.session.get(
-                DEMO_USER_TOKEN,
-                headers=self._header,
-            ) as r:
+            with self.session.get(DEMO_USER_TOKEN, headers=self._header) as r:
+                _LOGGER.debug(
+                    "Performed GET request %s [%s]:\n%s", DEMO_USER_TOKEN, r.status_code, r.text
+                )
+
                 r.raise_for_status()
                 try:
                     data = r.json()
@@ -927,8 +955,6 @@ class PyEcotrendIsta:
                     token = dict((next(key), value) for value in data.values())
                     return cast(GetTokenResponse, token)
                 except requests.JSONDecodeError as e:
-                    self._LOGGER.debug("JSONDecodeError: %s", e)
                     raise ServerError from e
         except (requests.RequestException, requests.Timeout) as e:
-            self._LOGGER.debug("RequestException: %s", e)
             raise ServerError from e
