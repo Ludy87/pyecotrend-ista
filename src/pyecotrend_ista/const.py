@@ -4,6 +4,8 @@ BASE_URL = "https://api.prod.eed.ista.com/"
 ACCOUNT_URL = BASE_URL + "account"
 CONSUMPTIONS_URL = BASE_URL + "consumptions?consumptionUnitUuid="
 CONSUMPTION_UNIT_DETAILS_URL = BASE_URL + "menu"
+
+DEMO_USER_ACCOUNT = "demo@ista.de"
 DEMO_USER_TOKEN = BASE_URL + "demo-user-token"
 
 PROVIDER_URL = "https://keycloak.ista.com/realms/eed-prod/protocol/openid-connect/"

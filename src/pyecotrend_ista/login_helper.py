@@ -14,6 +14,7 @@ from urllib3.util.retry import Retry
 
 from .const import (
     CLIENT_ID,
+    DEMO_USER_ACCOUNT,
     GRANT_TYPE_AUTHORIZATION_CODE,
     GRANT_TYPE_REFRESH_TOKEN,
     PROVIDER_URL,
@@ -104,7 +105,7 @@ class LoginHelper:
         retries = Retry(total=5, backoff_factor=1, status_forcelist=[502, 503, 504, 408])
         self.session.mount("https://", HTTPAdapter(max_retries=retries))
 
-        self.logger = logger or  logging.getLogger(__name__)
+        self.logger = logger or logging.getLogger(__name__)
 
     def _send_request(self, method, url, **kwargs) -> requests.Response:
         """Send an HTTP request using the session object.
@@ -135,9 +136,7 @@ class LoginHelper:
             raise ValueError("Session object is not initialized.")
         try:
             response = self.session.request(method, url, **kwargs)
-            self.logger.debug(
-            "Performed % request: %s [%s]:\n%s", method, url, response.status_code, response.text
-            )
+            self.logger.debug("Performed % request: %s [%s]:\n%s", method, url, response.status_code, response.text)
             response.raise_for_status()
         except requests.RequestException as e:
             raise KeycloakOperationError from e
@@ -319,8 +318,13 @@ class LoginHelper:
     def userinfo(self, token) -> Any:
         """."""
         header = {"Authorization": "Bearer " + token}
-        resp: requests.Response = self._send_request("GET", url=PROVIDER_URL + "userinfo", headers=header)
-        return resp.json()
+        try:
+            resp: requests.Response = self._send_request("GET", url=PROVIDER_URL + "userinfo", headers=header)
+        except KeycloakOperationError:
+            if self.username == DEMO_USER_ACCOUNT:
+                return {}
+        else:
+            return resp.json()
 
     def logout(self, token) -> dict | Any | bytes | dict[str, str]:
         """Log out the user session from the identity provider.
