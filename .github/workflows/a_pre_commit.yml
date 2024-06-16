@@ -2,6 +2,8 @@ name: Pre-commit
 
 on:
   pull_request_target:
+    types:
+      - closed
   push:
     branches: [main]
 
