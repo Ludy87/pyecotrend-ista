@@ -13,6 +13,7 @@ from .const import (
     ACCOUNT_URL,
     CONSUMPTION_UNIT_DETAILS_URL,
     CONSUMPTIONS_URL,
+    DEMO_USER_ACCOUNT,
     DEMO_USER_TOKEN,
     MAX_RETRIES,
     RETRY_DELAY,
@@ -30,6 +31,7 @@ from .login_helper import LoginHelper
 from .types import GetTokenResponse
 
 _LOGGER = logging.getLogger(__name__)
+
 
 class PyEcotrendIsta:
     """A Python client for interacting with the ista EcoTrend API.
@@ -90,7 +92,6 @@ class PyEcotrendIsta:
         self._password = password
 
         self.start_timer: float = 0.0
-
 
         self.loginhelper = LoginHelper(
             username=self._email,
@@ -161,7 +162,7 @@ class PyEcotrendIsta:
             The access token if login is successful, None otherwise.
 
         """
-        if self._email == "demo@ista.de":
+        if self._email == DEMO_USER_ACCOUNT:
             _LOGGER.debug("Logging in as demo user")
             token = self.demo_user_login()
         else:
@@ -247,9 +248,7 @@ class PyEcotrendIsta:
         self._header["User-Agent"] = self.get_user_agent()
         self._header["Authorization"] = f"Bearer {self.access_token}"
         response = self.session.get(ACCOUNT_URL, headers=self._header)
-        _LOGGER.debug(
-            "Performed GET request: %s [%s]:\n%s", ACCOUNT_URL, response.status_code, response.text
-        )
+        _LOGGER.debug("Performed GET request: %s [%s]:\n%s", ACCOUNT_URL, response.status_code, response.text)
         res = response.json()
         self.__set_account_values(res)
 
@@ -385,7 +384,7 @@ class PyEcotrendIsta:
         >>> client.logout()
 
         """
-        if self.loginhelper.username != "demo@ista.de":
+        if self.loginhelper.username != DEMO_USER_ACCOUNT:
             self.loginhelper.logout(self._refreshToken)
 
     def get_uuids(self) -> list[str]:
@@ -951,9 +950,7 @@ class PyEcotrendIsta:
         try:
             self._header["User-Agent"] = self.get_user_agent()
             with self.session.get(DEMO_USER_TOKEN, headers=self._header) as r:
-                _LOGGER.debug(
-                    "Performed GET request %s [%s]:\n%s", DEMO_USER_TOKEN, r.status_code, r.text
-                )
+                _LOGGER.debug("Performed GET request %s [%s]:\n%s", DEMO_USER_TOKEN, r.status_code, r.text)
 
                 r.raise_for_status()
                 try:
