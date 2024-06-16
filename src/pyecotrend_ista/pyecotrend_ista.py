@@ -290,7 +290,7 @@ class PyEcotrendIsta:
                 except LoginError as error:
                     # Login failed
                     self._accessToken = None
-                    self._LOGGER.error(error)
+                    self._LOGGER.exception(error)
                     raise LoginError(error.res) from error
                 except ServerError:
                     if retryCounter < MAX_RETRIES:
