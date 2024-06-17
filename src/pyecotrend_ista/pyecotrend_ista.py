@@ -817,11 +817,13 @@ class PyEcotrendIsta:
 
         if obj_uuid is None:
             obj_uuid = self._uuid
-        params = {
-            "consumptionUnitUuid": obj_uuid or self._uuid
-        }
+        params = {"consumptionUnitUuid": obj_uuid or self._uuid}
         url = f"{API_BASE_URL}consumptions"
-        response = self.session.get(url, params=params, headers=self._header, )
+        response = self.session.get(
+            url,
+            params=params,
+            headers=self._header,
+        )
         _LOGGER.debug("Performed GET request: %s [%s]:\n%s", url, response.status_code, response.text)
 
         retryCounter = 0

@@ -1,4 +1,5 @@
 """pyecotrend ista."""
+
 from .exception_classes import (
     Error,
     InternalServerError,
