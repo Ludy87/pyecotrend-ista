@@ -1,0 +1,9 @@
+# serializer version: 1
+# name: test_demo_user_login[demo@ista.de]
+  dict({
+    'access_token': 'ACCESS_TOKEN',
+    'expires_in': 60,
+    'refresh_expires_in': 5184000,
+    'refresh_token': 'REFRESH_TOKEN',
+  })
+# ---

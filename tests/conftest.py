@@ -1,6 +1,8 @@
 """Fixtures for Tests."""
 
 import pytest
+from requests_mock.mocker import Mocker as RequestsMock
+
 from pyecotrend_ista import PyEcotrendIsta
 from pyecotrend_ista.const import API_BASE_URL, DEMO_USER_ACCOUNT, PROVIDER_URL
 
@@ -13,14 +15,14 @@ TEST_PASSWORD = "password"
 def ista_client(request) -> PyEcotrendIsta:
     """Create Bring instance."""
     ista = PyEcotrendIsta(
-        email=request.param,
+        email=getattr(request, "param", TEST_EMAIL),
         password=TEST_PASSWORD,
     )
     return ista
 
 
 @pytest.fixture
-def mock_requests_login(requests_mock):
+def mock_requests_login(requests_mock: RequestsMock) -> RequestsMock:
     """Mock requests to Login Endpoints."""
     requests_mock.post(
         PROVIDER_URL + "token",
@@ -91,3 +93,4 @@ def mock_requests_login(requests_mock):
             "notificationMethodEmailConfirmed": True,
         },
     )
+    return requests_mock
