@@ -1,3 +1,4 @@
+exclude = ["black"]
 line-length = 127
 indent-width = 4
 target-version = "py311"
