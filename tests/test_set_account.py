@@ -1,14 +1,14 @@
 """Tests for _set_account methods."""
 
-from unittest.mock import MagicMock
+from http import HTTPStatus
 
 import pytest
 import requests
-from pyecotrend_ista import PyEcotrendIsta, ServerError
-from pyecotrend_ista.const import API_BASE_URL
-from requests.exceptions import JSONDecodeError
 from requests_mock.mocker import Mocker as RequestsMock
 from syrupy.assertion import SnapshotAssertion
+
+from pyecotrend_ista import LoginError, ParserError, PyEcotrendIsta, ServerError
+from pyecotrend_ista.const import API_BASE_URL
 
 
 @pytest.mark.usefixtures("mock_requests_login")
@@ -27,19 +27,23 @@ def test_set_account(ista_client: PyEcotrendIsta, snapshot: SnapshotAssertion) -
 def test_set_account_exceptions(
     requests_mock: RequestsMock, ista_client: PyEcotrendIsta, exception, expected_exception
 ) -> None:
-    """Test Login method."""
+    """Test `_set_account` method exceptions."""
 
     requests_mock.get(f"{API_BASE_URL}account", exc=exception)
 
     with pytest.raises(expected_exception=expected_exception):
         ista_client._PyEcotrendIsta__set_account()  # type: ignore[attr-defined] # pylint: disable=W0212
 
+@pytest.mark.parametrize(
+    ("status_code", "expected_exception"),
+    ([(HTTPStatus.OK, ParserError), (HTTPStatus.BAD_REQUEST, ServerError), (HTTPStatus.UNAUTHORIZED, LoginError)]),
+)
+def test_set_account_httperrors(
+    requests_mock: RequestsMock, ista_client: PyEcotrendIsta, status_code: HTTPStatus, expected_exception
+) -> None:
+    """Test `_set_account` method http status errors."""
 
-def test_set_account_parser_exception(ista_client: PyEcotrendIsta, requests_mock: RequestsMock) -> None:
-    """Test JSONDecodeError exception for method `demo_user_login`."""
+    requests_mock.get(f"{API_BASE_URL}account", status_code=status_code)
 
-    json_encoder = MagicMock().json.side_effect = JSONDecodeError("test", "test", 0)
-    requests_mock.get(f"{API_BASE_URL}account", json_encoder=json_encoder)
-
-    with pytest.raises(expected_exception=ServerError):
+    with pytest.raises(expected_exception=expected_exception):
         ista_client._PyEcotrendIsta__set_account()  # type: ignore[attr-defined] # pylint: disable=W0212

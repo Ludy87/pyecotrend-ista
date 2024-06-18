@@ -1,15 +1,15 @@
 """Tests for _set_account methods."""
 
-from unittest.mock import MagicMock
+from http import HTTPStatus
 
 import pytest
 import requests
-from pyecotrend_ista import PyEcotrendIsta, ServerError
-from pyecotrend_ista.const import API_BASE_URL
-from requests.exceptions import JSONDecodeError
 from requests_mock.mocker import Mocker as RequestsMock
 from syrupy.assertion import SnapshotAssertion
 from syrupy.filters import paths
+
+from pyecotrend_ista import LoginError, ParserError, PyEcotrendIsta, ServerError
+from pyecotrend_ista.const import API_BASE_URL
 
 
 def test_get_raw(ista_client: PyEcotrendIsta, requests_mock: RequestsMock, snapshot: SnapshotAssertion, dataset) -> None:
@@ -21,28 +21,41 @@ def test_get_raw(ista_client: PyEcotrendIsta, requests_mock: RequestsMock, snaps
 
 
 @pytest.mark.parametrize(
-    ("exception", "expected_exception"), ([(requests.RequestException, ServerError), (requests.Timeout, ServerError)])
+    ("status_code", "expected_exception"),
+    (
+        [
+            (HTTPStatus.OK, ParserError),
+            (HTTPStatus.INTERNAL_SERVER_ERROR, ServerError),
+            (HTTPStatus.BAD_REQUEST, ValueError),
+            (HTTPStatus.UNAUTHORIZED, LoginError),
+        ]
+    ),
 )
-@pytest.mark.xfail
-def test_get_raw_exceptions(requests_mock: RequestsMock, ista_client: PyEcotrendIsta, exception, expected_exception) -> None:
+def test_get_raw_http_errors(
+    requests_mock: RequestsMock, ista_client: PyEcotrendIsta, status_code: HTTPStatus, expected_exception
+) -> None:
     """Test Login method."""
 
     requests_mock.get(
-        f"{API_BASE_URL}consumptions", params={"consumptionUnitUuid": "26e93f1a-c828-11ea-87d0-0242ac130003"}, exc=exception
+        f"{API_BASE_URL}consumptions?consumptionUnitUuid=26e93f1a-c828-11ea-87d0-0242ac130003",
+        status_code=status_code,
     )
 
     with pytest.raises(expected_exception=expected_exception):
         ista_client.get_raw("26e93f1a-c828-11ea-87d0-0242ac130003")
 
 
-@pytest.mark.xfail
-def test_get_raw_parser_exceptions(ista_client: PyEcotrendIsta, requests_mock: RequestsMock) -> None:
-    """Test JSONDecodeError exception for method `demo_user_login`."""
+@pytest.mark.parametrize(
+    ("exception", "expected_exception"), ([(requests.RequestException, ServerError), (requests.Timeout, ServerError)])
+)
+def test_get_raw_exceptions(requests_mock: RequestsMock, ista_client: PyEcotrendIsta, exception, expected_exception) -> None:
+    """Test Login method."""
 
-    json_encoder = MagicMock().json.side_effect = JSONDecodeError("test", "test", 100)
-    requests_mock.get(f"{API_BASE_URL}consumptions", json_encoder=json_encoder)
+    requests_mock.get(
+        f"{API_BASE_URL}consumptions?consumptionUnitUuid=26e93f1a-c828-11ea-87d0-0242ac130003", exc=exception
+    )
 
-    with pytest.raises(expected_exception=ServerError):
+    with pytest.raises(expected_exception=expected_exception):
         ista_client.get_raw("26e93f1a-c828-11ea-87d0-0242ac130003")
 
 
