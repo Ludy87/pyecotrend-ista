@@ -52,6 +52,10 @@ coverage.xml
 .pytest_cache/
 test*.*
 test/
+# unignore unittests and related data files
+!tests/*.py
+!tests/*/*.ambr
+!tests/*/*.json
 
 # Translations
 *.mo
