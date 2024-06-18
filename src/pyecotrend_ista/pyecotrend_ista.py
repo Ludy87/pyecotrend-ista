@@ -10,7 +10,7 @@ import warnings
 import requests
 
 from .const import API_BASE_URL, DEMO_USER_ACCOUNT, MAX_RETRIES, RETRY_DELAY, VERSION
-from .exception_classes import Error, LoginError, ServerError, deprecated
+from .exception_classes import BaseError, LoginError, ServerError, deprecated
 from .helper_object_de import CustomRaw
 from .login_helper import LoginHelper
 from .types import AccountResponse, GetTokenResponse
@@ -287,7 +287,7 @@ class PyEcotrendIsta:
                         raise ServerError()  # noqa: TRY200
                 except requests.ReadTimeout:
                     time.sleep(RETRY_DELAY)
-                except Error as err:
+                except BaseError as err:
                     raise Exception(err)  # noqa: TRY002
                 if not self.access_token:
                     time.sleep(RETRY_DELAY)

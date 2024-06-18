@@ -39,11 +39,16 @@ def deprecated(func: Callable[..., T], alias_func: str | None = None) -> Callabl
     return deprecated_func
 
 
-class Error(Exception):
-    """This is a class to catch exceptions that are thrown when trying to create a node."""
+class BaseError(Exception):
+    """
+    Base class for exceptions in this module.
 
+    This is the base class for all custom exceptions in the module. It inherits
+    from Python's built-in Exception class and can be used to catch errors specific
+    to this module.
+    """
 
-class ServerError(Error):
+class ServerError(BaseError):
     """Create ServerError."""
 
     def __init__(self) -> None:
@@ -56,7 +61,7 @@ class ServerError(Error):
 
 
 
-class LoginError(Error):
+class LoginError(BaseError):
     """Create LoginError."""
 
     def __init__(self, res: Any) -> None:
