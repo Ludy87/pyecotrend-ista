@@ -9,8 +9,8 @@ import warnings
 
 import requests
 
-from .const import API_BASE_URL, DEMO_USER_ACCOUNT, MAX_RETRIES, RETRY_DELAY, VERSION
-from .exception_classes import BaseError, LoginError, ServerError, deprecated
+from .const import API_BASE_URL, DEMO_USER_ACCOUNT, MAX_RETRIES, VERSION
+from .exception_classes import KeycloakError, LoginError, ParserError, ServerError, deprecated
 from .helper_object_de import CustomRaw
 from .login_helper import LoginHelper
 from .types import AccountResponse, GetTokenResponse
@@ -117,6 +117,21 @@ class PyEcotrendIsta:
             self.__refresh()
         return self._access_token
 
+    @access_token.setter
+    def access_token(self, value: str) -> None:
+        """Setter method for the access token attribute.
+
+        Sets the access token value and updates the start timer to the current time.
+        This method is used to assign a new access token value and reset the timer
+        tracking the token's validity period.
+        """
+        self._access_token = value
+        self._start_timer = time.time()
+        _LOGGER.debug(
+            "Initialized start timer for refresh token at %s",
+            time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(self._start_timer)),
+        )
+
     def _is_connected(self) -> bool:
         """Check if the client is connected by verifying the presence of an access token.
 
@@ -155,10 +170,10 @@ class PyEcotrendIsta:
         else:
             token = self.loginhelper.get_token()
         if token:
-            self._access_token = token["access_token"]
+            self.access_token = token["access_token"]
             self._access_token_expires_in = token["expires_in"]
             self._refresh_token = token["refresh_token"]
-            return self._access_token
+            return self.access_token
         return None
 
     def __refresh(self) -> None:
@@ -173,18 +188,12 @@ class PyEcotrendIsta:
 
         """
         (
-            self._access_token,
+            self.access_token,
             self._access_token_expires_in,
             self._refresh_token,
         ) = self.loginhelper.refresh_token(self._refresh_token)
-        new_token = self._access_token
 
-        self._header["Authorization"] = f"Bearer {new_token}"
-        self._start_timer = time.time()
-        _LOGGER.debug(
-            "Initialized start timer for refresh token at %s",
-            time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(self._start_timer)),
-        )
+        self._header["Authorization"] = f"Bearer {self.access_token}"
 
     def __set_account(self) -> None:
         """Fetch and set account information from the API.
@@ -205,7 +214,7 @@ class PyEcotrendIsta:
                 try:
                     data = r.json()
                 except requests.JSONDecodeError as e:
-                    raise ServerError from e
+                    raise ParserError from e
         except (requests.RequestException, requests.Timeout) as e:
             raise ServerError from e
 
@@ -261,39 +270,26 @@ class PyEcotrendIsta:
 
         if "forceLogin" in kwargs:
             warnings.warn(
-                "The 'forceLogin' keyword parameter is deprecated and will be removed in a future release. Use force_login instead.",
+                "The 'forceLogin' keyword parameter is deprecated and will be removed in a future release. "
+                "Use force_login instead.",
                 DeprecationWarning,
                 stacklevel=2,
             )
             force_login = kwargs["forceLogin"]
 
-        self._start_timer = time.time()
         if not self._is_connected() or force_login:
-            self._logoff()
-            retry_counter = 0
-            while not self._is_connected() and (retry_counter < MAX_RETRIES + 2):
-                retry_counter += 1
-                try:
-                    self._access_token = self.__login()
-                except LoginError as error:
-                    # Login failed
-                    self._access_token = None
+            try:
+                self.__login()
+                self.__set_account()
+            except KeycloakError as exc:
+                # Login failed
+                self._access_token = None
+                raise LoginError from exc
+            except Exception as exc:
+                raise ServerError("Unexpected exception occurred") from exc
 
-                    raise LoginError(error.res) from error
-                except ServerError:
-                    if retry_counter < MAX_RETRIES:
-                        time.sleep(RETRY_DELAY)
-                    else:
-                        raise ServerError()  # noqa: TRY200
-                except requests.ReadTimeout:
-                    time.sleep(RETRY_DELAY)
-                except BaseError as err:
-                    raise Exception(err)  # noqa: TRY002
-                if not self.access_token:
-                    time.sleep(RETRY_DELAY)
-                else:
-                    self.__set_account()
         return self.access_token
+
 
     def userinfo(self, token):
         """Retrieve user information using the provided access token.

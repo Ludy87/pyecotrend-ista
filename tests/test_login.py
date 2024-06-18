@@ -4,12 +4,12 @@ from unittest.mock import MagicMock
 
 import pytest
 import requests
-from pyecotrend_ista import PyEcotrendIsta, ServerError
-from pyecotrend_ista.const import API_BASE_URL
 from requests.exceptions import JSONDecodeError
 from requests_mock.mocker import Mocker as RequestsMock
 from syrupy.assertion import SnapshotAssertion
 
+from pyecotrend_ista import PyEcotrendIsta, ServerError
+from pyecotrend_ista.const import API_BASE_URL
 from tests.conftest import DEMO_EMAIL, TEST_EMAIL
 
 

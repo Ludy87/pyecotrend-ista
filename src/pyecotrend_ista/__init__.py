@@ -8,6 +8,7 @@ from .exception_classes import (
     KeycloakOperationError,
     KeycloakPostError,
     LoginError,
+    ParserError,
     ServerError,
 )
 from .pyecotrend_ista import PyEcotrendIsta
@@ -21,6 +22,7 @@ __all__ = [
     "KeycloakOperationError",
     "KeycloakPostError",
     "LoginError",
+    "ParserError",
     "PyEcotrendIsta",
     "ServerError",
 ]

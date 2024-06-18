@@ -4,12 +4,13 @@ from unittest.mock import MagicMock
 
 import pytest
 import requests
-from pyecotrend_ista import PyEcotrendIsta, ServerError
-from pyecotrend_ista.const import API_BASE_URL
 from requests.exceptions import JSONDecodeError
 from requests_mock.mocker import Mocker as RequestsMock
 from syrupy.assertion import SnapshotAssertion
 from syrupy.filters import paths
+
+from pyecotrend_ista import PyEcotrendIsta, ServerError
+from pyecotrend_ista.const import API_BASE_URL
 
 
 def test_get_raw(ista_client: PyEcotrendIsta, requests_mock: RequestsMock, snapshot: SnapshotAssertion, dataset) -> None:

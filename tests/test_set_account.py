@@ -4,11 +4,12 @@ from unittest.mock import MagicMock
 
 import pytest
 import requests
-from pyecotrend_ista import PyEcotrendIsta, ServerError
-from pyecotrend_ista.const import API_BASE_URL
 from requests.exceptions import JSONDecodeError
 from requests_mock.mocker import Mocker as RequestsMock
 from syrupy.assertion import SnapshotAssertion
+
+from pyecotrend_ista import ParserError, PyEcotrendIsta, ServerError
+from pyecotrend_ista.const import API_BASE_URL
 
 
 @pytest.mark.usefixtures("mock_requests_login")
@@ -41,5 +42,5 @@ def test_set_account_parser_exception(ista_client: PyEcotrendIsta, requests_mock
     json_encoder = MagicMock().json.side_effect = JSONDecodeError("test", "test", 0)
     requests_mock.get(f"{API_BASE_URL}account", json_encoder=json_encoder)
 
-    with pytest.raises(expected_exception=ServerError):
+    with pytest.raises(expected_exception=ParserError):
         ista_client._PyEcotrendIsta__set_account()  # type: ignore[attr-defined] # pylint: disable=W0212
