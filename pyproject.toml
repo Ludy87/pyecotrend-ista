@@ -24,3 +24,14 @@ split-on-trailing-comma = false
 addopts = "--cov=pyecotrend_ista --cov-report=term-missing"
 testpaths = ["tests"]
 pythonpath = ["src"]
+
+[tool.pylint.FORMAT]
+max-line-length=127
+
+[tool.pylint."MESSAGES CONTROL"]
+disable = [
+    "too-many-ancestors",
+    "too-many-arguments",
+    "too-many-instance-attributes",
+    "wrong-import-order",
+]

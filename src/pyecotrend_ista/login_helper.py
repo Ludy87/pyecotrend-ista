@@ -131,7 +131,7 @@ class LoginHelper:
             raise ValueError("Session object is not initialized.")
         try:
             response = self.session.request(method, url, **kwargs)
-            self.logger.debug("Performed % request: %s [%s]:\n%s", method, url, response.status_code, response.text[:100])
+            self.logger.debug("Performed %s request: %s [%s]:\n%s", method, url, response.status_code, response.text[:100])
             response.raise_for_status()
         except requests.RequestException as e:
             raise KeycloakOperationError from e

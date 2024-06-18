@@ -2,9 +2,9 @@
 
 from __future__ import annotations
 
-import warnings
 from collections.abc import Callable
-from typing import Any, TypeVar
+from typing import TypeVar
+import warnings
 
 T = TypeVar("T")
 
@@ -17,7 +17,8 @@ def deprecated(func: Callable[..., T], alias_func: str | None = None) -> Callabl
     func: Callable[..., T])
         The function to be marked as deprecated.
     alias_func : str, optional
-        The real function name to show as deprecated, in case the function was called through an alias.
+        The real function name to show as deprecated, in case the function was called
+        through an alias.
 
 
     Returns
@@ -39,46 +40,51 @@ def deprecated(func: Callable[..., T], alias_func: str | None = None) -> Callabl
     return deprecated_func
 
 
-class Error(Exception):
-    """This is a class to catch exceptions that are thrown when trying to create a node."""
+class BaseError(Exception):
+    """
+    Base class for exceptions in this module.
 
+    This is the base class for all custom exceptions in the module. It inherits
+    from Python's built-in Exception class and can be used to catch errors specific
+    to this module.
+    """
 
-class ServerError(Error):
-    """Create ServerError."""
+class ServerError(BaseError):
+    """Exception raised for server errors during requests.
 
-    def __init__(self) -> None:
-        """Initialize the object."""
-        super().__init__()
-
-    def __str__(self) -> str:
-        """Returns a string representation of the error.."""
-        return "Server error, go to: https://ecotrend.ista.de/error"
-
-
-class InternalServerError(Error):
-    """Create InternalServerError."""
-
-    def __init__(self, msg) -> None:
-        """Initialize the exception with a message."""
-        super().__init__(msg)
-        self.msg = msg
+    This exception is raised when a exception occurs during a request.
+    It inherits from BaseError  and can be used to handle server-related
+    issues specifically.
+    """
 
     def __str__(self) -> str:
-        """Convert to string. This is useful for debugging."""
-        return self.msg
+        """Return a string representation of the error.."""
+        return "Server error occurred during the request"
 
 
-class LoginError(Error):
-    """Create LoginError."""
+class LoginError(BaseError):
+    """Exception raised for login- and authentication related errors.
 
-    def __init__(self, res: Any) -> None:
-        """Initialize the object with the result of the call."""
-        super().__init__(res)
-        self.res = res
+    This exception is raised when an authentication exception occurs during a request.
+    It inherits from BaseError and is used specifically to handle issues related
+    to authentication and login.
+    """
 
     def __str__(self) -> str:
-        """String representation of LoginFail."""
-        return f"Login fail, check your input! {self.res}"
+        """Return a string representation of an authentication error."""
+        return "An authentication error occurred during the request"
+
+class ParserError(ServerError):
+    """Exception raised for errors encountered during parsing.
+
+    This exception is raised when an error occurs during the parsing process
+    of the request response. It inherits from BaseError and can be used
+    to handle issues specifically related to parsing.
+    """
+
+    def __str__(self) -> str:
+        """Return a string representation of parser error."""
+        return "Error occurred during parsing of the request response"
 
 
 # The MIT License (MIT)
@@ -160,7 +166,7 @@ class KeycloakPostError(KeycloakOperationError):
     """Keycloak request post error exception."""
 
 
-class KeycloakCodeNotFound(KeycloakOperationError):
+class KeycloakCodeNotFound(KeycloakOperationError):  # noqa: N818
     """Keycloak Code not found exception."""
 
 
