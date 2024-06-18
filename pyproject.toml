@@ -1,22 +1,26 @@
+[tool.ruff]
 line-length = 127
 indent-width = 4
 target-version = "py311"
 
-[lint]
+[tool.ruff.lint]
 extend-select = ["I", "TRY", "UP", "D", "W", "N"]
-extend-ignore = ["D213", "D202", "D203", "D213", "UP038", "TRY003"]
+ignore = ["D213", "D202", "D203", "D213", "UP038", "TRY003"]
 
-[lint.pydocstyle]
+[tool.ruff.lint.pydocstyle]
 convention = "numpy"
 
-[format]
+[tool.ruff.format]
 quote-style = "double"
 indent-style = "space"
 
-[lint.isort]
+[tool.ruff.lint.isort]
 force-sort-within-sections = true
-known-first-party = [
-    "pyecotrend_ista",
-]
+known-first-party = ["pyecotrend_ista"]
 combine-as-imports = true
 split-on-trailing-comma = false
+
+[tool.pytest.ini_options]
+addopts = "--cov=pyecotrend_ista --cov-report=term-missing"
+testpaths = ["tests"]
+pythonpath = ["src"]
