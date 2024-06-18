@@ -1,7 +1,6 @@
 """pyecotrend ista."""
 from .exception_classes import (
     Error,
-    InternalServerError,
     KeycloakAuthenticationError,
     KeycloakError,
     KeycloakGetError,
@@ -15,7 +14,6 @@ from .pyecotrend_ista import PyEcotrendIsta
 
 __all__ = [
     "Error",
-    "InternalServerError",
     "KeycloakAuthenticationError",
     "KeycloakError",
     "KeycloakGetError",

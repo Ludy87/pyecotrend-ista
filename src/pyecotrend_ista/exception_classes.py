@@ -2,9 +2,9 @@
 
 from __future__ import annotations
 
-import warnings
 from collections.abc import Callable
 from typing import Any, TypeVar
+import warnings
 
 T = TypeVar("T")
 
@@ -54,18 +54,6 @@ class ServerError(Error):
         """Returns a string representation of the error.."""
         return "Server error, go to: https://ecotrend.ista.de/error"
 
-
-class InternalServerError(Error):
-    """Create InternalServerError."""
-
-    def __init__(self, msg) -> None:
-        """Initialize the exception with a message."""
-        super().__init__(msg)
-        self.msg = msg
-
-    def __str__(self) -> str:
-        """Convert to string. This is useful for debugging."""
-        return self.msg
 
 
 class LoginError(Error):
