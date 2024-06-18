@@ -1,0 +1,37 @@
+# serializer version: 1
+# name: test_set_account
+  dict({
+    'activeConsumptionUnit': '7a226e08-2a90-4db9-ae9b-8148901c6ec2',
+    'ads': False,
+    'authcode': None,
+    'betaPhase': None,
+    'consumptionUnitUuids': None,
+    'country': 'DE',
+    'email': 'max.istamann@test.com',
+    'emailConfirmed': False,
+    'enabled': True,
+    'fcmToken': 'null',
+    'firstName': 'Max',
+    'isDemo': False,
+    'keycloakId': None,
+    'lastName': 'Istamann',
+    'locale': 'de_DE',
+    'marketing': False,
+    'mobileLoginStatus': 'non_initial',
+    'mobileNumber': '+49123456789',
+    'notificationMethod': 'email',
+    'notificationMethodEmailConfirmed': True,
+    'password': None,
+    'privacy': None,
+    'residentAndConsumptionUuidsMap': dict({
+      '17c4dff7-799f-4f16-badc-a9b3607a9383': '7a226e08-2a90-4db9-ae9b-8148901c6ec2',
+    }),
+    'residentTimeRangeUuids': None,
+    'supportCode': 'XXXXXXXXX',
+    'tos': '1.0',
+    'tosUpdated': '01.01.1970',
+    'transitionMobileNumber': '',
+    'unconfirmedPhoneNumber': '',
+    'userGroup': 'resident',
+  })
+# ---
