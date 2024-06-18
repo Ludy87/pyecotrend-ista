@@ -4,25 +4,13 @@ from __future__ import annotations
 
 import logging
 import time
-import warnings
 from typing import Any, cast
+import warnings
 
 import requests
 
-from .const import (
-    API_BASE_URL,
-    DEMO_USER_ACCOUNT,
-    MAX_RETRIES,
-    RETRY_DELAY,
-    VERSION,
-)
-from .exception_classes import (
-    Error,
-    InternalServerError,
-    LoginError,
-    ServerError,
-    deprecated,
-)
+from .const import API_BASE_URL, DEMO_USER_ACCOUNT, MAX_RETRIES, RETRY_DELAY, VERSION
+from .exception_classes import Error, InternalServerError, LoginError, ServerError, deprecated
 from .helper_object_de import CustomRaw
 from .login_helper import LoginHelper
 from .types import AccountResponse, GetTokenResponse
@@ -38,6 +26,12 @@ class PyEcotrendIsta:
 
     _account: AccountResponse
     _uuid: str
+    _access_token: str | None = None
+    _refresh_token: str | None = None
+    _access_token_expires_in: int = 0
+    _header: dict[str, str] = {}
+    _support_code: str | None = None
+    _start_timer: float = 0.0
 
     def __init__(
         self,
@@ -81,16 +75,10 @@ class PyEcotrendIsta:
                 stacklevel=2,
             )
 
-        self._accessToken: str | None = None
-        self._refreshToken: str | None = None
-        self._accessTokenExpiresIn: int = 0
-        self._header: dict[str, str] = {}
-        self._supportCode: str | None = None
+        self._email: str = email.strip()
+        self._password: str = password
 
-        self._email = email.strip()
-        self._password = password
 
-        self.start_timer: float = 0.0
 
         self.loginhelper = LoginHelper(
             username=self._email,
@@ -100,7 +88,7 @@ class PyEcotrendIsta:
             logger=_LOGGER,
         )
 
-        self.session = self.loginhelper.session
+        self.session: requests.Session = self.loginhelper.session
 
     @property
     def access_token(self):
@@ -121,13 +109,13 @@ class PyEcotrendIsta:
 
         """
         if (
-            self._accessTokenExpiresIn > 0
+            self._access_token_expires_in > 0
             and self._is_connected()
-            and self._refreshToken
-            and self._accessTokenExpiresIn <= time.time() - self.start_timer
+            and self._refresh_token
+            and self._access_token_expires_in <= time.time() - self._start_timer
         ):
             self.__refresh()
-        return self._accessToken
+        return self._access_token
 
     def _is_connected(self) -> bool:
         """Check if the client is connected by verifying the presence of an access token.
@@ -138,7 +126,7 @@ class PyEcotrendIsta:
             True if the client has a valid access token, False otherwise.
 
         """
-        if self._accessToken:
+        if self._access_token:
             return True
         return False
 
@@ -147,7 +135,7 @@ class PyEcotrendIsta:
 
         This method sets the access token to None, effectively logging off the client.
         """
-        self._accessToken = None
+        self._access_token = None
 
     def __login(self) -> str | None:
         """Perform the login process to obtain an access token.
@@ -165,12 +153,12 @@ class PyEcotrendIsta:
             _LOGGER.debug("Logging in as demo user")
             token = self.demo_user_login()
         else:
-            token = self.loginhelper.getToken()
+            token = self.loginhelper.get_token()
         if token:
-            self._accessToken = token["access_token"]
-            self._accessTokenExpiresIn = token["expires_in"]
-            self._refreshToken = token["refresh_token"]
-            return self._accessToken
+            self._access_token = token["access_token"]
+            self._access_token_expires_in = token["expires_in"]
+            self._refresh_token = token["refresh_token"]
+            return self._access_token
         return None
 
     def __refresh(self) -> None:
@@ -181,21 +169,21 @@ class PyEcotrendIsta:
 
         Notes
         -----
-        This method assumes `self._refreshToken` is already set.
+        This method assumes `self._refresh_token` is already set.
 
         """
         (
-            self._accessToken,
-            self._accessTokenExpiresIn,
-            self._refreshToken,
-        ) = self.loginhelper.refresh_token(self._refreshToken)
-        new_token = self._accessToken
+            self._access_token,
+            self._access_token_expires_in,
+            self._refresh_token,
+        ) = self.loginhelper.refresh_token(self._refresh_token)
+        new_token = self._access_token
 
         self._header["Authorization"] = f"Bearer {new_token}"
-        self.start_timer = time.time()
+        self._start_timer = time.time()
         _LOGGER.debug(
             "Initialized start timer for refresh token at %s",
-            time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(self.start_timer)),
+            time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(self._start_timer)),
         )
 
     def __set_account(self) -> None:
@@ -235,14 +223,14 @@ class PyEcotrendIsta:
         """
         return VERSION
 
-    getVersion = deprecated(get_version, "getVersion")
+    getVersion = deprecated(get_version, "getVersion")  # noqa: N815
 
-    def login(self, forceLogin: bool = False, debug: bool = False) -> str | None:
+    def login(self, force_login: bool = False, debug: bool = False, **kwargs) -> str | None:
         """Perform the login process if not already connected or forced.
 
         Parameters
         ----------
-        forceLogin : bool, optional
+        force_login : bool, optional
             If True, forces a fresh login attempt even if already connected. Default is False.
         debug : bool, optional
             [DEPRECATED] Flag indicating whether to enable debug logging. Default is False.
@@ -271,21 +259,29 @@ class PyEcotrendIsta:
                 stacklevel=2,
             )
 
-        self.start_timer = time.time()
-        if not self._is_connected() or forceLogin:
+        if "forceLogin" in kwargs:
+            warnings.warn(
+                "The 'forceLogin' keyword parameter is deprecated and will be removed in a future release. Use force_login instead.",
+                DeprecationWarning,
+                stacklevel=2,
+            )
+            force_login = kwargs["forceLogin"]
+
+        self._start_timer = time.time()
+        if not self._is_connected() or force_login:
             self._logoff()
-            retryCounter = 0
-            while not self._is_connected() and (retryCounter < MAX_RETRIES + 2):
-                retryCounter += 1
+            retry_counter = 0
+            while not self._is_connected() and (retry_counter < MAX_RETRIES + 2):
+                retry_counter += 1
                 try:
-                    self._accessToken = self.__login()
+                    self._access_token = self.__login()
                 except LoginError as error:
                     # Login failed
-                    self._accessToken = None
+                    self._access_token = None
 
                     raise LoginError(error.res) from error
                 except ServerError:
-                    if retryCounter < MAX_RETRIES:
+                    if retry_counter < MAX_RETRIES:
                         time.sleep(RETRY_DELAY)
                     else:
                         raise ServerError()  # noqa: TRY200
@@ -342,7 +338,7 @@ class PyEcotrendIsta:
 
         Notes
         -----
-        This method assumes `self._refreshToken` is already set.
+        This method assumes `self._refresh_token` is already set.
 
         Raises
         ------
@@ -357,7 +353,7 @@ class PyEcotrendIsta:
 
         """
         if self.loginhelper.username != DEMO_USER_ACCOUNT:
-            self.loginhelper.logout(self._refreshToken)
+            self.loginhelper.logout(self._refresh_token)
 
     def get_uuids(self) -> list[str]:
         """Retrieve UUIDs of consumption units registered in the account.
@@ -384,7 +380,7 @@ class PyEcotrendIsta:
         """
         return list(self._account.get("residentAndConsumptionUuidsMap", {}).values())
 
-    getUUIDs = deprecated(get_uuids, "getUUIDs")
+    getUUIDs = deprecated(get_uuids, "getUUIDs")  # noqa: N815
 
     # @refresh_now
     def consum_raw(  # noqa: C901
@@ -742,39 +738,39 @@ class PyEcotrendIsta:
         if costs:
             if last_costs is None:
                 last_costs = {}
-            for costsByEnergyType in costs[0]["costsByEnergyType"]:
+            for costs_by_energy_type in costs[0]["costsByEnergyType"]:
                 if (
-                    costsByEnergyType is None
-                    or "type" not in costsByEnergyType
-                    or costsByEnergyType["type"] is None
-                    or "comparedCost" not in costsByEnergyType
-                    or costsByEnergyType["comparedCost"] is None
-                    or "smiley" not in costsByEnergyType["comparedCost"]
-                    or costsByEnergyType["comparedCost"]["smiley"] is None
-                    or "comparedPercentage" not in costsByEnergyType["comparedCost"]
-                    or costsByEnergyType["comparedCost"]["comparedPercentage"] is None
+                    costs_by_energy_type is None
+                    or "type" not in costs_by_energy_type
+                    or costs_by_energy_type["type"] is None
+                    or "comparedCost" not in costs_by_energy_type
+                    or costs_by_energy_type["comparedCost"] is None
+                    or "smiley" not in costs_by_energy_type["comparedCost"]
+                    or costs_by_energy_type["comparedCost"]["smiley"] is None
+                    or "comparedPercentage" not in costs_by_energy_type["comparedCost"]
+                    or costs_by_energy_type["comparedCost"]["comparedPercentage"] is None
                 ):
                     continue
 
-                if costsByEnergyType["type"] not in last_costs:
-                    last_costs[costsByEnergyType["type"]] = 0.0
-                last_costs[costsByEnergyType["type"]] += costsByEnergyType["value"]
-                last_costs["unit"] = costsByEnergyType["unit"]
-                if costsByEnergyType["type"] == "warmwater":
-                    if costsByEnergyType["comparedCost"]["smiley"] == ["MAD", "EQUAL"]:
-                        last_costs["ww"] = costsByEnergyType["comparedCost"]["comparedPercentage"]
-                    elif costsByEnergyType["comparedCost"]["smiley"] in ["HAPPY"]:
-                        last_costs["ww"] = costsByEnergyType["comparedCost"]["comparedPercentage"] * -1
-                elif costsByEnergyType["type"] == "water":
-                    if costsByEnergyType["comparedCost"]["smiley"] == ["MAD", "EQUAL"]:
-                        last_costs["w"] = costsByEnergyType["comparedCost"]["comparedPercentage"]
-                    elif costsByEnergyType["comparedCost"]["smiley"] in ["HAPPY"]:
-                        last_costs["w"] = costsByEnergyType["comparedCost"]["comparedPercentage"] * -1
-                elif costsByEnergyType["type"] == "heating":
-                    if costsByEnergyType["comparedCost"]["smiley"] in ["MAD", "EQUAL"]:
-                        last_costs["h"] = costsByEnergyType["comparedCost"]["comparedPercentage"]
-                    elif costsByEnergyType["comparedCost"]["smiley"] in ["HAPPY"]:
-                        last_costs["h"] = costsByEnergyType["comparedCost"]["comparedPercentage"] * -1
+                if costs_by_energy_type["type"] not in last_costs:
+                    last_costs[costs_by_energy_type["type"]] = 0.0
+                last_costs[costs_by_energy_type["type"]] += costs_by_energy_type["value"]
+                last_costs["unit"] = costs_by_energy_type["unit"]
+                if costs_by_energy_type["type"] == "warmwater":
+                    if costs_by_energy_type["comparedCost"]["smiley"] == ["MAD", "EQUAL"]:
+                        last_costs["ww"] = costs_by_energy_type["comparedCost"]["comparedPercentage"]
+                    elif costs_by_energy_type["comparedCost"]["smiley"] in ["HAPPY"]:
+                        last_costs["ww"] = costs_by_energy_type["comparedCost"]["comparedPercentage"] * -1
+                elif costs_by_energy_type["type"] == "water":
+                    if costs_by_energy_type["comparedCost"]["smiley"] == ["MAD", "EQUAL"]:
+                        last_costs["w"] = costs_by_energy_type["comparedCost"]["comparedPercentage"]
+                    elif costs_by_energy_type["comparedCost"]["smiley"] in ["HAPPY"]:
+                        last_costs["w"] = costs_by_energy_type["comparedCost"]["comparedPercentage"] * -1
+                elif costs_by_energy_type["type"] == "heating":
+                    if costs_by_energy_type["comparedCost"]["smiley"] in ["MAD", "EQUAL"]:
+                        last_costs["h"] = costs_by_energy_type["comparedCost"]["comparedPercentage"]
+                    elif costs_by_energy_type["comparedCost"]["smiley"] in ["HAPPY"]:
+                        last_costs["h"] = costs_by_energy_type["comparedCost"]["comparedPercentage"] * -1
             last_costs["month"] = costs[0]["date"]["month"]
             last_costs["year"] = costs[0]["date"]["year"]
 
@@ -824,9 +820,9 @@ class PyEcotrendIsta:
         response = self.session.get(url, params=params, headers=self._header, )
         _LOGGER.debug("Performed GET request: %s [%s]:\n%s", url, response.status_code, response.text)
 
-        retryCounter = 0
-        while not raw and (retryCounter < MAX_RETRIES + 2):
-            retryCounter += 1
+        retry_counter = 0
+        while not raw and (retry_counter < MAX_RETRIES + 2):
+            retry_counter += 1
             try:
                 raw = response.json()
                 if "key" in raw:
@@ -874,9 +870,9 @@ class PyEcotrendIsta:
             The support code associated with the instance, or None if not set.
 
         """
-        return self._supportCode
+        return self._support_code
 
-    getSupportCode = deprecated(get_support_code, "getSupportCode")
+    getSupportCode = deprecated(get_support_code, "getSupportCode")  # noqa: N815
 
     def get_user_agent(self) -> str:
         """Return the User-Agent string used for HTTP requests.
