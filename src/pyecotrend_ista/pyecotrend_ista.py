@@ -428,7 +428,7 @@ class PyEcotrendIsta:
 
         Notes
         -----
-        This method processes raw consumption and cost data obtained from the `_get_raw` method.
+        This method processes consumption and cost data obtained from the `get_consumption_data` method.
         It filters and aggregates data based on the parameters provided.
 
         Raises
@@ -437,8 +437,8 @@ class PyEcotrendIsta:
             If there is an unexpected error during data processing.
 
         """
-        # Fetch raw consumption data for the specified UUID
-        c_raw: dict[str, Any] = self.get_raw(obj_uuid)
+        # Fetch consumption data for the specified UUID
+        c_raw: dict[str, Any] = self.get_comsumption_data(obj_uuid)
 
         if not isinstance(c_raw, dict) or (c_raw.get("consumptions", None) is None and c_raw.get("costs", None) is None):
             return c_raw
@@ -806,8 +806,8 @@ class PyEcotrendIsta:
             }
         ).to_dict()
 
-    def get_raw(self, obj_uuid: str | None = None) -> dict[str, Any]:
-        """Fetch raw consumption data from the API for a specific consumption unit.
+    def get_comsumption_data(self, obj_uuid: str | None = None) -> dict[str, Any]:
+        """Fetch consumption data from the API for a specific consumption unit.
 
         Parameters
         ----------
@@ -818,7 +818,7 @@ class PyEcotrendIsta:
         Returns
         -------
         dict
-            A dictionary containing the raw consumption data fetched from the API.
+            A dictionary containing the consumption data fetched from the API.
 
         Raises
         ------
@@ -862,6 +862,7 @@ class PyEcotrendIsta:
         except requests.RequestException as exc:
             raise ServerError("Loading consumption data failed due to a request exception") from exc
 
+    get_raw = deprecated(get_comsumption_data, "get_raw")
 
     def get_consumption_unit_details(self) -> dict[str, Any]:
         """Retrieve details of the consumption unit from the API.
