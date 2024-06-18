@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from http import HTTPStatus
 import logging
 import time
 from typing import Any, cast
@@ -9,7 +10,7 @@ import warnings
 
 import requests
 
-from .const import API_BASE_URL, DEMO_USER_ACCOUNT, MAX_RETRIES, VERSION
+from .const import API_BASE_URL, DEMO_USER_ACCOUNT, VERSION
 from .exception_classes import KeycloakError, LoginError, ParserError, ServerError, deprecated
 from .helper_object_de import CustomRaw
 from .login_helper import LoginHelper
@@ -141,9 +142,8 @@ class PyEcotrendIsta:
             True if the client has a valid access token, False otherwise.
 
         """
-        if self._access_token:
-            return True
-        return False
+        return bool(self._access_token)
+
 
     def _logoff(self) -> None:
         """Log off the client by invalidating the current access token.
@@ -182,6 +182,15 @@ class PyEcotrendIsta:
         This method retrieves a new access token, updates internal variables,
         and resets the token expiration timer.
 
+        Raises
+        ------
+        ParserError
+            If there is an error parsing the request response.
+        LoginError
+            If there is an authorization failure.
+        ServerError
+            If there is a server error, connection timeout, or request exception.
+
         Notes
         -----
         This method assumes `self._refresh_token` is already set.
@@ -213,10 +222,23 @@ class PyEcotrendIsta:
                 r.raise_for_status()
                 try:
                     data = r.json()
-                except requests.JSONDecodeError as e:
-                    raise ParserError from e
-        except (requests.RequestException, requests.Timeout) as e:
-            raise ServerError from e
+                except requests.JSONDecodeError as exc:
+                    raise ParserError(
+                        "Loading account information failed due to an error parsing the request response"
+                    ) from exc
+        except requests.HTTPError as exc:
+            if exc.response.status_code == HTTPStatus.UNAUTHORIZED:
+                raise LoginError("Loading account information failed due to an authorization failure") from exc
+
+            raise ServerError(
+                "Loading account information failed due to a server error "
+                f"[{exc.response.status_code}: {exc.response.reason}]"
+            ) from exc
+        except requests.Timeout as exc:
+            raise ServerError("Loading account information failed due a connection timeout") from exc
+        except requests.RequestException as exc:
+            raise ServerError("Loading account information failed due to a request exception") from exc
+
 
         self._account = cast(AccountResponse, data)
         self._uuid = data["activeConsumptionUnit"]
@@ -281,12 +303,14 @@ class PyEcotrendIsta:
             try:
                 self.__login()
                 self.__set_account()
-            except KeycloakError as exc:
+            except (KeycloakError, LoginError) as exc:
                 # Login failed
                 self._access_token = None
-                raise LoginError from exc
-            except Exception as exc:
-                raise ServerError("Unexpected exception occurred") from exc
+                raise LoginError(
+                    "Login failed due to an authorization failure, please verify your email and password"
+                ) from exc
+            except ServerError as exc:
+                raise ServerError("Login failed due to a request exception, please try again later") from exc
 
         return self.access_token
 
@@ -376,7 +400,6 @@ class PyEcotrendIsta:
 
     getUUIDs = deprecated(get_uuids, "getUUIDs")  # noqa: N815
 
-    # @refresh_now
     def consum_raw(  # noqa: C901
         self,
         select_year: list[int] | None = None,
@@ -800,32 +823,45 @@ class PyEcotrendIsta:
         Raises
         ------
         LoginError
-            If the API responds with an error indicating login failure or invalid input.
+            If the API responds with an error indicating authorization failure.
+        ParserError
+            If there is an error parsing the request response.
+        ValueError
+            If the provided UUID is invalid.
+        ServerError
+            If there is a server error, connection timeout, or request exception.
 
         """
-        raw: dict[str, Any] = {}
 
-        if obj_uuid is None:
-            obj_uuid = self._uuid
         params = {
             "consumptionUnitUuid": obj_uuid or self._uuid
         }
         url = f"{API_BASE_URL}consumptions"
-        response = self.session.get(url, params=params, headers=self._header, )
-        _LOGGER.debug("Performed GET request: %s [%s]:\n%s", url, response.status_code, response.text)
+        try:
+            with self.session.get(url, params=params, headers=self._header, ) as r:
+                _LOGGER.debug("Performed GET request: %s [%s]:\n%s", url, r.status_code, r.text[:100])
+                r.raise_for_status()
+                try:
+                    return r.json() # TODO: type hints für response
+                except requests.JSONDecodeError as exc:
+                    raise ParserError(
+                        "Loading consumption data failed due to an error parsing the request response"
+                    ) from exc
+        except requests.HTTPError as exc:
+            if exc.response.status_code == HTTPStatus.UNAUTHORIZED:
+                raise LoginError("Loading consumption data failed failed due to an authorization failure") from exc
+            if exc.response.status_code == HTTPStatus.BAD_REQUEST:
+                raise ValueError(
+                    f"Invalid UUID. Retrieving data for consumption unit {obj_uuid or self._uuid} failed"
+                ) from exc
+            raise ServerError(
+                "Loading consumption data failed due to a server error " f"[{exc.response.status_code}: {exc.response.reason}]"
+            ) from exc
+        except requests.Timeout as exc:
+            raise ServerError("Loading consumption data failed due a connection timeout") from exc
+        except requests.RequestException as exc:
+            raise ServerError("Loading consumption data failed due to a request exception") from exc
 
-        retry_counter = 0
-        while not raw and (retry_counter < MAX_RETRIES + 2):
-            retry_counter += 1
-            try:
-                raw = response.json()
-                if "key" in raw:
-                    raise LoginError("Login fail, check your input! %s", raw["key"])
-            except requests.Timeout:
-                _LOGGER.exception("Exception: The request timed out")
-            except requests.JSONDecodeError:
-                _LOGGER.exception("Exception: Failed to parse server response")
-        return raw
 
     def get_consumption_unit_details(self) -> dict[str, Any]:
         """Retrieve details of the consumption unit from the API.
@@ -837,9 +873,12 @@ class PyEcotrendIsta:
 
         Raises
         ------
+        LoginError
+            If the API responds with an authorization failure.
+        ParserError
+            If there is an issue with decoding the JSON response
         ServerError
-            If there is an issue with decoding the JSON response or if any request-related
-            exceptions occur (e.g., network issues, timeouts).
+            If there is a server error, connection timeout, or request exception.
 
         """
         url = f"{API_BASE_URL}menu"
@@ -850,10 +889,23 @@ class PyEcotrendIsta:
                 r.raise_for_status()
                 try:
                     return r.json()
-                except requests.JSONDecodeError as e:
-                    raise ServerError from e
-        except (requests.RequestException, requests.Timeout) as e:
-            raise ServerError from e
+                except requests.JSONDecodeError as exc:
+                    raise ParserError(
+                        "Loading consumption unit details failed due to an error parsing the request response"
+                    ) from exc
+        except requests.HTTPError as exc:
+            if exc.response.status_code == HTTPStatus.UNAUTHORIZED:
+                raise LoginError("Loading consumption unit details failed failed due to an authorization failure") from exc
+
+            raise ServerError(
+                "Loading consumption unit details failed due to a server error "
+                f"[{exc.response.status_code}: {exc.response.reason}]"
+            ) from exc
+        except requests.Timeout as exc:
+            raise ServerError("Loading consumption unit details failed due a connection timeout") from exc
+        except requests.RequestException as exc:
+            raise ServerError("Loading consumption unit details failed due to a request exception") from exc
+
 
     def get_support_code(self) -> str | None:
         """Return the support code associated with the instance.
@@ -897,8 +949,10 @@ class PyEcotrendIsta:
 
         Raises
         ------
+        ParserError
+            If there is an error parsing the request response.
         ServerError
-            If there is an issue with the server response or decoding JSON data.
+            If there is a server error, connection timeout, or request exception.
 
         """
         url = f"{API_BASE_URL}demo-user-token"
@@ -913,7 +967,16 @@ class PyEcotrendIsta:
                     key = iter(GetTokenResponse.__annotations__)
                     token = {next(key): value for value in data.values()}
                     return cast(GetTokenResponse, token)
-                except requests.JSONDecodeError as e:
-                    raise ServerError from e
-        except (requests.RequestException, requests.Timeout) as e:
-            raise ServerError from e
+                except requests.JSONDecodeError as exc:
+                    raise ParserError(
+                        "Demo user authentication failed due to an error parsing the request response"
+                    ) from exc
+        except requests.HTTPError as exc:
+            raise ServerError(
+                "Demo user authentication failed due to a server error "
+                f"[{exc.response.status_code}: {exc.response.reason}]"
+            ) from exc
+        except requests.Timeout as exc:
+            raise ServerError("Demo user authentication failed due a connection timeout") from exc
+        except requests.RequestException as exc:
+            raise ServerError("Demo user authentication failed due to a request exception") from exc

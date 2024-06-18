@@ -1,14 +1,13 @@
 """Tests for Login methods."""
 
-from unittest.mock import MagicMock
+from http import HTTPStatus
 
 import pytest
 import requests
-from requests.exceptions import JSONDecodeError
 from requests_mock.mocker import Mocker as RequestsMock
 from syrupy.assertion import SnapshotAssertion
 
-from pyecotrend_ista import PyEcotrendIsta, ServerError
+from pyecotrend_ista import ParserError, PyEcotrendIsta, ServerError
 from pyecotrend_ista.const import API_BASE_URL
 from tests.conftest import DEMO_EMAIL, TEST_EMAIL
 
@@ -45,11 +44,19 @@ def test_demo_user_login_exceptions(
         ista_client.demo_user_login()
 
 
-def test_demo_user_login_parser_exception(ista_client: PyEcotrendIsta, requests_mock: RequestsMock) -> None:
-    """Test JSONDecodeError exception for method `demo_user_login`."""
+@pytest.mark.parametrize(
+    ("status_code", "expected_exception"),
+    ([(HTTPStatus.OK, ParserError), (HTTPStatus.BAD_REQUEST, ServerError)]),
+)
+def test_demo_user_login_http_errors(
+    ista_client: PyEcotrendIsta,
+    requests_mock: RequestsMock,
+    status_code: HTTPStatus,
+    expected_exception,
+) -> None:
+    """Test http errors for method `demo_user_login`."""
 
-    json_encoder = MagicMock().json.side_effect = JSONDecodeError("test", "test", 0)
-    requests_mock.get(f"{API_BASE_URL}demo-user-token", json_encoder=json_encoder)
+    requests_mock.get(f"{API_BASE_URL}demo-user-token", status_code=status_code)
 
-    with pytest.raises(expected_exception=ServerError):
+    with pytest.raises(expected_exception=expected_exception):
         ista_client.demo_user_login()

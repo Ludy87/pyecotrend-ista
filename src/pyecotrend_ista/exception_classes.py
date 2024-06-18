@@ -74,7 +74,7 @@ class LoginError(BaseError):
         """Return a string representation of an authentication error."""
         return "An authentication error occurred during the request"
 
-class ParserError(BaseError):
+class ParserError(ServerError):
     """Exception raised for errors encountered during parsing.
 
     This exception is raised when an error occurs during the parsing process
@@ -166,7 +166,7 @@ class KeycloakPostError(KeycloakOperationError):
     """Keycloak request post error exception."""
 
 
-class KeycloakCodeNotFound(KeycloakOperationError):
+class KeycloakCodeNotFound(KeycloakOperationError):  # noqa: N818
     """Keycloak Code not found exception."""
 
 
