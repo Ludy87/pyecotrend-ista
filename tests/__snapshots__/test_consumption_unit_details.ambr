@@ -1,0 +1,27 @@
+# serializer version: 1
+# name: test_get_consumption_unit_details
+  dict({
+    'coBranding': None,
+    'consumptionUnits': list([
+      dict({
+        'address': dict({
+          'city': 'Essen',
+          'consumptionUnitNumber': '0001',
+          'country': 'DE',
+          'floor': '2. OG links',
+          'houseNumber': '1',
+          'idAtCustomerUser': '6234XB',
+          'postalCode': '45131',
+          'propertyNumber': '112233445',
+          'street': 'Luxemburger Str.',
+        }),
+        'booked': dict({
+          'co2': False,
+          'cost': True,
+        }),
+        'id': '7a226e08-2a90-4db9-ae9b-8148901c6ec2',
+        'propertyNumber': '57352474',
+      }),
+    ]),
+  })
+# ---

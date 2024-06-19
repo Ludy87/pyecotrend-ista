@@ -12,11 +12,19 @@ from pyecotrend_ista.const import API_BASE_URL
 from tests.conftest import DEMO_EMAIL, TEST_EMAIL
 
 
+@pytest.mark.parametrize(("force_login"), [True, False])
 @pytest.mark.parametrize("ista_client", [TEST_EMAIL, DEMO_EMAIL], indirect=True)
 @pytest.mark.usefixtures("mock_requests_login")
-def test_login(ista_client: PyEcotrendIsta) -> None:
+def test_login(ista_client: PyEcotrendIsta, force_login: bool) -> None:
     """Test Login method."""
-    assert ista_client.login() == "ACCESS_TOKEN"
+    assert ista_client.login(force_login=force_login) == "ACCESS_TOKEN"
+
+
+@pytest.mark.usefixtures("mock_requests_login")
+def test_logout(ista_client: PyEcotrendIsta, mock_requests_login: RequestsMock) -> None:
+    """Test Login method."""
+    ista_client.logout()
+    assert mock_requests_login.called_once
 
 
 @pytest.mark.parametrize("ista_client", [DEMO_EMAIL], indirect=True)
