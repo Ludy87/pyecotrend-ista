@@ -30,7 +30,10 @@ def deprecated(func: Callable[..., T], alias_func: str | None = None) -> Callabl
 
     def deprecated_func(*args, **kwargs):
         if alias_func:
-            warning_message = f"The `{alias_func}` function is deprecated and will be removed in a future release. Use `{func.__name__}` instead."
+            warning_message = (
+                f"The `{alias_func}` function is deprecated and will be removed in a future release. "
+                f"Use `{func.__name__}` instead."
+            )
         else:
             warning_message = f"The `{func.__name__}` function is deprecated and will be removed in a future release."
 
@@ -110,7 +113,7 @@ class ParserError(ServerError):
 
 # Source from https://github.com/marcospereirampj/python-keycloak/blob/c98189ca6951f12f1023ed3370c9aaa0d81e4aa4/src/keycloak/exceptions.py
 
-"""Keycloak custom exceptions module."""
+# Keycloak custom exceptions module.
 
 
 class KeycloakError(Exception):

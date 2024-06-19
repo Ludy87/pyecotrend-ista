@@ -81,7 +81,7 @@
     }),
   })
 # ---
-# name: test_get_raw
+# name: test_get_comsumption_data
   dict({
     'co2Emissions': None,
     'co2EmissionsBillingPeriods': None,
