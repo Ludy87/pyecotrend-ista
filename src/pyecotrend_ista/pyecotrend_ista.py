@@ -14,7 +14,7 @@ from .const import API_BASE_URL, DEMO_USER_ACCOUNT, VERSION
 from .exception_classes import KeycloakError, LoginError, ParserError, ServerError, deprecated
 from .helper_object_de import CustomRaw
 from .login_helper import LoginHelper
-from .types import AccountResponse, GetTokenResponse
+from .types import AccountResponse, ConsumptionsResponse, GetTokenResponse
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -406,7 +406,7 @@ class PyEcotrendIsta:
         select_month: list[int] | None = None,
         filter_none: bool = True,
         obj_uuid: str | None = None,
-    ) -> dict[str, Any]:  # noqa: C901
+    ) -> dict[str, Any] | ConsumptionsResponse:  # noqa: C901
         """Process consumption and cost data for a given consumption unit.
 
         Parameters
@@ -437,10 +437,10 @@ class PyEcotrendIsta:
             If there is an unexpected error during data processing.
 
         """
-        # Fetch consumption data for the specified UUID
-        c_raw: dict[str, Any] = self.get_comsumption_data(obj_uuid)
+        # Fetch raw consumption data for the specified UUID
+        c_raw: ConsumptionsResponse = self.get_raw(obj_uuid)
 
-        if not isinstance(c_raw, dict) or (c_raw.get("consumptions", None) is None and c_raw.get("costs", None) is None):
+        if not isinstance(c_raw, dict) or (c_raw.get("consumptions") is None and c_raw.get("costs") is None):
             return c_raw
 
         if "consumptions" not in c_raw or not isinstance(c_raw.get("consumptions"), list):
@@ -454,7 +454,7 @@ class PyEcotrendIsta:
             if (
                 not isinstance(consumption, dict)
                 or "readings" not in consumption
-                or consumption.get("readings", None) is None
+                or consumption.get("readings") is None
                 or not isinstance(consumption.get("readings"), list)
             ):
                 consumption = {}
@@ -842,7 +842,7 @@ class PyEcotrendIsta:
                 _LOGGER.debug("Performed GET request: %s [%s]:\n%s", url, r.status_code, r.text[:100])
                 r.raise_for_status()
                 try:
-                    return r.json() # TODO: type hints für response
+                    return cast(ConsumptionsResponse, r.json())
                 except requests.JSONDecodeError as exc:
                     raise ParserError(
                         "Loading consumption data failed due to an error parsing the request response"
