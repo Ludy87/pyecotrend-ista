@@ -14,6 +14,7 @@ from .pyecotrend_ista import PyEcotrendIsta
 from .types import ConsumptionsResponse
 
 __all__ = [
+    "ConsumptionsResponse",
     "KeycloakAuthenticationError",
     "KeycloakError",
     "KeycloakGetError",
