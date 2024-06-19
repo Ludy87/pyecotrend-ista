@@ -987,3 +987,17 @@ class PyEcotrendIsta:
             raise ServerError("Demo user authentication failed due a connection timeout") from exc
         except requests.RequestException as exc:
             raise ServerError("Demo user authentication failed due to a request exception") from exc
+
+
+    def get_account(self) -> AccountResponse | None:
+        """Retrieve the account information.
+
+        Returns the `_account` attribute if it exists, otherwise returns None.
+
+        Returns
+        -------
+        AccountResponse | None
+            Account information if available, otherwise None.
+
+        """
+        return getattr(self, "_account", None)
