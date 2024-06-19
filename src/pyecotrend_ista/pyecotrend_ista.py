@@ -200,8 +200,19 @@ class PyEcotrendIsta:
     def __set_account(self) -> None:
         """Fetch and set account information from the API.
 
-        This method performs an API request to retrieve account information
-        and sets instance variables accordingly using __set_account_values.
+         This method performs an API request to retrieve account information,
+        handles various potential errors that might occur during the request,
+        and sets instance variables accordingly using the response data.
+
+        Raises
+        ------
+        ParserError
+            If there is an error parsing the JSON response.
+        LoginError
+            If the request fails due to an authorization error.
+        ServerError
+            If the request fails due to a server error, timeout, or other request exceptions.
+
         """
         self._header = {
             "Content-Type": "application/json",
@@ -258,6 +269,8 @@ class PyEcotrendIsta:
             If True, forces a fresh login attempt even if already connected. Default is False.
         debug : bool, optional
             [DEPRECATED] Flag indicating whether to enable debug logging. Default is False.
+        forceLogin : bool, optional
+            [DEPRECATED] Use `force_login` instead.
 
         Returns
         -------
@@ -415,7 +428,7 @@ class PyEcotrendIsta:
 
         Returns
         -------
-        dict[str, Any]
+        dict[str, Any] | ConsumptionsResponse
             Processed data including consumption types, total additional values, last values,
             last costs, sum by year, and last year compared consumption.
 
@@ -799,7 +812,7 @@ class PyEcotrendIsta:
             }
         ).to_dict()
 
-    def get_comsumption_data(self, obj_uuid: str | None = None) -> dict[str, Any]:
+    def get_comsumption_data(self, obj_uuid: str | None = None) -> ConsumptionsResponse:
         """Fetch consumption data from the API for a specific consumption unit.
 
         Parameters
@@ -810,7 +823,7 @@ class PyEcotrendIsta:
 
         Returns
         -------
-        dict
+        ConsumptionsResponse
             A dictionary containing the consumption data fetched from the API.
 
         Raises
@@ -910,7 +923,7 @@ class PyEcotrendIsta:
             The support code associated with the instance, or None if not set.
 
         """
-        return self._support_code
+        return getattr(self, "_account", {}).get("supportCode")
 
     getSupportCode = deprecated(get_support_code, "getSupportCode")  # noqa: N815
 

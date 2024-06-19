@@ -36,12 +36,19 @@ def test_get_user_agent(ista_client: PyEcotrendIsta) -> None:
         "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/101.0.4951.67"
         " Safari/537.36"
     )
-@pytest.mark.xfail
+
 @pytest.mark.usefixtures("mock_requests_login")
 def test_get_support_code(ista_client: PyEcotrendIsta) -> None:
     """Test `get_support_code` method."""
 
+    ista_client.login()
     assert ista_client.get_support_code() == "XXXXXXXXX"
+
+@pytest.mark.usefixtures("mock_requests_login")
+def test_get_support_code_returns_none(ista_client: PyEcotrendIsta) -> None:
+    """Test `get_support_code` method."""
+
+    assert ista_client.get_support_code() is None
 
 
 @pytest.mark.parametrize(("access_token", "expected_result"), [("ACCESS_TOKEN", True), (None, False)])
