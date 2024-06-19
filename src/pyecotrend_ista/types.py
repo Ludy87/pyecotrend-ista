@@ -1,6 +1,6 @@
 """Types for PyEcotrendIsta."""
 
-from typing import TypedDict
+from typing import Any, Literal, TypedDict
 
 
 class GetTokenResponse(TypedDict):
@@ -122,3 +122,242 @@ class AccountResponse(TypedDict):
     activeConsumptionUnit: str
     supportCode: str
     notificationMethodEmailConfirmed: bool
+
+class IstaMonthYear(TypedDict):
+    """A TypedDict representing a month and year.
+
+    Attributes
+    ----------
+    month : int
+        The month value.
+    year : int
+        The year value.
+    """
+
+    month: int
+    year: int
+
+class IstaAverageConsumption(TypedDict):
+    """A TypedDict representing average consumption values.
+
+    Attributes
+    ----------
+    additionalAverageConsumptionPercentage : int
+        Percentage of additional average consumption.
+    additionalAverageConsumptionValue : str
+        Value of additional average consumption.
+    additionalResidentConsumptionPercentage : int
+        Percentage of additional resident consumption.
+    additionalResidentConsumptionValue : str
+        Value of additional resident consumption.
+    averageConsumptionPercentage : int
+        Percentage of average consumption.
+    averageConsumptionValue : str
+        Value of average consumption.
+    residentConsumptionPercentage : int
+        Percentage of resident consumption.
+    residentConsumptionValue : str
+        Value of resident consumption.
+    """
+
+    additionalAverageConsumptionPercentage: int
+    additionalAverageConsumptionValue: str
+    additionalResidentConsumptionPercentage: int
+    additionalResidentConsumptionValue: str
+    averageConsumptionPercentage: int
+    averageConsumptionValue: str
+    residentConsumptionPercentage: int
+    residentConsumptionValue: str
+
+class IstaCompared(TypedDict):
+    """A TypedDict representing compared values.
+
+    Attributes
+    ----------
+    comparedPercentage : int
+        Percentage comparison value.
+    comparedValue : str
+        Compared value.
+    lastYearValue : float
+        Value from the last year.
+    period : IstaMonthYear
+        Period associated with the comparison.
+    smiley : str
+        Smiley associated with the comparison.
+    """
+
+    comparedPercentage: int
+    comparedValue: str
+    lastYearValue: float
+    period: IstaMonthYear
+    smiley: str
+
+class IstaReading(TypedDict):
+    """A TypedDict representing a reading.
+
+    Attributes
+    ----------
+    additionalUnit : str
+        Additional unit associated with the reading.
+    additionalValue : str
+        Additional value associated with the reading.
+    averageConsumption : IstaAverageConsumption
+        Average consumption details.
+    comparedConsumption : dict
+        Compared consumption details.
+    comparedCost : IstaCompared
+        Compared cost details.
+    estimated : bool
+        Indicates if the reading is estimated.
+    type : Literal["heating", "warmwater", "water"]
+        Type of the reading (heating, warmwater, water).
+    unit : str
+        Unit of measurement for the reading.
+    value : str
+        Value of the reading.
+    """
+
+    additionalUnit: str
+    additionalValue: str
+    averageConsumption: IstaAverageConsumption
+    comparedConsumption: dict
+    comparedCost: IstaCompared
+    estimated: bool
+    type: Literal["heating", "warmwater", "water"]
+    unit: str
+    value: str
+
+class IstaTimeRange(TypedDict):
+    """A TypedDict representing a time range.
+
+    Attributes
+    ----------
+    end : IstaMonthYear
+        The end of the time range.
+    start : IstaMonthYear
+        The start of the time range.
+    """
+
+    end: IstaMonthYear
+    start: IstaMonthYear
+
+class IstaBillingPeriod(TypedDict):
+    """A TypedDict representing a billing period.
+
+    Attributes
+    ----------
+    exception : Any, optional
+        Any exceptions related to this billing period. (data type unknown)
+    readings : list[IstaReading]
+        List of readings associated with this billing period.
+    timeRange : IstaTimeRange
+        The time range for this billing period.
+    """
+
+    exception: Any
+    readings: list[IstaReading]
+    timeRange:IstaTimeRange
+
+class IstaBillingPeriods(TypedDict):
+    """A TypedDict representing the billing periods.
+
+    Attributes
+    ----------
+    currentBillingPeriod : IstaBillingPeriod
+        The details of the current billing period.
+    previousBillingPeriod : IstaBillingPeriod
+        The details of the previous billing period.
+    """
+
+    currentBillingPeriod: IstaBillingPeriod
+    previousBillingPeriod: IstaBillingPeriod
+
+class IstaCostsByEnergyType(TypedDict):
+    """A TypedDict representing the costs associated with a specific energy type.
+
+    Attributes
+    ----------
+    comparedCost : IstaCompared
+        The cost comparison data for the energy type.
+    estimated : bool
+        Indicates whether the cost is estimated.
+    type : Literal["heating", "warmwater", "water"]
+        The type of energy (heating, warm water, or water).
+    unit : str
+        The unit of measurement for the cost.
+    value : int
+        The cost value.
+    """
+
+    comparedCost: IstaCompared
+    estimated: bool
+    type: Literal["heating", "warmwater", "water"]
+    unit: str
+    value: int
+
+class IstaPeriods(TypedDict):
+    """A TypedDict representing data for a specific period.
+
+    Attributes
+    ----------
+    date : IstaMonthYear
+        The month and year for the period.
+    documentNumber : str | None
+        The document number associated with the period, if any.
+    exception : Any
+        An exception associated with the period (data type unspecified).
+    isSCEedBasic : bool
+        Indicates if the SCEed basic plan is active for the period.
+    readings : list[IstaReading]
+        A list of readings recorded during the period.
+    costsByEnergyType : list[IstaCostsByEnergyType]
+        A list of costs categorized by energy type for the period.
+    """
+
+    date: IstaMonthYear
+    documentNumber: str | None
+    exception: Any
+    isSCEedBasic: bool
+    readings: list[IstaReading]
+    costsByEnergyType: list[IstaCostsByEnergyType]
+
+
+
+class ConsumptionsResponse(TypedDict, total=False):
+    """A TypedDict representing the response structure for consumption data.
+
+    Attributes
+    ----------
+    co2Emissions : list[IstaPeriods]
+        A list of CO2 emission data over different periods.
+    co2EmissionsBillingPeriods : list[IstaBillingPeriods]
+        A list of CO2 emission data over different billing periods.
+    consumptionUnitId : str
+        The unique identifier for the consumption unit.
+    consumptions : list[IstaPeriods]
+        A list of consumption data over different periods.
+    consumptionsBillingPeriods : IstaBillingPeriods
+        The consumption data over different billing periods.
+    costs : list[IstaPeriods]
+        A list of cost data over different periods.
+    costsBillingPeriods : IstaBillingPeriods
+        The cost data over different billing periods.
+    isSCEedBasicForCurrentMonth : bool
+        Indicates if the SCEed basic plan is active for the current month.
+    nonEEDBasicStartDate : Any
+        The start date for non-EED basic plan (data type unknown).
+    resident : dict[str, Any]
+        A dictionary containing resident information.
+
+    """
+
+    co2Emissions: list[IstaPeriods]
+    co2EmissionsBillingPeriods: list[IstaBillingPeriods]
+    consumptionUnitId: str
+    consumptions: list[IstaPeriods]
+    consumptionsBillingPeriods: IstaBillingPeriods
+    costs: list[IstaPeriods]
+    costsBillingPeriods: IstaBillingPeriods
+    isSCEedBasicForCurrentMonth: bool
+    nonEEDBasicStartDate: Any
+    resident: dict[str, Any]
