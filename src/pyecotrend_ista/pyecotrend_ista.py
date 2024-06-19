@@ -145,13 +145,6 @@ class PyEcotrendIsta:
         return bool(self._access_token)
 
 
-    def _logoff(self) -> None:
-        """Log off the client by invalidating the current access token.
-
-        This method sets the access token to None, effectively logging off the client.
-        """
-        self._access_token = None
-
     def __login(self) -> str | None:
         """Perform the login process to obtain an access token.
 
