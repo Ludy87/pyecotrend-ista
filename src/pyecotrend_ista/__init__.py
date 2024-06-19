@@ -11,6 +11,7 @@ from .exception_classes import (
     ServerError,
 )
 from .pyecotrend_ista import PyEcotrendIsta
+from .types import ConsumptionsResponse
 
 __all__ = [
     "KeycloakAuthenticationError",

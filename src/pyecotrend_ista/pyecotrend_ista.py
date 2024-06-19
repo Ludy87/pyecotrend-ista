@@ -14,7 +14,7 @@ from .const import API_BASE_URL, DEMO_USER_ACCOUNT, VERSION
 from .exception_classes import KeycloakError, LoginError, ParserError, ServerError, deprecated
 from .helper_object_de import CustomRaw
 from .login_helper import LoginHelper
-from .types import AccountResponse, GetTokenResponse
+from .types import AccountResponse, ConsumptionsResponse, GetTokenResponse
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -406,7 +406,7 @@ class PyEcotrendIsta:
         select_month: list[int] | None = None,
         filter_none: bool = True,
         obj_uuid: str | None = None,
-    ) -> dict[str, Any]:  # noqa: C901
+    ) -> dict[str, Any] | ConsumptionsResponse:  # noqa: C901
         """Process consumption and cost data for a given consumption unit.
 
         Parameters
@@ -428,7 +428,7 @@ class PyEcotrendIsta:
 
         Notes
         -----
-        This method processes raw consumption and cost data obtained from the `_get_raw` method.
+        This method processes consumption and cost data obtained from the `get_consumption_data` method.
         It filters and aggregates data based on the parameters provided.
 
         Raises
@@ -438,9 +438,9 @@ class PyEcotrendIsta:
 
         """
         # Fetch raw consumption data for the specified UUID
-        c_raw: dict[str, Any] = self.get_raw(obj_uuid)
+        c_raw: ConsumptionsResponse = self.get_raw(obj_uuid)
 
-        if not isinstance(c_raw, dict) or (c_raw.get("consumptions", None) is None and c_raw.get("costs", None) is None):
+        if not isinstance(c_raw, dict) or (c_raw.get("consumptions") is None and c_raw.get("costs") is None):
             return c_raw
 
         if "consumptions" not in c_raw or not isinstance(c_raw.get("consumptions"), list):
@@ -454,7 +454,7 @@ class PyEcotrendIsta:
             if (
                 not isinstance(consumption, dict)
                 or "readings" not in consumption
-                or consumption.get("readings", None) is None
+                or consumption.get("readings") is None
                 or not isinstance(consumption.get("readings"), list)
             ):
                 consumption = {}
@@ -806,8 +806,8 @@ class PyEcotrendIsta:
             }
         ).to_dict()
 
-    def get_raw(self, obj_uuid: str | None = None) -> dict[str, Any]:
-        """Fetch raw consumption data from the API for a specific consumption unit.
+    def get_comsumption_data(self, obj_uuid: str | None = None) -> dict[str, Any]:
+        """Fetch consumption data from the API for a specific consumption unit.
 
         Parameters
         ----------
@@ -818,7 +818,7 @@ class PyEcotrendIsta:
         Returns
         -------
         dict
-            A dictionary containing the raw consumption data fetched from the API.
+            A dictionary containing the consumption data fetched from the API.
 
         Raises
         ------
@@ -842,7 +842,7 @@ class PyEcotrendIsta:
                 _LOGGER.debug("Performed GET request: %s [%s]:\n%s", url, r.status_code, r.text[:100])
                 r.raise_for_status()
                 try:
-                    return r.json() # TODO: type hints für response
+                    return cast(ConsumptionsResponse, r.json())
                 except requests.JSONDecodeError as exc:
                     raise ParserError(
                         "Loading consumption data failed due to an error parsing the request response"
@@ -862,6 +862,7 @@ class PyEcotrendIsta:
         except requests.RequestException as exc:
             raise ServerError("Loading consumption data failed due to a request exception") from exc
 
+    get_raw = deprecated(get_comsumption_data, "get_raw")
 
     def get_consumption_unit_details(self) -> dict[str, Any]:
         """Retrieve details of the consumption unit from the API.
