@@ -438,7 +438,7 @@ class PyEcotrendIsta:
 
         """
         # Fetch raw consumption data for the specified UUID
-        c_raw: ConsumptionsResponse = self.get_raw(obj_uuid)
+        c_raw: ConsumptionsResponse = self.get_comsumption_data(obj_uuid)
 
         if not isinstance(c_raw, dict) or (c_raw.get("consumptions") is None and c_raw.get("costs") is None):
             return c_raw

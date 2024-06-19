@@ -21,7 +21,7 @@ combine-as-imports = true
 split-on-trailing-comma = false
 
 [tool.pytest.ini_options]
-addopts = "--cov=pyecotrend_ista --cov-report=term-missing"
+addopts = "--cov=src/pyecotrend_ista/ --cov-report=term-missing -n auto"
 testpaths = ["tests"]
 pythonpath = ["src"]
 

@@ -1,5 +1,7 @@
 """Fixtures for Tests."""
 
+from http import HTTPStatus
+
 import pytest
 from requests_mock.mocker import Mocker as RequestsMock
 
@@ -93,4 +95,31 @@ def mock_requests_login(requests_mock: RequestsMock) -> RequestsMock:
             "notificationMethodEmailConfirmed": True,
         },
     )
+    requests_mock.post(PROVIDER_URL + "logout", status_code=HTTPStatus.NO_CONTENT)
+
+    requests_mock.get(
+        f"{API_BASE_URL}menu",
+        json={
+            "consumptionUnits": [
+                {
+                    "id": "7a226e08-2a90-4db9-ae9b-8148901c6ec2",
+                    "address": {
+                        "street": "Luxemburger Str.",
+                        "houseNumber": "1",
+                        "postalCode": "45131",
+                        "city": "Essen",
+                        "country": "DE",
+                        "floor": "2. OG links",
+                        "propertyNumber": "112233445",
+                        "consumptionUnitNumber": "0001",
+                        "idAtCustomerUser": "6234XB",
+                    },
+                    "booked": {"cost": True, "co2": False},
+                    "propertyNumber": "57352474",
+                }
+            ],
+            "coBranding": None,
+        },
+    )
+
     return requests_mock

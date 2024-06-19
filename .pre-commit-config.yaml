@@ -37,6 +37,7 @@ repos:
           - --skip="./.*,*.csv,*.json,*.ambr"
           - --quiet-level=2
         exclude_types: [csv, json]
+        exclude: tests/__snapshots__/
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v4.5.0
     hooks:
@@ -56,7 +57,7 @@ repos:
       - id: mixed-line-ending
         args: [--fix=lf]
         exclude_types: [png, yaml]
-        exclude: (\.md|\.yml|\.jpg|\.png)$
+        exclude: (\.md|\.yml|\.jpg|\.png|\.ambr)$
       - id: trailing-whitespace
         exclude_types: [json]
       - id: pretty-format-json
