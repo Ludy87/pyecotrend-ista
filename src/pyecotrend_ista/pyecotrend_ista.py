@@ -14,7 +14,7 @@ from .const import API_BASE_URL, DEMO_USER_ACCOUNT, VERSION
 from .exception_classes import KeycloakError, LoginError, ParserError, ServerError, deprecated
 from .helper_object_de import CustomRaw
 from .login_helper import LoginHelper
-from .types import AccountResponse, ConsumptionsResponse, GetTokenResponse
+from .types import AccountResponse, ConsumptionsResponse, ConsumptionUnitDetailsResponse, GetTokenResponse
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -79,8 +79,6 @@ class PyEcotrendIsta:
         self._email: str = email.strip()
         self._password: str = password
 
-
-
         self.loginhelper = LoginHelper(
             username=self._email,
             password=self._password,
@@ -143,7 +141,6 @@ class PyEcotrendIsta:
 
         """
         return bool(self._access_token)
-
 
     def __login(self) -> str | None:
         """Perform the login process to obtain an access token.
@@ -243,7 +240,6 @@ class PyEcotrendIsta:
         except requests.RequestException as exc:
             raise ServerError("Loading account information failed due to a request exception") from exc
 
-
         self._account = cast(AccountResponse, data)
         self._uuid = data["activeConsumptionUnit"]
 
@@ -319,7 +315,6 @@ class PyEcotrendIsta:
                 raise ServerError("Login failed due to a request exception, please try again later") from exc
 
         return self.access_token
-
 
     def userinfo(self, token):
         """Retrieve user information using the provided access token.
@@ -870,12 +865,12 @@ class PyEcotrendIsta:
 
     get_raw = deprecated(get_comsumption_data, "get_raw")
 
-    def get_consumption_unit_details(self) -> dict[str, Any]:
+    def get_consumption_unit_details(self) -> ConsumptionUnitDetailsResponse:
         """Retrieve details of the consumption unit from the API.
 
         Returns
         -------
-        dict
+        ConsumptionUnitDetailsResponse
             A dictionary containing the details of the consumption unit.
 
         Raises
@@ -895,7 +890,7 @@ class PyEcotrendIsta:
 
                 r.raise_for_status()
                 try:
-                    return r.json()
+                    return cast(ConsumptionUnitDetailsResponse, r.json())
                 except requests.JSONDecodeError as exc:
                     raise ParserError(
                         "Loading consumption unit details failed due to an error parsing the request response"
@@ -912,7 +907,6 @@ class PyEcotrendIsta:
             raise ServerError("Loading consumption unit details failed due a connection timeout") from exc
         except requests.RequestException as exc:
             raise ServerError("Loading consumption unit details failed due to a request exception") from exc
-
 
     def get_support_code(self) -> str | None:
         """Return the support code associated with the instance.

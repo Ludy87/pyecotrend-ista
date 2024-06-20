@@ -9,7 +9,7 @@ ci:
   autoupdate_schedule: weekly
   skip: []
   submodules: false
-
+fail_fast: true
 repos:
   - repo: https://github.com/astral-sh/ruff-pre-commit
     rev: v0.4.9
@@ -53,7 +53,6 @@ repos:
       - id: detect-private-key
       - id: end-of-file-fixer
         exclude_types: [json]
-      - id: forbid-new-submodules
       - id: mixed-line-ending
         args: [--fix=lf]
         exclude_types: [png, yaml]

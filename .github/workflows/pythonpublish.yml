@@ -13,11 +13,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4.1.7
+        uses: actions/checkout@v4
         with:
           ref: main
       - name: Set up Python
-        uses: actions/setup-python@v5.1.0
+        uses: actions/setup-python@v5
         with:
           python-version: |
             3.11
@@ -33,13 +33,13 @@ jobs:
         id: checkTag
         with:
           tag: ${{ steps.version.outputs.version }}
-      - uses: actions/checkout@v4.1.7
+      - uses: actions/checkout@v4
       - name: ZIP Component Dir
         run: |
           cd ${{ github.workspace }}/src/pyecotrend_ista
           zip -r pyecotrend_ista.zip ./
       - name: Upload zip to release
-        uses: svenstaro/upload-release-action@2.9.0
+        uses: svenstaro/upload-release-action@v2
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           file: ${{ github.workspace }}/src/pyecotrend_ista/pyecotrend_ista.zip
@@ -55,7 +55,7 @@ jobs:
           fi
       - name: Build
         if: steps.check-tag.outputs.match == 'true'
-        uses: softprops/action-gh-release@v2.0.5
+        uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ steps.version.outputs.version }}
           name: v${{ steps.version.outputs.version }}
@@ -64,10 +64,10 @@ jobs:
           token: "${{ secrets.GITHUB_TOKEN }}"
       - name: Checkout code for release
         if: steps.check-tag.outputs.match == 'true'
-        uses: actions/checkout@v4.1.7
+        uses: actions/checkout@v4
       - name: Set up Python
         if: steps.check-tag.outputs.match == 'true'
-        uses: actions/setup-python@v5.1.0
+        uses: actions/setup-python@v5
         with:
           python-version: "3.11"
           check-latest: true

@@ -1,13 +1,15 @@
 name: Manage labels
 
 on:
-  push:
-    branches: [main]
-    paths-ignore:
-      - ".github/actions/**"
-      - ".github/workflows/**"
-  pull_request:
-    branches: [main]
+  # push:
+  #   branches: [main]
+  #   paths-ignore:
+  #     - ".github/actions/**"
+  #     - ".github/workflows/**"
+  # pull_request:
+  #   branches: [main]
+  schedule:
+    - cron: "31 12 * * 0"
 
 jobs:
   labeler:
@@ -15,10 +17,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check out the repository
-        uses: actions/checkout@v4.1.7
+        uses: actions/checkout@v4
 
       - name: Run Labeler
-        uses: crazy-max/ghaction-github-labeler@v5.0.0
+        uses: crazy-max/ghaction-github-labeler@v5
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           yaml-file: .github/labels.yml
