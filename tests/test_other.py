@@ -4,6 +4,7 @@
 from typing import cast
 
 import pytest
+from syrupy.assertion import SnapshotAssertion
 
 from pyecotrend_ista import PyEcotrendIsta
 from pyecotrend_ista.const import VERSION
@@ -83,3 +84,13 @@ def test_init_deprecated_parameters(param: str) -> None:
     """Test warnings for deprecated methods."""
     with pytest.warns(DeprecationWarning):
         PyEcotrendIsta(email="", password="", **{param: True}) # type: ignore
+
+
+@pytest.mark.usefixtures("mock_requests_login")
+def test_get_account(ista_client: PyEcotrendIsta, snapshot: SnapshotAssertion) -> None:
+    """Test `get_account` method."""
+
+    assert ista_client.get_account() is None
+
+    ista_client.login()
+    assert ista_client.get_account() == snapshot
