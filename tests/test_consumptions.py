@@ -17,7 +17,7 @@ def test_get_comsumption_data(ista_client: PyEcotrendIsta, requests_mock: Reques
 
     requests_mock.get(f"{API_BASE_URL}consumptions", json=dataset["test_data"])
 
-    assert ista_client.get_comsumption_data("26e93f1a-c828-11ea-87d0-0242ac130003") == snapshot
+    assert ista_client.get_consumption_data("26e93f1a-c828-11ea-87d0-0242ac130003") == snapshot
 
 
 @pytest.mark.parametrize(
@@ -42,7 +42,7 @@ def test_get_comsumption_data_http_errors(
     )
 
     with pytest.raises(expected_exception=expected_exception):
-        ista_client.get_comsumption_data("26e93f1a-c828-11ea-87d0-0242ac130003")
+        ista_client.get_consumption_data("26e93f1a-c828-11ea-87d0-0242ac130003")
 
 
 @pytest.mark.parametrize(
@@ -56,7 +56,7 @@ def test_get_comsumption_data_exceptions(requests_mock: RequestsMock, ista_clien
     )
 
     with pytest.raises(expected_exception=expected_exception):
-        ista_client.get_comsumption_data("26e93f1a-c828-11ea-87d0-0242ac130003")
+        ista_client.get_consumption_data("26e93f1a-c828-11ea-87d0-0242ac130003")
 
 
 def test_consum_raw(ista_client: PyEcotrendIsta, requests_mock: RequestsMock, snapshot: SnapshotAssertion, dataset) -> None:

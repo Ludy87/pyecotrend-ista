@@ -439,7 +439,7 @@ class PyEcotrendIsta:
 
         """
         # Fetch raw consumption data for the specified UUID
-        c_raw: ConsumptionsResponse = self.get_comsumption_data(obj_uuid)
+        c_raw: ConsumptionsResponse = self.get_consumption_data(obj_uuid)
 
         if not isinstance(c_raw, dict) or (c_raw.get("consumptions") is None and c_raw.get("costs") is None):
             return c_raw
@@ -807,7 +807,7 @@ class PyEcotrendIsta:
             }
         ).to_dict()
 
-    def get_comsumption_data(self, obj_uuid: str | None = None) -> ConsumptionsResponse:
+    def get_consumption_data(self, obj_uuid: str | None = None) -> ConsumptionsResponse:
         """Fetch consumption data from the API for a specific consumption unit.
 
         Parameters
@@ -863,7 +863,7 @@ class PyEcotrendIsta:
         except requests.RequestException as exc:
             raise ServerError("Loading consumption data failed due to a request exception") from exc
 
-    get_raw = deprecated(get_comsumption_data, "get_raw")
+    get_raw = deprecated(get_consumption_data, "get_raw")
 
     def get_consumption_unit_details(self) -> ConsumptionUnitDetailsResponse:
         """Retrieve details of the consumption unit from the API.
