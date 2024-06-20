@@ -9,7 +9,7 @@ ci:
   autoupdate_schedule: weekly
   skip: []
   submodules: false
-fail_fast: true
+
 repos:
   - repo: https://github.com/astral-sh/ruff-pre-commit
     rev: v0.4.9
