@@ -1,3 +1,5 @@
+"""Setuptool for PyPI."""
+
 import configparser
 
 import setuptools
@@ -28,6 +30,7 @@ setuptools.setup(
     url="https://github.com/Ludy87/pyecotrend-ista",
     project_urls={
         "Bug Tracker": "https://github.com/Ludy87/pyecotrend-ista/issues",
+        "Homepage": "https://github.com/Ludy87/pyecotrend-ista",
     },
     package_dir={"": "src"},
     packages=setuptools.find_packages(where="src"),
@@ -36,6 +39,7 @@ setuptools.setup(
         "Programming Language :: Python",
         "Programming Language :: Python :: 3",
         "Programming Language :: Python :: 3.11",
+        "Programming Language :: Python :: 3.12",
         "License :: OSI Approved :: MIT License",
         "Operating System :: OS Independent",
         "Intended Audience :: Developers",
