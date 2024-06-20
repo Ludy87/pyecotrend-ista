@@ -92,7 +92,6 @@ class LoginHelper:
         self.password: str = password
         self.totp: str | None = totp
 
-
         self.session = session or requests.Session()
 
         self.session.verify = True
