@@ -14,7 +14,7 @@ from .const import API_BASE_URL, DEMO_USER_ACCOUNT, VERSION
 from .exception_classes import KeycloakError, LoginError, ParserError, ServerError, deprecated
 from .helper_object_de import CustomRaw
 from .login_helper import LoginHelper
-from .types import AccountResponse, ConsumptionsResponse, GetTokenResponse
+from .types import AccountResponse, ConsumptionsResponse, ConsumptionUnitDetailsResponse, GetTokenResponse
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -870,12 +870,12 @@ class PyEcotrendIsta:
 
     get_raw = deprecated(get_comsumption_data, "get_raw")
 
-    def get_consumption_unit_details(self) -> dict[str, Any]:
+    def get_consumption_unit_details(self) -> ConsumptionUnitDetailsResponse:
         """Retrieve details of the consumption unit from the API.
 
         Returns
         -------
-        dict
+        ConsumptionUnitDetailsResponse
             A dictionary containing the details of the consumption unit.
 
         Raises
@@ -895,7 +895,7 @@ class PyEcotrendIsta:
 
                 r.raise_for_status()
                 try:
-                    return r.json()
+                    return cast(ConsumptionUnitDetailsResponse, r.json())
                 except requests.JSONDecodeError as exc:
                     raise ParserError(
                         "Loading consumption unit details failed due to an error parsing the request response"

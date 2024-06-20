@@ -361,3 +361,89 @@ class ConsumptionsResponse(TypedDict, total=False):
     isSCEedBasicForCurrentMonth: bool
     nonEEDBasicStartDate: Any
     resident: dict[str, Any]
+
+
+
+class IstaConsumptionUnitAddress(TypedDict):
+    """Represents the address of a consumption unit.
+
+    Attributes
+    ----------
+    street : str
+        The street name of the address.
+    houseNumber : str
+        The house number of the address.
+    postalCode : str
+        The postal code of the address.
+    city : str
+        The city of the address.
+    country : str
+        The country code of the address.
+    floor : str
+        The floor number of the address.
+    propertyNumber : str
+        The property number of the address.
+    consumptionUnitNumber : str
+        The consumption unit number associated with the address.
+    idAtCustomerUser : str
+        The ID assigned to the address at the customer user's end.
+    """
+
+    street: str
+    houseNumber: str
+    postalCode: str
+    city: str
+    country: str # country code
+    floor: str
+    propertyNumber: str
+    consumptionUnitNumber: str
+    idAtCustomerUser: str
+
+class IstaConsumptionUnitBookedServices(TypedDict):
+    """Represents the booked extra services for an Ista consumption unit.
+
+    Attributes
+    ----------
+    cost : bool
+        Indicates if cost service is booked.
+    co2 : bool
+        Indicates if CO2 service is booked.
+    """
+
+    cost: bool
+    co2: bool
+
+class IstaConsumptionUnit(TypedDict):
+    """Represents a consumption unit.
+
+    Attributes
+    ----------
+    id : str
+        The UUID of the consumption unit.
+    address : IstaConsumptionUnitAddress
+        The address details of the consumption unit.
+    booked : IstaConsumptionUnitBookedServices
+        The booked services for the consumption unit.
+    propertyNumber : str
+        The property number associated with the consumption unit.
+    """
+
+    id: str # UUID
+    address: IstaConsumptionUnitAddress
+    booked: IstaConsumptionUnitBookedServices
+    propertyNumber: str
+
+
+class ConsumptionUnitDetailsResponse(TypedDict):
+    """Represents the response details for consumption units.
+
+    Attributes
+    ----------
+    consumptionUnits : list[IstaConsumptionUnit]
+        The list of consumption units.
+    coBranding : Any
+        Co-branding information (data type unknown).
+    """
+
+    consumptionUnits: list[IstaConsumptionUnit]
+    coBranding: Any # #unknown
