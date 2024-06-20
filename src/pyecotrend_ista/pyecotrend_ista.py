@@ -79,8 +79,6 @@ class PyEcotrendIsta:
         self._email: str = email.strip()
         self._password: str = password
 
-
-
         self.loginhelper = LoginHelper(
             username=self._email,
             password=self._password,
@@ -143,7 +141,6 @@ class PyEcotrendIsta:
 
         """
         return bool(self._access_token)
-
 
     def __login(self) -> str | None:
         """Perform the login process to obtain an access token.
@@ -243,7 +240,6 @@ class PyEcotrendIsta:
         except requests.RequestException as exc:
             raise ServerError("Loading account information failed due to a request exception") from exc
 
-
         self._account = cast(AccountResponse, data)
         self._uuid = data["activeConsumptionUnit"]
 
@@ -319,7 +315,6 @@ class PyEcotrendIsta:
                 raise ServerError("Login failed due to a request exception, please try again later") from exc
 
         return self.access_token
-
 
     def userinfo(self, token):
         """Retrieve user information using the provided access token.
@@ -912,7 +907,6 @@ class PyEcotrendIsta:
             raise ServerError("Loading consumption unit details failed due a connection timeout") from exc
         except requests.RequestException as exc:
             raise ServerError("Loading consumption unit details failed due to a request exception") from exc
-
 
     def get_support_code(self) -> str | None:
         """Return the support code associated with the instance.
