@@ -1,6 +1,12 @@
 name: Test
 
-on: [push, pull_request]
+on:
+  push:
+    branches: [main]
+    paths-ignore:
+      - ".github/**"
+  pull_request:
+    branches: [main]
 
 jobs:
   test:
