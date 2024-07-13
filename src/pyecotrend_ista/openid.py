@@ -7,14 +7,15 @@ from collections.abc import Callable
 import html
 from http import HTTPStatus
 import logging
+import platform
 import time
 from typing import Any
 from urllib.parse import parse_qs, urlparse
 
 from bs4 import BeautifulSoup, Tag
 import httpx
-from httpx import AsyncHTTPTransport, Headers, HTTPStatusError
 
+from .const import VERSION
 from .exception_classes import KeycloakGetError
 
 _LOGGER = logging.getLogger(__name__)
@@ -38,7 +39,7 @@ class OpenIDAuthenticator:
         scope: str ="openid",
         timeout: int = 10,
         retries: int = 3,
-        client: httpx.AsyncClient | None = None,
+        session: httpx.AsyncClient | None = None,
         logger: logging.Logger | None = None,
         otp_callback: Callable[[], str] | None = None,
         max_login_attempts: int = 3,
@@ -64,18 +65,16 @@ class OpenIDAuthenticator:
 
 
         default_headers = {
-            "User-Agent": (
-                "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
-                "(KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.37"
-            ),
+            "User-Agent": generate_user_agent(),
         }
 
-        if client:
-            self.client = client
-            self.client.headers = Headers(default_headers)
+        if session:
+            self._session = session
+            if str(self._session.headers.get("User-Agent")).startswith("python-httpx/"):
+                self._session.headers.update(default_headers)
         else:
-            transport = AsyncHTTPTransport(retries=self.retries)
-            self.client = httpx.AsyncClient(headers=default_headers, transport=transport)
+            transport = httpx.AsyncHTTPTransport(retries=self.retries)
+            self._session = httpx.AsyncClient(headers=default_headers, transport=transport)
 
 
     @property
@@ -189,7 +188,7 @@ class OpenIDAuthenticator:
             authorization_code = self.extract_authorization_code(redirect_url)
             await self.exchange_code_for_tokens(authorization_code)
 
-        except HTTPStatusError as e:
+        except httpx.HTTPStatusError as e:
             raise KeycloakGetError(f"Login failed: {e}") from e
 
         return True
@@ -205,6 +204,7 @@ class OpenIDAuthenticator:
                 except KeycloakGetError as e:
                     self._logger.debug(f"Re-authentication attempt {login_attempts + 1} failed: {e}")
                     login_attempts += 1
+                    await asyncio.sleep(1)
                 else:
                     return
             raise KeycloakGetError("Re-authentication failed after maximum attempts.")
@@ -236,15 +236,13 @@ class OpenIDAuthenticator:
         ------
         KeycloakGetError
             If the GET request to the OpenID Connect provider returns a non-200 status code.
-        HTTPStatusError
-            If there is an issue with the network request.
         """
 
         try:
             response = await self._send_request()
             self._raise_error_if_not_ok(response)
             return  self._extract_action_url(response.text)
-        except HTTPStatusError as e:
+        except httpx.HTTPStatusError as e:
             raise KeycloakGetError(f"Failed to retrieve authentication page: {e}") from e
 
 
@@ -271,7 +269,7 @@ class OpenIDAuthenticator:
             If the POST request to submit login credentials returns a non-200 status code.
         """
         try:
-            response = await self.client.post(
+            response = await self._session.post(
                 url=action_url,
                 data={"username": email, "password": password, "credentialId": "", "login": "Login"},
                 timeout=self.timeout,
@@ -284,7 +282,7 @@ class OpenIDAuthenticator:
 
             self._raise_error_if_not_ok(response)
 
-        except HTTPStatusError as e:
+        except httpx.HTTPStatusError as e:
             raise KeycloakGetError(f"Failed to submit login credentials: {e}") from e
 
         return None
@@ -311,7 +309,7 @@ class OpenIDAuthenticator:
         """
 
         try:
-            response = await self.client.post(
+            response = await self._session.post(
                 url=action_url,
                 data={"otp": otp},
                 timeout=self.timeout,
@@ -324,7 +322,7 @@ class OpenIDAuthenticator:
 
             raise KeycloakGetError(f"OTP was invalid [{response.status_code}].")
 
-        except HTTPStatusError as e:
+        except httpx.HTTPStatusError as e:
             raise KeycloakGetError(f"Failed to submit OTP: {e}") from e
 
 
@@ -337,7 +335,7 @@ class OpenIDAuthenticator:
             The response object from the GET request.
         """
 
-        response = await self.client.get(
+        response = await self._session.get(
             url=f"{self.provider_url}auth",
             params={
                 "response_mode": self.response_mode,
@@ -443,7 +441,7 @@ class OpenIDAuthenticator:
             )
 
         try:
-            response = await self.client.post(
+            response = await self._session.post(
                 url=f"{self.provider_url}token",
                 data=data,
                 timeout=self.timeout,
@@ -495,7 +493,7 @@ class OpenIDAuthenticator:
                     refresh_token=self.refresh_token,
                     grant_type="refresh_token",
                 )
-        except HTTPStatusError as e:
+        except httpx.HTTPStatusError as e:
             if e.response.status_code is HTTPStatus.UNAUTHORIZED:
                 self.refresh_token = None
                 self._refresh_token_expires_at = None
@@ -524,7 +522,7 @@ class OpenIDAuthenticator:
     async def get_demo_user_tokens(self):
         """Get tokens from the demo user token endpoint."""
         self.is_demo_login = True
-        response = await self.client.get(f"{API_URL}demo-user-token")
+        response = await self._session.get(f"{API_URL}demo-user-token")
 
         response.raise_for_status()
 
@@ -535,7 +533,7 @@ class OpenIDAuthenticator:
         json = {
             "refreshToken": refresh_token
         }
-        response = await self.client.post(f"{API_URL}demo-user-refresh-token", json=json)
+        response = await self._session.post(f"{API_URL}demo-user-refresh-token", json=json)
 
         return response.json()
 
@@ -549,10 +547,10 @@ class OpenIDAuthenticator:
 
         response = None
         try:
-            response = await self.client.request(method, url, **kwargs)
+            response = await self._session.request(method, url, **kwargs)
             response.raise_for_status()
             return response.json()
-        except HTTPStatusError as e:
+        except httpx.HTTPStatusError as e:
             if e.response.status_code is HTTPStatus.UNAUTHORIZED:
                 self._logger.debug("Access token expired, attempting to refresh or re-authenticate.")
                 self._invalidate_access_token()
@@ -562,10 +560,10 @@ class OpenIDAuthenticator:
                 kwargs['headers'] = headers
 
                 try:
-                    response = await self.client.request(method, url, **kwargs)
+                    response = await self._session.request(method, url, **kwargs)
                     response.raise_for_status()
                     return response.json()
-                except HTTPStatusError as exc:
+                except httpx.HTTPStatusError as exc:
                     if exc.response.status_code is HTTPStatus.UNAUTHORIZED:
                         self._logger.debug("Re-authentication failed, unauthorized access.")
                         raise KeycloakGetError(
@@ -594,8 +592,24 @@ class OpenIDAuthenticator:
 
     def get(self, url, **kwargs):
         """Make a sync GET request ensuring a valid access token."""
-        return self.request('GET', url, **kwargs)
+        return self.request("GET", url, **kwargs)
 
     def post(self, url, **kwargs):
         """Make a sync POST request ensuring a valid access token."""
-        return self.request('POST', url, **kwargs)
+        return self.request("POST", url, **kwargs)
+
+
+def generate_user_agent():
+    """Generate the custom User-Agent string including OS information."""  #
+    os_name = platform.system()
+    os_version = platform.version()
+    os_release = platform.release()
+    arch, _ = platform.architecture()
+    os_info = f"{os_name} {os_release} ({os_version}); {arch}"
+
+    user_agent = (
+        f"pyecotrend_ista/{VERSION} ({os_info}) "
+        f"httpx/{httpx.__version__} Python/{platform.python_version()} "
+        " +https://github.com/Ludy87/pyecotrend-ista)"
+    )
+    return user_agent
