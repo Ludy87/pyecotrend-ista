@@ -12,10 +12,10 @@ from pyecotrend_ista import LoginError, ParserError, PyEcotrendIsta, ServerError
 from pyecotrend_ista.const import API_BASE_URL
 
 
-def test_get_comsumption_data(ista_client: PyEcotrendIsta, requests_mock: RequestsMock, snapshot: SnapshotAssertion, dataset) -> None:
+def test_get_comsumption_data(ista_client: PyEcotrendIsta, requests_mock: RequestsMock, snapshot: SnapshotAssertion, json_data: str,) -> None:
     """Test `_set_account` method."""
 
-    requests_mock.get(f"{API_BASE_URL}consumptions", json=dataset["test_data"])
+    requests_mock.get(f"{API_BASE_URL}consumptions", text=json_data)
 
     assert ista_client.get_consumption_data("26e93f1a-c828-11ea-87d0-0242ac130003") == snapshot
 
@@ -59,10 +59,10 @@ def test_get_comsumption_data_exceptions(requests_mock: RequestsMock, ista_clien
         ista_client.get_consumption_data("26e93f1a-c828-11ea-87d0-0242ac130003")
 
 
-def test_consum_raw(ista_client: PyEcotrendIsta, requests_mock: RequestsMock, snapshot: SnapshotAssertion, dataset) -> None:
+def test_consum_raw(ista_client: PyEcotrendIsta, requests_mock: RequestsMock, snapshot: SnapshotAssertion, json_data: str) -> None:
     """Test `cunsum_raw` method."""
 
-    requests_mock.get(f"{API_BASE_URL}consumptions", json=dataset["test_data"])
+    requests_mock.get(f"{API_BASE_URL}consumptions", text=json_data)
     result = ista_client.consum_raw(obj_uuid="26e93f1a-c828-11ea-87d0-0242ac130003")
 
     # consum_raw returns consum_types list in random order, so we exclude it from snapshot matcher
@@ -112,14 +112,14 @@ def test_consum_raw_filters(
     ista_client: PyEcotrendIsta,
     requests_mock: RequestsMock,
     snapshot: SnapshotAssertion,
-    dataset,
+    json_data: str,
     select_year: list[int],
     select_month: list[int],
     filter_none: bool,
 ) -> None:
     """Test `cunsum_raw` method."""
 
-    requests_mock.get(f"{API_BASE_URL}consumptions", json=dataset["test_data"])
+    requests_mock.get(f"{API_BASE_URL}consumptions", text=json_data)
     result = ista_client.consum_raw(
         obj_uuid="26e93f1a-c828-11ea-87d0-0242ac130003",
         select_year=select_year,
