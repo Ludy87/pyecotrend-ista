@@ -53,10 +53,11 @@ repos:
       - id: detect-private-key
       - id: end-of-file-fixer
         exclude_types: [json]
+        exclude: (CODEOWNERS)$
       - id: mixed-line-ending
         args: [--fix=lf]
         exclude_types: [png, yaml]
-        exclude: (\.md|\.yml|\.jpg|\.png|\.ambr)$
+        exclude: (\.md|\.yml|\.jpg|\.png|\.ambr|CODEOWNERS)$
       - id: trailing-whitespace
         exclude_types: [json]
       - id: pretty-format-json
