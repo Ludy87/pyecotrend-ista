@@ -16,12 +16,10 @@ from urllib.parse import parse_qs, urlparse
 from bs4 import BeautifulSoup, Tag
 import httpx
 
-from .const import VERSION
-from .exception_classes import KeycloakError
+from .const import API_BASE_URL, VERSION
+from .exceptions import KeycloakError
 
 _LOGGER = logging.getLogger(__name__)
-
-API_URL = "https://api.prod.eed.ista.com/"
 
 class KeyCloakForm(StrEnum):
     """KeyCloak login flow steps."""
@@ -37,6 +35,7 @@ class OpenIDAuthenticator:
     is_demo_login: bool = False
     _session: httpx.AsyncClient
     _close_session: bool = False
+    _otp_callback: Callable[[], str] | None = None
 
     def __init__(
         self,
@@ -51,7 +50,6 @@ class OpenIDAuthenticator:
         retries: int = 3,
         session: httpx.AsyncClient | None = None,
         logger: logging.Logger | None = None,
-        otp_callback: Callable[[], str] | None = None,
         max_login_attempts: int = 3,
     ):
         """Initialize the OpenIDAuthenticator."""
@@ -65,7 +63,6 @@ class OpenIDAuthenticator:
         self.scope = scope
         self.timeout = timeout
         self.retries = retries
-        self._otp_callback = otp_callback
         self.max_login_attempts = max_login_attempts
 
         self._logger = logger or _LOGGER
@@ -186,7 +183,8 @@ class OpenIDAuthenticator:
         """
         self.email = email
         self.password = password
-        self._otp_callback = otp_callback
+        if otp_callback:
+            self._otp_callback = otp_callback
         self.is_demo_login = False
 
         try:
@@ -202,7 +200,7 @@ class OpenIDAuthenticator:
             if step == KeyCloakForm.OTP:
                 if otp is not None:
                     redirect_url = await self.submit_otp(redirect_url, otp)
-                elif otp_callback and (otp := otp_callback()):
+                elif self._otp_callback and (otp := self._otp_callback()):
                     redirect_url = await self.submit_otp(redirect_url, otp)
                 else:
                     raise KeycloakError("OTP code is required but not provided.")
@@ -258,10 +256,10 @@ class OpenIDAuthenticator:
     async def re_authenticate(self):
         """Re-authenticate if the refresh token has expired."""
 
-        if self.email and self.password and self._otp_callback:
+        if self.email and self.password:
             for login_attempts in range(self.max_login_attempts):
                 try:
-                    await self.login(email=self.email, password=self.password, otp_callback=self._otp_callback)
+                    await self.login(email=self.email, password=self.password)
 
                 except KeycloakError as e:
                     self._logger.debug(f"Re-authentication attempt {login_attempts + 1} failed: {e}")
@@ -271,7 +269,7 @@ class OpenIDAuthenticator:
                     return
             raise KeycloakError("Re-authentication failed after maximum attempts.")
         if self.is_demo_login:
-            await self.get_demo_user_tokens()
+            await self.demo_login()
             return
         raise KeycloakError("Re-authentication failed, no login credentials available or otp provider available.")
 
@@ -588,10 +586,10 @@ class OpenIDAuthenticator:
             else:
                 raise
 
-    async def get_demo_user_tokens(self):
+    async def demo_login(self):
         """Get tokens from the demo user token endpoint."""
         self.is_demo_login = True
-        response = await self._session.get(f"{API_URL}demo-user-token")
+        response = await self._session.get(f"{API_BASE_URL}demo-user-token")
 
         response.raise_for_status()
 
@@ -602,7 +600,8 @@ class OpenIDAuthenticator:
         json = {
             "refreshToken": refresh_token
         }
-        response = await self._session.post(f"{API_URL}demo-user-refresh-token", json=json)
+        response = await self._session.post(f"{API_BASE_URL}demo-user-refresh-token", json=json)
+        response.raise_for_status()
 
         return response.json()
 

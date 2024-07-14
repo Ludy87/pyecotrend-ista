@@ -2,46 +2,9 @@
 
 from __future__ import annotations
 
-from collections.abc import Callable
 from typing import TypeVar
-import warnings
 
 T = TypeVar("T")
-
-
-def deprecated(func: Callable[..., T], alias_func: str | None = None) -> Callable[..., T]:
-    """Decorate a function as deprecated and emit a warning when called.
-
-    Parameters
-    ----------
-    func: Callable[..., T])
-        The function to be marked as deprecated.
-    alias_func : str, optional
-        The real function name to show as deprecated, in case the function was called
-        through an alias.
-
-
-    Returns
-    -------
-    Callable[..., T]
-        A wrapper function that emits a deprecation warning when called.
-
-    """
-
-    def deprecated_func(*args, **kwargs):
-        if alias_func:
-            warning_message = (
-                f"The `{alias_func}` function is deprecated and will be removed in a future release. "
-                f"Use `{func.__name__}` instead."
-            )
-        else:
-            warning_message = f"The `{func.__name__}` function is deprecated and will be removed in a future release."
-
-        warnings.warn(warning_message, category=DeprecationWarning, stacklevel=2)
-        return func(*args, **kwargs)
-
-    return deprecated_func
-
 
 class BaseError(Exception):
     """

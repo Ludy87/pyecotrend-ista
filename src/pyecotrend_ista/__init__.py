@@ -1,5 +1,7 @@
 """pyecotrend ista."""
-from .exception_classes import (
+
+from .const import VERSION
+from .exceptions import (
     KeycloakAuthenticationError,
     KeycloakError,
     KeycloakGetError,
@@ -26,3 +28,5 @@ __all__ = [
     "PyEcotrendIsta",
     "ServerError",
 ]
+
+__version__ = VERSION
