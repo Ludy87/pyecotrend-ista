@@ -1,0 +1,8 @@
+# Global owner for all files
+*                       @Ludy87
+
+# Owner for specific directories and files
+/src/                   @tr4nt0r
+/tests/                 @tr4nt0r
+requirements_test.txt   @tr4nt0r
+requirements.txt        @tr4nt0r

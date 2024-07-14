@@ -1,0 +1,76 @@
+name: Request Reviewers
+
+on:
+  pull_request:
+    types: [opened, synchronize]
+
+jobs:
+  request-reviewers:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 20 # Ensure the last 20 commits are fetched to allow a proper diff
+
+      - name: Parse CODEOWNERS and request reviews
+        id: codeowners
+        run: |
+          echo "Parsing CODEOWNERS file..."
+          # Path to the CODEOWNERS file
+          CODEOWNERS_FILE=CODEOWNERS
+          # Changed files in the Pull Request
+          CHANGED_FILES=$(git diff --name-only ${{ github.event.pull_request.base.sha }} ${{ github.sha }})
+
+          REVIEWERS=""
+
+          # Parse the CODEOWNERS file
+          while IFS= read -r line; do
+            # Ignore lines with comments or empty lines
+            [[ "$line" =~ ^#.*$ || -z "$line" ]] && continue
+
+            # Extract pattern and users
+            PATTERN=$(echo $line | awk '{print $1}')
+            USERS=$(echo $line | awk '{$1=""; print $0}' | tr ' ' ',')
+
+            # Check if changed files match the current pattern
+            for FILE in $CHANGED_FILES; do
+              if [[ "$FILE" == $PATTERN* ]]; then
+                if [[ -z "$REVIEWERS" ]]; then
+                  REVIEWERS="$USERS"
+                else
+                  REVIEWERS="$REVIEWERS,$USERS"
+                fi
+              fi
+            done
+          done < $CODEOWNERS_FILE
+
+          # Remove duplicate reviewers and leading/trailing commas
+          REVIEWERS=$(echo $REVIEWERS | tr ',' '\n' | sort | uniq | tr '\n' ',' | sed 's/^,*//;s/,*$//')
+
+          echo "Reviewers to be requested: $REVIEWERS"
+
+          echo "reviewers=$REVIEWERS" >> $GITHUB_OUTPUT
+
+      - name: Comment with Review Request
+        uses: actions/github-script@v7
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          script: |
+            const reviewers = "${{ steps.codeowners.outputs.reviewers }}".split(',');
+            const { owner, repo } = context.repo;
+            const prNumber = context.payload.pull_request.number;
+            const prCreator = context.payload.pull_request.user.login;
+
+            for (const reviewer of reviewers) {
+              if (reviewer.trim().startsWith('@') && reviewer.trim() !== `@${prCreator}`) {
+                await github.rest.issues.createComment({
+                  owner,
+                  repo,
+                  issue_number: prNumber,
+                  body: `${reviewer.trim()}, could you please review this change?`
+                });
+              }
+            }
