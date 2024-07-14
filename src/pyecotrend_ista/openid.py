@@ -181,7 +181,7 @@ class OpenIDAuthenticator:
 
         Raises
         ------
-        KeycloakGetError
+        KeycloakError
             If any step of the login process fails.
         """
         self.email = email
@@ -296,7 +296,7 @@ class OpenIDAuthenticator:
 
         Raises
         ------
-        KeycloakGetError
+        KeycloakError
             If the GET request to the OpenID Connect provider returns a non-200 status code.
         """
 
@@ -327,7 +327,7 @@ class OpenIDAuthenticator:
 
         Raises
         ------
-        KeycloakGetError
+        KeycloakError
             If the POST request to submit login credentials returns a non-200 status code.
         """
         try:
@@ -366,7 +366,7 @@ class OpenIDAuthenticator:
 
         Raises
         ------
-        KeycloakGetError
+        KeycloakError
             If the POST request to submit the OTP returns a non-200 status code.
         """
 
@@ -442,7 +442,7 @@ class OpenIDAuthenticator:
 
         Raises
         ------
-        KeycloakGetError
+        KeycloakError
             If the response status code is not 200.
         """
         if response.status_code != HTTPStatus.OK:
@@ -463,7 +463,7 @@ class OpenIDAuthenticator:
 
         Raises
         ------
-        KeycloakGetError
+        KeycloakError
             If the authorization code is not found in the redirect URL fragment.
         """
         parsed_url = urlparse(redirect_url)
