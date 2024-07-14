@@ -1,6 +1,7 @@
 """Fixtures for Tests."""
 
 from http import HTTPStatus
+from pathlib import Path
 
 import pytest
 from requests_mock.mocker import Mocker as RequestsMock
@@ -11,6 +12,13 @@ from pyecotrend_ista.const import API_BASE_URL, DEMO_USER_ACCOUNT, PROVIDER_URL
 TEST_EMAIL = "max.istamann@test.com"
 DEMO_EMAIL = DEMO_USER_ACCOUNT
 TEST_PASSWORD = "password"
+
+@pytest.fixture
+def json_data(request) -> str:
+    """Load json test data."""
+    file = getattr(request, "param", "test_data")
+    path = Path(__file__).parent / "data" / f"{file}.json"
+    return path.read_text(encoding="utf-8")
 
 
 @pytest.fixture
