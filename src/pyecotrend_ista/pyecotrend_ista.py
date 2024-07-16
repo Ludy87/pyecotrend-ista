@@ -22,7 +22,7 @@ from .const import (
     SCOPE,
 )
 from .exceptions import KeycloakError, LoginError, ParserError, ServerError
-from .openid import OpenIDAuthenticator
+from .keycloak import KeycloakAuthenticator
 from .types import AccountResponse, ConsumptionsResponse, ConsumptionUnitDetailsResponse
 
 _LOGGER = logging.getLogger(__package__)
@@ -63,7 +63,7 @@ class PyEcotrendIsta:
         self._password: str = password
         self._otp_callback = otp_callback
 
-        self._client = OpenIDAuthenticator(
+        self._client = KeycloakAuthenticator(
             provider_url=PROVIDER_URL,
             client_id=CLIENT_ID,
             redirect_uri=REDIRECT_URI,

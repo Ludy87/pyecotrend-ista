@@ -27,7 +27,7 @@ class KeyCloakForm(StrEnum):
     LOGIN = "kc-form-login"
     OTP = "kc-otp-login-form"
 
-class OpenIDAuthenticator:
+class KeycloakAuthenticator:
     """openID Authenticator."""
 
     username: str | None = None
