@@ -1,9 +1,11 @@
 """Fixtures for Tests."""
 
+from collections.abc import AsyncGenerator
 from http import HTTPStatus
 
+from httpx import AsyncClient
 import pytest
-from requests_mock.mocker import Mocker as RequestsMock
+from pytest_httpx import HTTPXMock
 
 from pyecotrend_ista import PyEcotrendIsta
 from pyecotrend_ista.const import API_BASE_URL, DEMO_USER_ACCOUNT, PROVIDER_URL
@@ -14,20 +16,43 @@ TEST_PASSWORD = "password"
 
 
 @pytest.fixture
-def ista_client(request) -> PyEcotrendIsta:
+async def ista_client(request, httpx_mock: HTTPXMock) -> AsyncGenerator[PyEcotrendIsta, None]:
     """Create Bring instance."""
-    ista = PyEcotrendIsta(
-        email=getattr(request, "param", TEST_EMAIL),
-        password=TEST_PASSWORD,
-    )
-    return ista
+
+    async with AsyncClient() as session:
+        ista = PyEcotrendIsta(
+            email=getattr(request, "param", TEST_EMAIL),
+            password=TEST_PASSWORD,
+            session=session
+        )
+        yield ista
 
 
 @pytest.fixture
-def mock_requests_login(requests_mock: RequestsMock) -> RequestsMock:
+def assert_all_responses_were_requested() -> bool:
+    """Don't fail if not all mocks requested."""
+
+    return False
+
+@pytest.fixture
+def mock_httpx_login(httpx_mock: HTTPXMock, assert_all_responses_were_requested: bool) -> HTTPXMock:
     """Mock requests to Login Endpoints."""
-    requests_mock.post(
-        PROVIDER_URL + "token",
+
+    httpx_mock.add_response(
+        url=PROVIDER_URL + "auth?response_mode=fragment&response_type=code&client_id=ecotrend&scope=openid&redirect_uri=https%3A%2F%2Fecotrend.ista.de%2Flogin-redirect",
+        method="GET",
+        text="""<html><bod><form id="kc-form-login" onsubmit="return validateForm();"  action="https://keycloak.ista.com/realms/eed-prod/login-actions/authenticate?session_code=SESSION_CODE&amp;execution=EXECUTION&amp;client_id=ecotrend&amp;tab_id=TAB_ID" method="post"></body></html>"""
+    )
+    httpx_mock.add_response(
+        url="https://keycloak.ista.com/realms/eed-prod/login-actions/authenticate?session_code=SESSION_CODE&execution=EXECUTION&client_id=ecotrend&tab_id=TAB_ID",
+        method="POST",
+        headers={"Location": "https://ecotrend.ista.de/login-redirect#state=STATE&session_state=SESSION_STATE&code=AUTH_CODE"},
+        status_code=302
+    )
+
+    httpx_mock.add_response(
+        url=PROVIDER_URL + "token",
+        method="POST",
         json={
             "access_token": "ACCESS_TOKEN",
             "expires_in": 60,
@@ -40,28 +65,11 @@ def mock_requests_login(requests_mock: RequestsMock) -> RequestsMock:
             "scope": "openid profile email",
         },
     )
-    requests_mock.get(
-        f"{API_BASE_URL}demo-user-token",
-        json={
-            "accessToken": "ACCESS_TOKEN",
-            "accessTokenExpiresIn": 60,
-            "refreshToken": "REFRESH_TOKEN",
-            "refreshTokenExpiresIn": 5184000,
-        },
-    )
-    requests_mock.get(
-        PROVIDER_URL + "auth",
-        text="""<form id="kc-form-login" onsubmit="return validateForm();"  action="https://keycloak.ista.com/realms/eed-prod/login-actions/authenticate?session_code=SESSION_CODE&amp;execution=EXECUTION&amp;client_id=ecotrend&amp;tab_id=TAB_ID" method="post">""",
-        headers={
-            "Set-Cookie": "AUTH_SESSION_ID=xxxxx.keycloak-xxxxxx; Version=1; Path=/realms/eed-prod/; SameSite=None; Secure; HttpOnly"
-        },
-    )
-    requests_mock.post(
-        "https://keycloak.ista.com/realms/eed-prod/login-actions/authenticate",
-        headers={"Location": "https://ecotrend.ista.de/login-redirect#state=STATE&session_state=SESSION_STATE&code=AUTH_CODE"},
-    )
-    requests_mock.get(
-        f"{API_BASE_URL}account",
+
+
+    httpx_mock.add_response(
+        url=f"{API_BASE_URL}account",
+        method="GET",
         json={
             "firstName": "Max",
             "lastName": "Istamann",
@@ -95,10 +103,15 @@ def mock_requests_login(requests_mock: RequestsMock) -> RequestsMock:
             "notificationMethodEmailConfirmed": True,
         },
     )
-    requests_mock.post(PROVIDER_URL + "logout", status_code=HTTPStatus.NO_CONTENT)
+    httpx_mock.add_response(
+        url=f"{PROVIDER_URL}logout?client_id=ecotrend&post_logout_redirect_uri=https%3A%2F%2Fecotrend.ista.de&id_token_hint=ID_TOKEN",
+        method="GET",
+        status_code=HTTPStatus.FOUND,
+    )
 
-    requests_mock.get(
-        f"{API_BASE_URL}menu",
+    httpx_mock.add_response(
+        url=f"{API_BASE_URL}menu",
+        method="GET",
         json={
             "consumptionUnits": [
                 {
@@ -122,4 +135,20 @@ def mock_requests_login(requests_mock: RequestsMock) -> RequestsMock:
         },
     )
 
-    return requests_mock
+    httpx_mock.add_response(
+        url=f"{API_BASE_URL}demo-user-token",
+        method="GET",
+        text="""{
+                "accessToken": "DEMO_USER_ACCESS_TOKEN",
+                "accessTokenExpiresIn": 60,
+                "refreshToken": "DEMO_USER_REFRESH_TOKEN",
+                "refreshTokenExpiresIn": 5184000
+                }"""
+    )
+    httpx_mock.add_response(
+        url=f"{PROVIDER_URL}logout?client_id=ecotrend&post_logout_redirect_uri=https%3A%2F%2Fecotrend.ista.de",
+        method="GET",
+        status_code=HTTPStatus.FOUND
+    )
+
+    return httpx_mock

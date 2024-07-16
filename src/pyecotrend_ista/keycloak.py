@@ -14,7 +14,8 @@ from typing import Any, Self
 from urllib.parse import parse_qs, urlparse
 
 import httpx
-from lxml.html import Element, document_fromstring
+from lxml import html
+from lxml.etree import LxmlError
 
 from .const import API_BASE_URL
 from .exceptions import KeycloakError
@@ -193,13 +194,13 @@ class KeycloakAuthenticator:
 
             if not isinstance(redirect_url_or_otp_form, str) and redirect_url_or_otp_form.attrib.get("id") == KeyCloakForm.OTP:
                 if otp is not None:
-                    redirect_url = await self.submit_otp(redirect_url_or_otp_form, otp)
+                    redirect_url_or_otp_form = await self.submit_otp(redirect_url_or_otp_form, otp)
                 elif self._otp_callback and (otp := self._otp_callback()):
-                    redirect_url = await self.submit_otp(redirect_url_or_otp_form, otp)
+                    redirect_url_or_otp_form = await self.submit_otp(redirect_url_or_otp_form, otp)
                 else:
                     raise KeycloakError("OTP code is required but not provided.")
 
-            authorization_code = self.extract_authorization_code(redirect_url)
+            authorization_code = self.extract_authorization_code(redirect_url_or_otp_form)
             await self.exchange_code_for_tokens(authorization_code)
 
         except httpx.HTTPStatusError as e:
@@ -278,7 +279,7 @@ class KeycloakAuthenticator:
 
 
 
-    async def initiate_auth_request(self) -> Element:
+    async def initiate_auth_request(self) -> html.Element:
         """Initiate the authentication request for OpenID Connect and retrieve the action URL.
 
         Returns
@@ -299,7 +300,7 @@ class KeycloakAuthenticator:
             raise KeycloakError(f"Failed to retrieve authentication page: {e}") from e
 
 
-    async def submit_login(self, username: str, password: str, login_form: Element) -> Element:
+    async def submit_login(self, username: str, password: str, login_form: html.Element) -> html.Element:
         """Submit username and password for the authentication request.
 
         Parameters
@@ -335,7 +336,7 @@ class KeycloakAuthenticator:
                 follow_redirects=False,
             )
             if response.status_code == HTTPStatus.FOUND and response.headers.get("Location"):
-                return response.headers["Location"], ""
+                return response.headers["Location"]
             if response.status_code == HTTPStatus.OK:
                 next_form = self._extract_form(response.text, login_form)
                 # we received a request to enter an OTP code
@@ -354,10 +355,11 @@ class KeycloakAuthenticator:
 
         except httpx.HTTPStatusError as e:
             raise KeycloakError(f"Failed to submit login credentials: {e}") from e
+        except httpx.HTTPError as e:
+            raise KeycloakError(f"Failed to submit login due to a request error {e}") from e
 
-        return "", ""
 
-    async def submit_otp(self, otp_form: Element, otp: str, otp_device: str | None = None) -> str:
+    async def submit_otp(self, otp_form: html.Element, otp: str, otp_device: str | None = None) -> str:
         """Submit the OTP for the authentication request.
 
         Parameters
@@ -428,7 +430,7 @@ class KeycloakAuthenticator:
         response.raise_for_status()
         return response
 
-    def _extract_form(self, html_content: str, form_id:  KeyCloakForm) -> Element:
+    def _extract_form(self, html_content: str, form_id:  KeyCloakForm) -> html.Element:
         """Extract the action URL from the HTML content.
 
         Parameters
@@ -441,10 +443,11 @@ class KeycloakAuthenticator:
         str
             The extracted action URL.
         """
-        # soup = BeautifulSoup(html_content, "html.parser")
         try:
-            page: Element = document_fromstring(html_content)
+            page: html.Element = html.document_fromstring(html_content)
             return next(form for form in page.forms if form.attrib.get("id") in KeyCloakForm)
+        except LxmlError as e:
+            raise KeycloakError(f"Failed to parse login form page {e}") from e
         except StopIteration as e:
             raise KeycloakError(f"Failed to extract form {form_id.name} from page {e}") from e
 

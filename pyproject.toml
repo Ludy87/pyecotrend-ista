@@ -22,6 +22,7 @@ split-on-trailing-comma = false
 
 [tool.pytest.ini_options]
 addopts = "--cov=src/pyecotrend_ista/ --cov-report=term-missing -n auto"
+asyncio_mode = "auto"
 testpaths = ["tests"]
 pythonpath = ["src"]
 
