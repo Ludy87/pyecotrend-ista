@@ -5,18 +5,18 @@ from __future__ import annotations
 import asyncio
 from collections.abc import Callable
 from enum import StrEnum
-import html
 from http import HTTPStatus
+from importlib.metadata import version
 import logging
 import platform
 import time
 from typing import Any, Self
 from urllib.parse import parse_qs, urlparse
 
-from bs4 import BeautifulSoup, Tag
 import httpx
+from lxml.html import Element, document_fromstring
 
-from .const import API_BASE_URL, VERSION
+from .const import API_BASE_URL
 from .exceptions import KeycloakError
 
 _LOGGER = logging.getLogger(__name__)
@@ -30,7 +30,7 @@ class KeyCloakForm(StrEnum):
 class OpenIDAuthenticator:
     """openID Authenticator."""
 
-    email: str | None = None
+    username: str | None = None
     password: str | None = None
     is_demo_login: bool = False
     _session: httpx.AsyncClient
@@ -153,16 +153,16 @@ class OpenIDAuthenticator:
 
     async def login(
         self,
-        email: str,
+        username: str,
         password: str,
         otp: str | None = None,
         otp_callback: Callable[[], str] | None = None,
     ) -> bool:
-        """Login with email, password, and optional OTP code.
+        """Login with username, password, and optional OTP code.
 
         Parameters
         ----------
-        email : str
+        username : str
             The user's email or username.
         password : str
             The user's password.
@@ -181,27 +181,21 @@ class OpenIDAuthenticator:
         KeycloakError
             If any step of the login process fails.
         """
-        self.email = email
+        self.username = username
         self.password = password
         if otp_callback:
             self._otp_callback = otp_callback
         self.is_demo_login = False
 
         try:
-            action_url, step = await self.initiate_auth_request()
-            if not action_url or step != KeyCloakForm.LOGIN:
-                raise KeycloakError("Failed to determine login action url")
+            login_form = await self.initiate_auth_request()
+            redirect_url_or_otp_form = await self.submit_login(username, password, login_form)
 
-            redirect_url, step = await self.submit_login(email, password, action_url)
-            if not redirect_url:
-                raise KeycloakError("Login failed: Redirect URL is None")
-
-
-            if step == KeyCloakForm.OTP:
+            if not isinstance(redirect_url_or_otp_form, str) and redirect_url_or_otp_form.attrib.get("id") == KeyCloakForm.OTP:
                 if otp is not None:
-                    redirect_url = await self.submit_otp(redirect_url, otp)
+                    redirect_url = await self.submit_otp(redirect_url_or_otp_form, otp)
                 elif self._otp_callback and (otp := self._otp_callback()):
-                    redirect_url = await self.submit_otp(redirect_url, otp)
+                    redirect_url = await self.submit_otp(redirect_url_or_otp_form, otp)
                 else:
                     raise KeycloakError("OTP code is required but not provided.")
 
@@ -256,10 +250,10 @@ class OpenIDAuthenticator:
     async def re_authenticate(self):
         """Re-authenticate if the refresh token has expired."""
 
-        if self.email and self.password:
+        if self.username and self.password:
             for login_attempts in range(self.max_login_attempts):
                 try:
-                    await self.login(email=self.email, password=self.password)
+                    await self.login(username=self.username, password=self.password)
 
                 except KeycloakError as e:
                     self._logger.debug(f"Re-authentication attempt {login_attempts + 1} failed: {e}")
@@ -284,7 +278,7 @@ class OpenIDAuthenticator:
 
 
 
-    async def initiate_auth_request(self) -> tuple[str, str]:
+    async def initiate_auth_request(self) -> Element:
         """Initiate the authentication request for OpenID Connect and retrieve the action URL.
 
         Returns
@@ -300,18 +294,17 @@ class OpenIDAuthenticator:
 
         try:
             response = await self._send_request()
-            self._raise_error_if_not_ok(response)
-            return  self._extract_action_url(response.text)
+            return self._extract_form(response.text,  KeyCloakForm.LOGIN)
         except httpx.HTTPStatusError as e:
             raise KeycloakError(f"Failed to retrieve authentication page: {e}") from e
 
 
-    async def submit_login(self, email: str, password: str, action_url: str) -> tuple[str, str]:
-        """Submit email and password for the authentication request.
+    async def submit_login(self, username: str, password: str, login_form: Element) -> Element:
+        """Submit username and password for the authentication request.
 
         Parameters
         ----------
-        email : str
+        username : str
             The user's email or username.
         password : str
             The user's password.
@@ -328,17 +321,34 @@ class OpenIDAuthenticator:
         KeycloakError
             If the POST request to submit login credentials returns a non-200 status code.
         """
+
+        if "username" in  login_form.fields:
+            login_form.fields["username"] = username
+        if "password" in  login_form.fields:
+            login_form.fields["password"] = password
+
         try:
             response = await self._session.post(
-                url=action_url,
-                data={"username": email, "password": password},
+                url=login_form.action,
+                data=login_form.fields,
                 timeout=self.timeout,
                 follow_redirects=False,
             )
             if response.status_code == HTTPStatus.FOUND and response.headers.get("Location"):
                 return response.headers["Location"], ""
             if response.status_code == HTTPStatus.OK:
-                return self._extract_action_url(response.text)
+                next_form = self._extract_form(response.text, login_form)
+                # we received a request to enter an OTP code
+                if next_form.attrib.get("id") == KeyCloakForm.OTP:
+                    return next_form
+                # we received again the same login page, login credentials are wrong
+                if "username" in next_form.fields:
+                    raise KeycloakError("Failed to login, please verify your login credentials")
+
+                # we received again the login page, but it only has a password field
+                # we have a 2-step Keycloak login flow. We submit now the password
+                if "password" in next_form.fields:
+                    await self.submit_login(username, password, next_form)
 
             self._raise_error_if_not_ok(response)
 
@@ -347,7 +357,7 @@ class OpenIDAuthenticator:
 
         return "", ""
 
-    async def submit_otp(self, action_url: str, otp: str) -> str:
+    async def submit_otp(self, otp_form: Element, otp: str, otp_device: str | None = None) -> str:
         """Submit the OTP for the authentication request.
 
         Parameters
@@ -356,6 +366,9 @@ class OpenIDAuthenticator:
             The action URL to submit the OTP.
         otp : str
             The one-time password.
+        otp_device : str
+            uuid of the authenticator device to select if more
+            than one is registered in the users' account
 
         Returns
         -------
@@ -367,11 +380,15 @@ class OpenIDAuthenticator:
         KeycloakError
             If the POST request to submit the OTP returns a non-200 status code.
         """
+        otp_form.fields["otp"] = otp
+        if "selectedCredentialId" in otp_form.fields:
+            for radio in otp_form.inputs["selectedCredentialId"]:
+                radio.checked = bool(radio.attrib["value"] == otp_device)
 
         try:
             response = await self._session.post(
-                url=action_url,
-                data={"otp": otp},
+                url=otp_form.action,
+                data=otp_form.fields,
                 timeout=self.timeout,
                 follow_redirects=False,
             )
@@ -411,7 +428,7 @@ class OpenIDAuthenticator:
         response.raise_for_status()
         return response
 
-    def _extract_action_url(self, html_content: str) -> tuple[str, str]:
+    def _extract_form(self, html_content: str, form_id:  KeyCloakForm) -> Element:
         """Extract the action URL from the HTML content.
 
         Parameters
@@ -424,11 +441,12 @@ class OpenIDAuthenticator:
         str
             The extracted action URL.
         """
-        soup = BeautifulSoup(html_content, "html.parser")
-        form = soup.find("form")
-        if isinstance(form, Tag) and form.has_attr("action") and form.has_attr("id"):
-            return html.unescape(str(form["action"])), str(form["id"])
-        return "", ""
+        # soup = BeautifulSoup(html_content, "html.parser")
+        try:
+            page: Element = document_fromstring(html_content)
+            return next(form for form in page.forms if form.attrib.get("id") in KeyCloakForm)
+        except StopIteration as e:
+            raise KeycloakError(f"Failed to extract form {form_id.name} from page {e}") from e
 
     def _raise_error_if_not_ok(self, response: httpx.Response):
         """Raise an error if the response status code is not 200.
@@ -676,7 +694,7 @@ def generate_user_agent():
     os_info = f"{os_name} {os_release} ({os_version}); {arch}"
 
     user_agent = (
-        f"pyecotrend_ista/{VERSION} ({os_info}) "
+        f"pyecotrend_ista/{version("pyecotrend_ista")} ({os_info}) "
         f"httpx/{httpx.__version__} Python/{platform.python_version()} "
         " +https://github.com/Ludy87/pyecotrend-ista)"
     )

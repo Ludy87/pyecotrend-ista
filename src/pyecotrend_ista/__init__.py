@@ -1,6 +1,7 @@
 """pyecotrend ista."""
 
-from .const import VERSION
+from importlib.metadata import PackageNotFoundError, version
+
 from .exceptions import (
     KeycloakAuthenticationError,
     KeycloakError,
@@ -15,6 +16,13 @@ from .exceptions import (
 from .pyecotrend_ista import PyEcotrendIsta
 from .types import ConsumptionsResponse
 
+try:
+    __version__ = version(__package__)
+except PackageNotFoundError:  # pragma: no cover
+    __version__ = "unknown"
+finally:
+    del version, PackageNotFoundError
+
 __all__ = [
     "ConsumptionsResponse",
     "KeycloakAuthenticationError",
@@ -28,5 +36,3 @@ __all__ = [
     "PyEcotrendIsta",
     "ServerError",
 ]
-
-__version__ = VERSION

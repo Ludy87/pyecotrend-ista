@@ -25,7 +25,7 @@ from .exceptions import KeycloakError, LoginError, ParserError, ServerError
 from .openid import OpenIDAuthenticator
 from .types import AccountResponse, ConsumptionsResponse, ConsumptionUnitDetailsResponse
 
-_LOGGER = logging.getLogger(__name__)
+_LOGGER = logging.getLogger(__package__)
 
 
 class PyEcotrendIsta:
@@ -140,8 +140,8 @@ class PyEcotrendIsta:
             if self._email == DEMO_USER_ACCOUNT:
                 await self._client.demo_login()
             else:
-                await getattr(self._client, "login")(
-                    email=self._email, password=self._password, otp=otp, otp_callback=self._otp_callback
+                await self._client.login(
+                    username=self._email, password=self._password, otp=otp, otp_callback=self._otp_callback
                 )
 
         except KeycloakError as exc:
@@ -238,7 +238,7 @@ class PyEcotrendIsta:
         except HTTPStatusError as exc:
             if exc.response.status_code == HTTPStatus.BAD_REQUEST:
                 raise ValueError(
-                    f"Invalid UUID. Retrieving data for consumption unit {obj_uuid or self._uuid} failed"
+                    f"Retrieving data for consumption unit {obj_uuid or self._uuid} failed. Possibly invalid UUID."
                 ) from exc
             raise ServerError(
                 "Loading consumption data failed due to a server error: "
