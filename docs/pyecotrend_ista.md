@@ -3,7 +3,7 @@
 ::: pyecotrend_ista.PyEcotrendIsta
     :docstring:
     :members:
-<!-- 
+<!--
 ::: pyecotrend_ista.openid
     :docstring:
     :members:
