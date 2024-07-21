@@ -1,0 +1,869 @@
+<!doctype html><html lang=en class=no-js> <head><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><meta name=author content=Ludy87><link rel=prev href=..><link href=../login_helper/ rel=next><link rel=icon href=../assets/images/favicon.png><meta name=generator content="mkdocs-1.6.0, mkdocs-material-9.5.29"><title>PyEcotrendIsta - Python Ecotrend Ista Api Documentation</title><link rel=stylesheet href=../assets/stylesheets/main.76a95c52.min.css><link rel=stylesheet href=../assets/stylesheets/palette.06af60db.min.css><link rel=preconnect href=https://fonts.gstatic.com crossorigin><link rel=stylesheet href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback"><style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style><link rel=stylesheet href=../assets/_mkdocstrings.css><script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script></head> <body dir=ltr data-md-color-scheme=default data-md-color-primary=indigo data-md-color-accent=indigo> <input class=md-toggle data-md-toggle=drawer type=checkbox id=__drawer autocomplete=off> <input class=md-toggle data-md-toggle=search type=checkbox id=__search autocomplete=off> <label class=md-overlay for=__drawer></label> <div data-md-component=skip> <a href=#api-documentation class=md-skip> Skip to content </a> </div> <div data-md-component=announce> </div> <header class="md-header md-header--shadow md-header--lifted" data-md-component=header> <nav class="md-header__inner md-grid" aria-label=Header> <a href=.. title="Python Ecotrend Ista Api Documentation" class="md-header__button md-logo" aria-label="Python Ecotrend Ista Api Documentation" data-md-component=logo> <svg xmlns=http://www.w3.org/2000/svg viewbox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg> </a> <label class="md-header__button md-icon" for=__drawer> <svg xmlns=http://www.w3.org/2000/svg viewbox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z"/></svg> </label> <div class=md-header__title data-md-component=header-title> <div class=md-header__ellipsis> <div class=md-header__topic> <span class=md-ellipsis> Python Ecotrend Ista Api Documentation </span> </div> <div class=md-header__topic data-md-component=header-topic> <span class=md-ellipsis> PyEcotrendIsta </span> </div> </div> </div> <form class=md-header__option data-md-component=palette> <input class=md-option data-md-color-media=(prefers-color-scheme) data-md-color-scheme=default data-md-color-primary=indigo data-md-color-accent=indigo aria-label="Switch to light mode" type=radio name=__palette id=__palette_0> <label class="md-header__button md-icon" title="Switch to light mode" for=__palette_1 hidden> <svg xmlns=http://www.w3.org/2000/svg viewbox="0 0 24 24"><path d="m14.3 16-.7-2h-3.2l-.7 2H7.8L11 7h2l3.2 9h-1.9M20 8.69V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12 20 8.69m-9.15 3.96h2.3L12 9l-1.15 3.65Z"/></svg> </label> <input class=md-option data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme=default data-md-color-primary=teal data-md-color-accent=purple aria-label="Switch to dark mode" type=radio name=__palette id=__palette_1> <label class="md-header__button md-icon" title="Switch to dark mode" for=__palette_2 hidden> <svg xmlns=http://www.w3.org/2000/svg viewbox="0 0 24 24"><path d="M12 7a5 5 0 0 1 5 5 5 5 0 0 1-5 5 5 5 0 0 1-5-5 5 5 0 0 1 5-5m0 2a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3m0-7 2.39 3.42C13.65 5.15 12.84 5 12 5c-.84 0-1.65.15-2.39.42L12 2M3.34 7l4.16-.35A7.2 7.2 0 0 0 5.94 8.5c-.44.74-.69 1.5-.83 2.29L3.34 7m.02 10 1.76-3.77a7.131 7.131 0 0 0 2.38 4.14L3.36 17M20.65 7l-1.77 3.79a7.023 7.023 0 0 0-2.38-4.15l4.15.36m-.01 10-4.14.36c.59-.51 1.12-1.14 1.54-1.86.42-.73.69-1.5.83-2.29L20.64 17M12 22l-2.41-3.44c.74.27 1.55.44 2.41.44.82 0 1.63-.17 2.37-.44L12 22Z"/></svg> </label> <input class=md-option data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme=slate data-md-color-primary=black data-md-color-accent=lime aria-label="Switch to system preference" type=radio name=__palette id=__palette_2> <label class="md-header__button md-icon" title="Switch to system preference" for=__palette_0 hidden> <svg xmlns=http://www.w3.org/2000/svg viewbox="0 0 24 24"><path d="m17.75 4.09-2.53 1.94.91 3.06-2.63-1.81-2.63 1.81.91-3.06-2.53-1.94L12.44 4l1.06-3 1.06 3 3.19.09m3.5 6.91-1.64 1.25.59 1.98-1.7-1.17-1.7 1.17.59-1.98L15.75 11l2.06-.05L18.5 9l.69 1.95 2.06.05m-2.28 4.95c.83-.08 1.72 1.1 1.19 1.85-.32.45-.66.87-1.08 1.27C15.17 23 8.84 23 4.94 19.07c-3.91-3.9-3.91-10.24 0-14.14.4-.4.82-.76 1.27-1.08.75-.53 1.93.36 1.85 1.19-.27 2.86.69 5.83 2.89 8.02a9.96 9.96 0 0 0 8.02 2.89m-1.64 2.02a12.08 12.08 0 0 1-7.8-3.47c-2.17-2.19-3.33-5-3.49-7.82-2.81 3.14-2.7 7.96.31 10.98 3.02 3.01 7.84 3.12 10.98.31Z"/></svg> </label> </form> <script>var media,input,key,value,palette=__md_get("__palette");if(palette&&palette.color){"(prefers-color-scheme)"===palette.color.media&&(media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']"),palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent"));for([key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script> <label class="md-header__button md-icon" for=__search> <svg xmlns=http://www.w3.org/2000/svg viewbox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg> </label> <div class=md-search data-md-component=search role=dialog> <label class=md-search__overlay for=__search></label> <div class=md-search__inner role=search> <form class=md-search__form name=search> <input type=text class=md-search__input name=query aria-label=Search placeholder=Search autocapitalize=off autocorrect=off autocomplete=off spellcheck=false data-md-component=search-query required> <label class="md-search__icon md-icon" for=__search> <svg xmlns=http://www.w3.org/2000/svg viewbox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg> <svg xmlns=http://www.w3.org/2000/svg viewbox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg> </label> <nav class=md-search__options aria-label=Search> <a href=javascript:void(0) class="md-search__icon md-icon" title=Share aria-label=Share data-clipboard data-clipboard-text data-md-component=search-share tabindex=-1> <svg xmlns=http://www.w3.org/2000/svg viewbox="0 0 24 24"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7 0-.24-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9a3 3 0 0 0-3 3 3 3 0 0 0 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.15c-.05.21-.08.43-.08.66 0 1.61 1.31 2.91 2.92 2.91 1.61 0 2.92-1.3 2.92-2.91A2.92 2.92 0 0 0 18 16.08Z"/></svg> </a> <button type=reset class="md-search__icon md-icon" title=Clear aria-label=Clear tabindex=-1> <svg xmlns=http://www.w3.org/2000/svg viewbox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41Z"/></svg> </button> </nav> <div class=md-search__suggest data-md-component=search-suggest></div> </form> <div class=md-search__output> <div class=md-search__scrollwrap tabindex=0 data-md-scrollfix> <div class=md-search-result data-md-component=search-result> <div class=md-search-result__meta> Initializing search </div> <ol class=md-search-result__list role=presentation></ol> </div> </div> </div> </div> </div> <div class=md-header__source> <a href=https://github.com/Ludy87/pyecotrend-ista/ title="Go to repository" class=md-source data-md-component=source> <div class="md-source__icon md-icon"> <svg xmlns=http://www.w3.org/2000/svg viewbox="0 0 448 512"><!-- Font Awesome Free 6.5.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg> </div> <div class=md-source__repository> Ludy87/pyecotrend-ista </div> </a> </div> </nav> </header> <div class=md-container data-md-component=container> <main class=md-main data-md-component=main> <div class="md-main__inner md-grid"> <div class="md-sidebar md-sidebar--primary" data-md-component=sidebar data-md-type=navigation> <div class=md-sidebar__scrollwrap> <div class=md-sidebar__inner> <nav class="md-nav md-nav--primary" aria-label=Navigation data-md-level=0> <label class=md-nav__title for=__drawer> <a href=.. title="Python Ecotrend Ista Api Documentation" class="md-nav__button md-logo" aria-label="Python Ecotrend Ista Api Documentation" data-md-component=logo> <svg xmlns=http://www.w3.org/2000/svg viewbox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg> </a> Python Ecotrend Ista Api Documentation </label> <div class=md-nav__source> <a href=https://github.com/Ludy87/pyecotrend-ista/ title="Go to repository" class=md-source data-md-component=source> <div class="md-source__icon md-icon"> <svg xmlns=http://www.w3.org/2000/svg viewbox="0 0 448 512"><!-- Font Awesome Free 6.5.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg> </div> <div class=md-source__repository> Ludy87/pyecotrend-ista </div> </a> </div> <ul class=md-nav__list data-md-scrollfix> <li class=md-nav__item> <a href=.. class=md-nav__link> <span class=md-ellipsis> Home </span> </a> </li> <li class="md-nav__item md-nav__item--active"> <input class="md-nav__toggle md-toggle" type=checkbox id=__toc> <label class="md-nav__link md-nav__link--active" for=__toc> <span class=md-ellipsis> PyEcotrendIsta </span> <span class="md-nav__icon md-icon"></span> </label> <a href=./ class="md-nav__link md-nav__link--active"> <span class=md-ellipsis> PyEcotrendIsta </span> </a> <nav class="md-nav md-nav--secondary" aria-label="Table of contents"> <label class=md-nav__title for=__toc> <span class="md-nav__icon md-icon"></span> Table of contents </label> <ul class=md-nav__list data-md-component=toc data-md-scrollfix> <li class=md-nav__item> <a href=#pyecotrend_ista.PyEcotrendIsta class=md-nav__link> <span class=md-ellipsis> <code class="doc-symbol doc-symbol-toc doc-symbol-class"></code>&nbsp;PyEcotrendIsta </span> </a> <nav class=md-nav aria-label= PyEcotrendIsta> <ul class=md-nav__list> <li class=md-nav__item> <a href=#pyecotrend_ista.PyEcotrendIsta.access_token class=md-nav__link> <span class=md-ellipsis> <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;access_token </span> </a> </li> <li class=md-nav__item> <a href=#pyecotrend_ista.PyEcotrendIsta.__login class=md-nav__link> <span class=md-ellipsis> <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;__login </span> </a> </li> <li class=md-nav__item> <a href=#pyecotrend_ista.PyEcotrendIsta.__refresh class=md-nav__link> <span class=md-ellipsis> <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;__refresh </span> </a> </li> <li class=md-nav__item> <a href=#pyecotrend_ista.PyEcotrendIsta.__set_account class=md-nav__link> <span class=md-ellipsis> <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;__set_account </span> </a> </li> <li class=md-nav__item> <a href=#pyecotrend_ista.PyEcotrendIsta.get_version class=md-nav__link> <span class=md-ellipsis> <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;get_version </span> </a> </li> <li class=md-nav__item> <a href=#pyecotrend_ista.PyEcotrendIsta.login class=md-nav__link> <span class=md-ellipsis> <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;login </span> </a> </li> <li class=md-nav__item> <a href=#pyecotrend_ista.PyEcotrendIsta.userinfo class=md-nav__link> <span class=md-ellipsis> <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;userinfo </span> </a> </li> <li class=md-nav__item> <a href=#pyecotrend_ista.PyEcotrendIsta.logout class=md-nav__link> <span class=md-ellipsis> <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;logout </span> </a> </li> <li class=md-nav__item> <a href=#pyecotrend_ista.PyEcotrendIsta.get_uuids class=md-nav__link> <span class=md-ellipsis> <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;get_uuids </span> </a> </li> <li class=md-nav__item> <a href=#pyecotrend_ista.PyEcotrendIsta.consum_raw class=md-nav__link> <span class=md-ellipsis> <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;consum_raw </span> </a> </li> <li class=md-nav__item> <a href=#pyecotrend_ista.PyEcotrendIsta.get_consumption_data class=md-nav__link> <span class=md-ellipsis> <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;get_consumption_data </span> </a> </li> <li class=md-nav__item> <a href=#pyecotrend_ista.PyEcotrendIsta.get_consumption_unit_details class=md-nav__link> <span class=md-ellipsis> <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;get_consumption_unit_details </span> </a> </li> <li class=md-nav__item> <a href=#pyecotrend_ista.PyEcotrendIsta.get_support_code class=md-nav__link> <span class=md-ellipsis> <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;get_support_code </span> </a> </li> <li class=md-nav__item> <a href=#pyecotrend_ista.PyEcotrendIsta.get_user_agent class=md-nav__link> <span class=md-ellipsis> <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;get_user_agent </span> </a> </li> <li class=md-nav__item> <a href=#pyecotrend_ista.PyEcotrendIsta.demo_user_login class=md-nav__link> <span class=md-ellipsis> <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;demo_user_login </span> </a> </li> <li class=md-nav__item> <a href=#pyecotrend_ista.PyEcotrendIsta.get_account class=md-nav__link> <span class=md-ellipsis> <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;get_account </span> </a> </li> </ul> </nav> </li> </ul> </nav> </li> <li class=md-nav__item> <a href=../openid.md class=md-nav__link> <span class=md-ellipsis> None </span> </a> </li> <li class=md-nav__item> <a href=../login_helper/ class=md-nav__link> <span class=md-ellipsis> Login Helper </span> </a> </li> <li class=md-nav__item> <a href=../types/ class=md-nav__link> <span class=md-ellipsis> Types </span> </a> </li> <li class=md-nav__item> <a href=../exception_classes/ class=md-nav__link> <span class=md-ellipsis> Exceptions </span> </a> </li> </ul> </nav> </div> </div> </div> <div class="md-sidebar md-sidebar--secondary" data-md-component=sidebar data-md-type=toc> <div class=md-sidebar__scrollwrap> <div class=md-sidebar__inner> <nav class="md-nav md-nav--secondary" aria-label="Table of contents"> <label class=md-nav__title for=__toc> <span class="md-nav__icon md-icon"></span> Table of contents </label> <ul class=md-nav__list data-md-component=toc data-md-scrollfix> <li class=md-nav__item> <a href=#pyecotrend_ista.PyEcotrendIsta class=md-nav__link> <span class=md-ellipsis> <code class="doc-symbol doc-symbol-toc doc-symbol-class"></code>&nbsp;PyEcotrendIsta </span> </a> <nav class=md-nav aria-label= PyEcotrendIsta> <ul class=md-nav__list> <li class=md-nav__item> <a href=#pyecotrend_ista.PyEcotrendIsta.access_token class=md-nav__link> <span class=md-ellipsis> <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;access_token </span> </a> </li> <li class=md-nav__item> <a href=#pyecotrend_ista.PyEcotrendIsta.__login class=md-nav__link> <span class=md-ellipsis> <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;__login </span> </a> </li> <li class=md-nav__item> <a href=#pyecotrend_ista.PyEcotrendIsta.__refresh class=md-nav__link> <span class=md-ellipsis> <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;__refresh </span> </a> </li> <li class=md-nav__item> <a href=#pyecotrend_ista.PyEcotrendIsta.__set_account class=md-nav__link> <span class=md-ellipsis> <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;__set_account </span> </a> </li> <li class=md-nav__item> <a href=#pyecotrend_ista.PyEcotrendIsta.get_version class=md-nav__link> <span class=md-ellipsis> <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;get_version </span> </a> </li> <li class=md-nav__item> <a href=#pyecotrend_ista.PyEcotrendIsta.login class=md-nav__link> <span class=md-ellipsis> <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;login </span> </a> </li> <li class=md-nav__item> <a href=#pyecotrend_ista.PyEcotrendIsta.userinfo class=md-nav__link> <span class=md-ellipsis> <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;userinfo </span> </a> </li> <li class=md-nav__item> <a href=#pyecotrend_ista.PyEcotrendIsta.logout class=md-nav__link> <span class=md-ellipsis> <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;logout </span> </a> </li> <li class=md-nav__item> <a href=#pyecotrend_ista.PyEcotrendIsta.get_uuids class=md-nav__link> <span class=md-ellipsis> <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;get_uuids </span> </a> </li> <li class=md-nav__item> <a href=#pyecotrend_ista.PyEcotrendIsta.consum_raw class=md-nav__link> <span class=md-ellipsis> <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;consum_raw </span> </a> </li> <li class=md-nav__item> <a href=#pyecotrend_ista.PyEcotrendIsta.get_consumption_data class=md-nav__link> <span class=md-ellipsis> <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;get_consumption_data </span> </a> </li> <li class=md-nav__item> <a href=#pyecotrend_ista.PyEcotrendIsta.get_consumption_unit_details class=md-nav__link> <span class=md-ellipsis> <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;get_consumption_unit_details </span> </a> </li> <li class=md-nav__item> <a href=#pyecotrend_ista.PyEcotrendIsta.get_support_code class=md-nav__link> <span class=md-ellipsis> <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;get_support_code </span> </a> </li> <li class=md-nav__item> <a href=#pyecotrend_ista.PyEcotrendIsta.get_user_agent class=md-nav__link> <span class=md-ellipsis> <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;get_user_agent </span> </a> </li> <li class=md-nav__item> <a href=#pyecotrend_ista.PyEcotrendIsta.demo_user_login class=md-nav__link> <span class=md-ellipsis> <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;demo_user_login </span> </a> </li> <li class=md-nav__item> <a href=#pyecotrend_ista.PyEcotrendIsta.get_account class=md-nav__link> <span class=md-ellipsis> <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;get_account </span> </a> </li> </ul> </nav> </li> </ul> </nav> </div> </div> </div> <div class=md-content data-md-component=content> <article class="md-content__inner md-typeset"> <h1 id=api-documentation>API documentation<a class=headerlink href=#api-documentation title="Permanent link">&para;</a></h1> <div class="doc doc-object doc-class"> <h2 id=pyecotrend_ista.PyEcotrendIsta class="doc doc-heading"> <code class="doc-symbol doc-symbol-heading doc-symbol-class"></code> <span class="doc doc-object-name doc-class-name">pyecotrend_ista.PyEcotrendIsta</span> <a href=#pyecotrend_ista.PyEcotrendIsta class=headerlink title="Permanent link">&para;</a></h2> <pre class=highlight><code class="language-python doc-signature">PyEcotrendIsta(email: <a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/stdtypes.html#str">str</a>, password: <a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/stdtypes.html#str">str</a>, logger: <a class="autorefs autorefs-external" title="logging.Logger" href="https://docs.python.org/3.12/library/logging.html#logging.Logger">Logger</a> | None = None, hass_dir: <a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/stdtypes.html#str">str</a> | None = None, totp: <a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/stdtypes.html#str">str</a> | None = None, session: <span title="requests.Session">Session</span> | None = None)</code></pre> <div class="doc doc-contents first"> <p>A Python client for interacting with the ista EcoTrend API.</p> <p>This class provides methods to authenticate and interact with the ista EcoTrend API.</p> <p><span class=doc-section-title>Parameters:</span></p> <ul> <li class="doc-section-item field-body"> <b><code>email</code></b> (<code><a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/stdtypes.html#str">str</a></code>) – <div class=doc-md-description> <p>The email address used to log in to the ista EcoTrend API.</p> </div> </li> <li class="doc-section-item field-body"> <b><code>password</code></b> (<code><a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/stdtypes.html#str">str</a></code>) – <div class=doc-md-description> <p>The password used to log in to the ista EcoTrend API.</p> </div> </li> <li class="doc-section-item field-body"> <b><code>logger</code></b> (<code><a class="autorefs autorefs-external" title="logging.Logger" href="https://docs.python.org/3.12/library/logging.html#logging.Logger">Logger</a></code>, default: <code>None</code> ) – <div class=doc-md-description> <p>[DEPRECATED] An optional logger instance for logging messages. Default is None.</p> </div> </li> <li class="doc-section-item field-body"> <b><code>hass_dir</code></b> (<code><a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/stdtypes.html#str">str</a></code>, default: <code>None</code> ) – <div class=doc-md-description> <p>[DEPRECATED] An optional directory for Home Assistant configuration. Default is None.</p> </div> </li> <li class="doc-section-item field-body"> <b><code>totp</code></b> (<code><a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/stdtypes.html#str">str</a></code>, default: <code>None</code> ) – <div class=doc-md-description> <p>An optional TOTP (Time-based One-Time Password) for two-factor authentication. Default is None.</p> </div> </li> <li class="doc-section-item field-body"> <b><code>session</code></b> (<code><span title="requests.Session">Session</span></code>, default: <code>None</code> ) – <div class=doc-md-description> <p>An optional requests session for making HTTP requests. Default is None.</p> </div> </li> </ul> <details class=quote> <summary>Source code in <code>src/pyecotrend_ista/pyecotrend_ista.py</code></summary> <pre class=highlight><code class=language-python>def __init__(
+    self,
+    email: str,
+    password: str,
+    logger: logging.Logger | None = None,
+    hass_dir: str | None = None,
+    totp: str | None = None,
+    session: requests.Session | None = None,
+) -&gt; None:
+    """Initialize the PyEcotrendIsta client.
+
+    Parameters
+    ----------
+    email : str
+        The email address used to log in to the ista EcoTrend API.
+    password : str
+        The password used to log in to the ista EcoTrend API.
+    logger : logging.Logger, optional
+        [DEPRECATED] An optional logger instance for logging messages. Default is None.
+    hass_dir : str, optional
+        [DEPRECATED] An optional directory for Home Assistant configuration. Default is None.
+    totp : str, optional
+        An optional TOTP (Time-based One-Time Password) for two-factor authentication. Default is None.
+    session : requests.Session, optional
+        An optional requests session for making HTTP requests. Default is None.
+
+    """
+
+    if hass_dir:
+        warnings.warn(
+            "The 'hass_dir' parameter is deprecated and will be removed in a future release.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+
+    if logger:
+        warnings.warn(
+            "The 'logger' parameter is deprecated and will be removed in a future release.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+
+    self._email: str = email.strip()
+    self._password: str = password
+
+    self.loginhelper = LoginHelper(
+        username=self._email,
+        password=self._password,
+        totp=totp,
+        session=session,
+        logger=_LOGGER,
+    )
+
+    self.session: requests.Session = self.loginhelper.session</code></pre> </details> <div class="doc doc-children"> <div class="doc doc-object doc-attribute"> <h3 id=pyecotrend_ista.PyEcotrendIsta.access_token class="doc doc-heading"> <code class="doc-symbol doc-symbol-heading doc-symbol-attribute"></code> <span class="doc doc-object-name doc-attribute-name">access_token</span> <span class="doc doc-labels"> <small class="doc doc-label doc-label-property"><code>property</code></small> <small class="doc doc-label doc-label-writable"><code>writable</code></small> </span> <a href=#pyecotrend_ista.PyEcotrendIsta.access_token class=headerlink title="Permanent link">&para;</a></h3> <pre class=highlight><code class="language-python doc-signature">access_token</code></pre> <div class="doc doc-contents "> <p>Retrieve the access token, refreshing it if necessary.</p> <p>This property checks if the access token is still valid. If the token has expired and the client is connected, it refreshes the token. The token is considered expired if the current time minus the start time exceeds the token's expiration period.</p> <p><span class=doc-section-title>Returns:</span></p> <ul> <li class="doc-section-item field-body"> <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/stdtypes.html#str">str</a></code> – <div class=doc-md-description> <p>The current access token.</p> </div> </li> </ul> <details class=note open> <summary>Notes</summary> <p>This method will automatically refresh the access token if it has expired.</p> </details> </div> </div> <div class="doc doc-object doc-function"> <h3 id=pyecotrend_ista.PyEcotrendIsta.__login class="doc doc-heading"> <code class="doc-symbol doc-symbol-heading doc-symbol-method"></code> <span class="doc doc-object-name doc-function-name">__login</span> <a href=#pyecotrend_ista.PyEcotrendIsta.__login class=headerlink title="Permanent link">&para;</a></h3> <pre class=highlight><code class="language-python doc-signature">__login() -&gt; <a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/stdtypes.html#str">str</a> | None</code></pre> <div class="doc doc-contents "> <p>Perform the login process to obtain an access token.</p> <p>If the email is a demo account, it logs in using a demo user login function. For other accounts, it retrieves a token using a login helper.</p> <p><span class=doc-section-title>Returns:</span></p> <ul> <li class="doc-section-item field-body"> <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/stdtypes.html#str">str</a> or None</code> – <div class=doc-md-description> <p>The access token if login is successful, None otherwise.</p> </div> </li> </ul> <details class=quote> <summary>Source code in <code>src/pyecotrend_ista/pyecotrend_ista.py</code></summary> <pre class=highlight><code class=language-python>def __login(self) -&gt; str | None:
+    """Perform the login process to obtain an access token.
+
+    If the email is a demo account, it logs in using a demo user login function.
+    For other accounts, it retrieves a token using a login helper.
+
+    Returns
+    -------
+    str or None
+        The access token if login is successful, None otherwise.
+
+    """
+    if self._email == DEMO_USER_ACCOUNT:
+        _LOGGER.debug("Logging in as demo user")
+        token = self.demo_user_login()
+    else:
+        token = self.loginhelper.get_token()
+    if token:
+        self.access_token = token["access_token"]
+        self._access_token_expires_in = token["expires_in"]
+        self._refresh_token = token["refresh_token"]
+        return self.access_token
+    return None</code></pre> </details> </div> </div> <div class="doc doc-object doc-function"> <h3 id=pyecotrend_ista.PyEcotrendIsta.__refresh class="doc doc-heading"> <code class="doc-symbol doc-symbol-heading doc-symbol-method"></code> <span class="doc doc-object-name doc-function-name">__refresh</span> <a href=#pyecotrend_ista.PyEcotrendIsta.__refresh class=headerlink title="Permanent link">&para;</a></h3> <pre class=highlight><code class="language-python doc-signature">__refresh() -&gt; None</code></pre> <div class="doc doc-contents "> <p>Refresh the access token using the refresh token.</p> <p>This method retrieves a new access token, updates internal variables, and resets the token expiration timer.</p> <p><span class=doc-section-title>Raises:</span></p> <ul> <li class="doc-section-item field-body"> <code><a class="autorefs autorefs-internal" title="pyecotrend_ista.exception_classes.ParserError" href="../exception_classes/#pyecotrend_ista.exception_classes.ParserError">ParserError</a></code> – <div class=doc-md-description> <p>If there is an error parsing the request response.</p> </div> </li> <li class="doc-section-item field-body"> <code><a class="autorefs autorefs-internal" title="pyecotrend_ista.exception_classes.LoginError" href="../exception_classes/#pyecotrend_ista.exception_classes.LoginError">LoginError</a></code> – <div class=doc-md-description> <p>If there is an authorization failure.</p> </div> </li> <li class="doc-section-item field-body"> <code><a class="autorefs autorefs-internal" title="pyecotrend_ista.exception_classes.ServerError" href="../exception_classes/#pyecotrend_ista.exception_classes.ServerError">ServerError</a></code> – <div class=doc-md-description> <p>If there is a server error, connection timeout, or request exception.</p> </div> </li> </ul> <details class=note open> <summary>Notes</summary> <p>This method assumes <code>self._refresh_token</code> is already set.</p> </details> <details class=quote> <summary>Source code in <code>src/pyecotrend_ista/pyecotrend_ista.py</code></summary> <pre class=highlight><code class=language-python>def __refresh(self) -&gt; None:
+    """Refresh the access token using the refresh token.
+
+    This method retrieves a new access token, updates internal variables,
+    and resets the token expiration timer.
+
+    Raises
+    ------
+    ParserError
+        If there is an error parsing the request response.
+    LoginError
+        If there is an authorization failure.
+    ServerError
+        If there is a server error, connection timeout, or request exception.
+
+    Notes
+    -----
+    This method assumes `self._refresh_token` is already set.
+
+    """
+    (
+        self.access_token,
+        self._access_token_expires_in,
+        self._refresh_token,
+    ) = self.loginhelper.refresh_token(self._refresh_token)
+
+    self._header["Authorization"] = f"Bearer {self.access_token}"</code></pre> </details> </div> </div> <div class="doc doc-object doc-function"> <h3 id=pyecotrend_ista.PyEcotrendIsta.__set_account class="doc doc-heading"> <code class="doc-symbol doc-symbol-heading doc-symbol-method"></code> <span class="doc doc-object-name doc-function-name">__set_account</span> <a href=#pyecotrend_ista.PyEcotrendIsta.__set_account class=headerlink title="Permanent link">&para;</a></h3> <pre class=highlight><code class="language-python doc-signature">__set_account() -&gt; None</code></pre> <div class="doc doc-contents "> <p>Fetch and set account information from the API.</p> <p>This method performs an API request to retrieve account information, handles various potential errors that might occur during the request, and sets instance variables accordingly using the response data.</p> <p><span class=doc-section-title>Raises:</span></p> <ul> <li class="doc-section-item field-body"> <code><a class="autorefs autorefs-internal" title="pyecotrend_ista.exception_classes.ParserError" href="../exception_classes/#pyecotrend_ista.exception_classes.ParserError">ParserError</a></code> – <div class=doc-md-description> <p>If there is an error parsing the JSON response.</p> </div> </li> <li class="doc-section-item field-body"> <code><a class="autorefs autorefs-internal" title="pyecotrend_ista.exception_classes.LoginError" href="../exception_classes/#pyecotrend_ista.exception_classes.LoginError">LoginError</a></code> – <div class=doc-md-description> <p>If the request fails due to an authorization error.</p> </div> </li> <li class="doc-section-item field-body"> <code><a class="autorefs autorefs-internal" title="pyecotrend_ista.exception_classes.ServerError" href="../exception_classes/#pyecotrend_ista.exception_classes.ServerError">ServerError</a></code> – <div class=doc-md-description> <p>If the request fails due to a server error, timeout, or other request exceptions.</p> </div> </li> </ul> <details class=quote> <summary>Source code in <code>src/pyecotrend_ista/pyecotrend_ista.py</code></summary> <pre class=highlight><code class=language-python>def __set_account(self) -&gt; None:
+    """Fetch and set account information from the API.
+
+     This method performs an API request to retrieve account information,
+    handles various potential errors that might occur during the request,
+    and sets instance variables accordingly using the response data.
+
+    Raises
+    ------
+    ParserError
+        If there is an error parsing the JSON response.
+    LoginError
+        If the request fails due to an authorization error.
+    ServerError
+        If the request fails due to a server error, timeout, or other request exceptions.
+
+    """
+    self._header = {
+        "Content-Type": "application/json",
+        "User-Agent": self.get_user_agent(),
+        "Authorization": f"Bearer {self.access_token}",
+    }
+    url = f"{API_BASE_URL}account"
+    try:
+        with self.session.get(url, headers=self._header) as r:
+            _LOGGER.debug("Performed GET request: %s [%s]:\n%s", url, r.status_code, r.text)
+            r.raise_for_status()
+            try:
+                data = r.json()
+            except requests.JSONDecodeError as exc:
+                raise ParserError(
+                    "Loading account information failed due to an error parsing the request response"
+                ) from exc
+    except requests.HTTPError as exc:
+        if exc.response.status_code == HTTPStatus.UNAUTHORIZED:
+            raise LoginError("Loading account information failed due to an authorization failure") from exc
+
+        raise ServerError(
+            "Loading account information failed due to a server error "
+            f"[{exc.response.status_code}: {exc.response.reason}]"
+        ) from exc
+    except requests.Timeout as exc:
+        raise ServerError("Loading account information failed due a connection timeout") from exc
+    except requests.RequestException as exc:
+        raise ServerError("Loading account information failed due to a request exception") from exc
+
+    self._account = cast(AccountResponse, data)
+    self._uuid = data["activeConsumptionUnit"]</code></pre> </details> </div> </div> <div class="doc doc-object doc-function"> <h3 id=pyecotrend_ista.PyEcotrendIsta.get_version class="doc doc-heading"> <code class="doc-symbol doc-symbol-heading doc-symbol-method"></code> <span class="doc doc-object-name doc-function-name">get_version</span> <a href=#pyecotrend_ista.PyEcotrendIsta.get_version class=headerlink title="Permanent link">&para;</a></h3> <pre class=highlight><code class="language-python doc-signature">get_version() -&gt; <a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/stdtypes.html#str">str</a></code></pre> <div class="doc doc-contents "> <p>Get the version of the PyEcotrendIsta client.</p> <p><span class=doc-section-title>Returns:</span></p> <ul> <li class="doc-section-item field-body"> <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/stdtypes.html#str">str</a></code> – <div class=doc-md-description> <p>The version number of the PyEcotrendIsta client.</p> </div> </li> </ul> <details class=quote> <summary>Source code in <code>src/pyecotrend_ista/pyecotrend_ista.py</code></summary> <pre class=highlight><code class=language-python>def get_version(self) -&gt; str:
+    """Get the version of the PyEcotrendIsta client.
+
+    Returns
+    -------
+    str
+        The version number of the PyEcotrendIsta client.
+
+    """
+    return VERSION</code></pre> </details> </div> </div> <div class="doc doc-object doc-function"> <h3 id=pyecotrend_ista.PyEcotrendIsta.login class="doc doc-heading"> <code class="doc-symbol doc-symbol-heading doc-symbol-method"></code> <span class="doc doc-object-name doc-function-name">login</span> <a href=#pyecotrend_ista.PyEcotrendIsta.login class=headerlink title="Permanent link">&para;</a></h3> <pre class=highlight><code class="language-python doc-signature">login(force_login: <a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/functions.html#bool">bool</a> = False, debug: <a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/functions.html#bool">bool</a> = False, **kwargs) -&gt; <a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/stdtypes.html#str">str</a> | None</code></pre> <div class="doc doc-contents "> <p>Perform the login process if not already connected or forced.</p> <p><span class=doc-section-title>Parameters:</span></p> <ul> <li class="doc-section-item field-body"> <b><code>force_login</code></b> (<code><a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/functions.html#bool">bool</a></code>, default: <code>False</code> ) – <div class=doc-md-description> <p>If True, forces a fresh login attempt even if already connected. Default is False.</p> </div> </li> <li class="doc-section-item field-body"> <b><code>debug</code></b> (<code><a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/functions.html#bool">bool</a></code>, default: <code>False</code> ) – <div class=doc-md-description> <p>[DEPRECATED] Flag indicating whether to enable debug logging. Default is False.</p> </div> </li> <li class="doc-section-item field-body"> <b><code>forceLogin</code></b> (<code><a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/functions.html#bool">bool</a></code>) – <div class=doc-md-description> <p>[DEPRECATED] Use <code>force_login</code> instead.</p> </div> </li> </ul> <p><span class=doc-section-title>Returns:</span></p> <ul> <li class="doc-section-item field-body"> <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/stdtypes.html#str">str</a> or None</code> – <div class=doc-md-description> <p>The access token if login is successful, None otherwise.</p> </div> </li> </ul> <p><span class=doc-section-title>Raises:</span></p> <ul> <li class="doc-section-item field-body"> <code><a class="autorefs autorefs-internal" title="pyecotrend_ista.exception_classes.LoginError" href="../exception_classes/#pyecotrend_ista.exception_classes.LoginError">LoginError</a></code> – <div class=doc-md-description> <p>If the login process fails due to an error.</p> </div> </li> <li class="doc-section-item field-body"> <code><a class="autorefs autorefs-internal" title="pyecotrend_ista.exception_classes.ServerError" href="../exception_classes/#pyecotrend_ista.exception_classes.ServerError">ServerError</a></code> – <div class=doc-md-description> <p>If a server error occurs during login attempts.</p> </div> </li> <li class="doc-section-item field-body"> <code>InternalServerError</code> – <div class=doc-md-description> <p>If an internal server error occurs during login attempts.</p> </div> </li> <li class="doc-section-item field-body"> <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/exceptions.html#Exception">Exception</a></code> – <div class=doc-md-description> <p>For any other unexpected errors during the login process.</p> </div> </li> </ul> <details class=quote> <summary>Source code in <code>src/pyecotrend_ista/pyecotrend_ista.py</code></summary> <pre class=highlight><code class=language-python>def login(self, force_login: bool = False, debug: bool = False, **kwargs) -&gt; str | None:
+    """Perform the login process if not already connected or forced.
+
+    Parameters
+    ----------
+    force_login : bool, optional
+        If True, forces a fresh login attempt even if already connected. Default is False.
+    debug : bool, optional
+        [DEPRECATED] Flag indicating whether to enable debug logging. Default is False.
+    forceLogin : bool, optional
+        [DEPRECATED] Use `force_login` instead.
+
+    Returns
+    -------
+    str or None
+        The access token if login is successful, None otherwise.
+
+    Raises
+    ------
+    LoginError
+        If the login process fails due to an error.
+    ServerError
+        If a server error occurs during login attempts.
+    InternalServerError
+        If an internal server error occurs during login attempts.
+    Exception
+        For any other unexpected errors during the login process.
+
+    """
+    if debug:
+        warnings.warn(
+            "The 'debug' parameter is deprecated and will be removed in a future release.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+
+    if "forceLogin" in kwargs:
+        warnings.warn(
+            "The 'forceLogin' keyword parameter is deprecated and will be removed in a future release. "
+            "Use force_login instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        force_login = kwargs["forceLogin"]
+
+    if not self._is_connected() or force_login:
+        try:
+            self.__login()
+            self.__set_account()
+        except (KeycloakError, LoginError) as exc:
+            # Login failed
+            self._access_token = None
+            raise LoginError(
+                "Login failed due to an authorization failure, please verify your email and password"
+            ) from exc
+        except ServerError as exc:
+            raise ServerError("Login failed due to a request exception, please try again later") from exc
+
+    return self.access_token</code></pre> </details> </div> </div> <div class="doc doc-object doc-function"> <h3 id=pyecotrend_ista.PyEcotrendIsta.userinfo class="doc doc-heading"> <code class="doc-symbol doc-symbol-heading doc-symbol-method"></code> <span class="doc doc-object-name doc-function-name">userinfo</span> <a href=#pyecotrend_ista.PyEcotrendIsta.userinfo class=headerlink title="Permanent link">&para;</a></h3> <pre class=highlight><code class="language-python doc-signature">userinfo(token)</code></pre> <div class="doc doc-contents "> <p>Retrieve user information using the provided access token.</p> <p><span class=doc-section-title>Parameters:</span></p> <ul> <li class="doc-section-item field-body"> <b><code>token</code></b> (<code><a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/stdtypes.html#str">str</a></code>) – <div class=doc-md-description> <p>The access token used for authentication.</p> </div> </li> </ul> <p><span class=doc-section-title>Returns:</span></p> <ul> <li class="doc-section-item field-body"> <code><a class="autorefs autorefs-external" title="typing.Any" href="https://docs.python.org/3.12/library/typing.html#typing.Any">Any</a></code> – <div class=doc-md-description> <p>JSON response containing user information.</p> </div> </li> </ul> <details class=note open> <summary>Notes</summary> <p>This method constructs an authorization header using the provided access token and sends a GET request to the userinfo endpoint of the provider API. It expects a JSON response with user information.</p> </details> <p><span class=doc-section-title>Raises:</span></p> <ul> <li class="doc-section-item field-body"> <code><span title="requests.exceptions.RequestException">RequestException</span></code> – <div class=doc-md-description> <p>If an error occurs while making the HTTP request.</p> </div> </li> </ul> <details class=example open> <summary>Example</summary> <blockquote> <blockquote> <blockquote> <p>client = PyEcotrendIsta(email='<a href=mailto:user@example.com>&#117;&#115;&#101;&#114;&#64;&#101;&#120;&#97;&#109;&#112;&#108;&#101;&#46;&#99;&#111;&#109;</a>', password='password') token = client.login() user_info = client.userinfo(token)</p> </blockquote> </blockquote> </blockquote> </details> <details class=quote> <summary>Source code in <code>src/pyecotrend_ista/pyecotrend_ista.py</code></summary> <pre class=highlight><code class=language-python>def userinfo(self, token):
+    """Retrieve user information using the provided access token.
+
+    Parameters
+    ----------
+    token : str
+        The access token used for authentication.
+
+    Returns
+    -------
+    Any
+        JSON response containing user information.
+
+    Notes
+    -----
+    This method constructs an authorization header using the provided access token
+    and sends a GET request to the userinfo endpoint of the provider API.
+    It expects a JSON response with user information.
+
+    Raises
+    ------
+    requests.exceptions.RequestException
+        If an error occurs while making the HTTP request.
+
+    Example
+    -------
+    &gt;&gt;&gt; client = PyEcotrendIsta(email='user@example.com', password='password')
+    &gt;&gt;&gt; token = client.login()
+    &gt;&gt;&gt; user_info = client.userinfo(token)
+
+    """
+    return self.loginhelper.userinfo(token=token)</code></pre> </details> </div> </div> <div class="doc doc-object doc-function"> <h3 id=pyecotrend_ista.PyEcotrendIsta.logout class="doc doc-heading"> <code class="doc-symbol doc-symbol-heading doc-symbol-method"></code> <span class="doc doc-object-name doc-function-name">logout</span> <a href=#pyecotrend_ista.PyEcotrendIsta.logout class=headerlink title="Permanent link">&para;</a></h3> <pre class=highlight><code class="language-python doc-signature">logout() -&gt; None</code></pre> <div class="doc doc-contents "> <p>Perform logout operation by invalidating the current session.</p> <p>This method invokes the logout functionality in the loginhelper module, passing the current refresh token for session invalidation.</p> <details class=note open> <summary>Notes</summary> <p>This method assumes <code>self._refresh_token</code> is already set.</p> </details> <p><span class=doc-section-title>Raises:</span></p> <ul> <li class="doc-section-item field-body"> <code><a class="autorefs autorefs-internal" title="pyecotrend_ista.exception_classes.KeycloakPostError" href="../exception_classes/#pyecotrend_ista.exception_classes.KeycloakPostError">KeycloakPostError</a></code> – <div class=doc-md-description> <p>If an error occurs during the logout process. This error is raised based on the response from the logout request.</p> </div> </li> </ul> <details class=example: open> <summary>Example:</summary> <blockquote> <blockquote> <blockquote> <p>client = PyEcotrendIsta(email='<a href=mailto:user@example.com>&#117;&#115;&#101;&#114;&#64;&#101;&#120;&#97;&#109;&#112;&#108;&#101;&#46;&#99;&#111;&#109;</a>', password='password') client.login() client.logout()</p> </blockquote> </blockquote> </blockquote> </details> <details class=quote> <summary>Source code in <code>src/pyecotrend_ista/pyecotrend_ista.py</code></summary> <pre class=highlight><code class=language-python>def logout(self) -&gt; None:
+    """Perform logout operation by invalidating the current session.
+
+    This method invokes the logout functionality in the loginhelper module,
+    passing the current refresh token for session invalidation.
+
+    Notes
+    -----
+    This method assumes `self._refresh_token` is already set.
+
+    Raises
+    ------
+    KeycloakPostError
+        If an error occurs during the logout process. This error is raised based on the response from the logout request.
+
+    Example:
+    -------
+    &gt;&gt;&gt; client = PyEcotrendIsta(email='user@example.com', password='password')
+    &gt;&gt;&gt; client.login()
+    &gt;&gt;&gt; client.logout()
+
+    """
+    if self.loginhelper.username != DEMO_USER_ACCOUNT:
+        self.loginhelper.logout(self._refresh_token)</code></pre> </details> </div> </div> <div class="doc doc-object doc-function"> <h3 id=pyecotrend_ista.PyEcotrendIsta.get_uuids class="doc doc-heading"> <code class="doc-symbol doc-symbol-heading doc-symbol-method"></code> <span class="doc doc-object-name doc-function-name">get_uuids</span> <a href=#pyecotrend_ista.PyEcotrendIsta.get_uuids class=headerlink title="Permanent link">&para;</a></h3> <pre class=highlight><code class="language-python doc-signature">get_uuids() -&gt; <a class="autorefs autorefs-external" href="https://docs.python.org/3.12/glossary.html#term-list">list</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/stdtypes.html#str">str</a>]</code></pre> <div class="doc doc-contents "> <p>Retrieve UUIDs of consumption units registered in the account.</p> <p><span class=doc-section-title>Returns:</span></p> <ul> <li class="doc-section-item field-body"> <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.12/glossary.html#term-list">list</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/stdtypes.html#str">str</a>]</code> – <div class=doc-md-description> <p>A list containing UUIDs of consumption units. Each UUID represents a consumption unit, which could be a flat or a house for which consumption readings are provided.</p> </div> </li> </ul> <details class=note open> <summary>Notes</summary> <p>A consumption unit represents a residence or building where consumption readings are recorded. The UUIDs are extracted from the <code>_residentAndConsumptionUuidsMap</code> attribute.</p> </details> <details class=example: open> <summary>Example:</summary> <blockquote> <blockquote> <blockquote> <p>client = PyEcotrendIsta(email='<a href=mailto:user@example.com>&#117;&#115;&#101;&#114;&#64;&#101;&#120;&#97;&#109;&#112;&#108;&#101;&#46;&#99;&#111;&#109;</a>', password='password') client.login() uuids = client.get_uuids() print(uuids) ['uuid1', 'uuid2', 'uuid3']</p> </blockquote> </blockquote> </blockquote> </details> <details class=quote> <summary>Source code in <code>src/pyecotrend_ista/pyecotrend_ista.py</code></summary> <pre class=highlight><code class=language-python>def get_uuids(self) -&gt; list[str]:
+    """Retrieve UUIDs of consumption units registered in the account.
+
+    Returns
+    -------
+    list[str]
+        A list containing UUIDs of consumption units. Each UUID represents a consumption unit,
+        which could be a flat or a house for which consumption readings are provided.
+
+    Notes
+    -----
+    A consumption unit represents a residence or building where consumption readings are recorded.
+    The UUIDs are extracted from the `_residentAndConsumptionUuidsMap` attribute.
+
+    Example:
+    -------
+    &gt;&gt;&gt; client = PyEcotrendIsta(email='user@example.com', password='password')
+    &gt;&gt;&gt; client.login()
+    &gt;&gt;&gt; uuids = client.get_uuids()
+    &gt;&gt;&gt; print(uuids)
+    ['uuid1', 'uuid2', 'uuid3']
+
+    """
+    return list(self._account.get("residentAndConsumptionUuidsMap", {}).values())</code></pre> </details> </div> </div> <div class="doc doc-object doc-function"> <h3 id=pyecotrend_ista.PyEcotrendIsta.consum_raw class="doc doc-heading"> <code class="doc-symbol doc-symbol-heading doc-symbol-method"></code> <span class="doc doc-object-name doc-function-name">consum_raw</span> <a href=#pyecotrend_ista.PyEcotrendIsta.consum_raw class=headerlink title="Permanent link">&para;</a></h3> <pre class=highlight><code class="language-python doc-signature">consum_raw(select_year: <a class="autorefs autorefs-external" href="https://docs.python.org/3.12/glossary.html#term-list">list</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/functions.html#int">int</a>] | None = None, select_month: <a class="autorefs autorefs-external" href="https://docs.python.org/3.12/glossary.html#term-list">list</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/functions.html#int">int</a>] | None = None, filter_none: <a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/functions.html#bool">bool</a> = True, obj_uuid: <a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/stdtypes.html#str">str</a> | None = None) -&gt; <a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/2to3.html#to3fixer-dict">dict</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/stdtypes.html#str">str</a>, <a class="autorefs autorefs-external" title="typing.Any" href="https://docs.python.org/3.12/library/typing.html#typing.Any">Any</a>] | <a class="autorefs autorefs-internal" title="pyecotrend_ista.types.ConsumptionsResponse" href="../types/#pyecotrend_ista.types.ConsumptionsResponse">ConsumptionsResponse</a></code></pre> <div class="doc doc-contents "> <p>Process consumption and cost data for a given consumption unit.</p> <p><span class=doc-section-title>Parameters:</span></p> <ul> <li class="doc-section-item field-body"> <b><code>select_year</code></b> (<code><a class="autorefs autorefs-external" href="https://docs.python.org/3.12/glossary.html#term-list">list</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/functions.html#int">int</a>] | None</code>, default: <code>None</code> ) – <div class=doc-md-description> <p>List of years to filter data by year, default is None.</p> </div> </li> <li class="doc-section-item field-body"> <b><code>select_month</code></b> (<code><a class="autorefs autorefs-external" href="https://docs.python.org/3.12/glossary.html#term-list">list</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/functions.html#int">int</a>] | None</code>, default: <code>None</code> ) – <div class=doc-md-description> <p>List of months to filter data by month, default is None.</p> </div> </li> <li class="doc-section-item field-body"> <b><code>filter_none</code></b> (<code><a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/functions.html#bool">bool</a></code>, default: <code>True</code> ) – <div class=doc-md-description> <p>Whether to filter out None values in readings, default is True.</p> </div> </li> <li class="doc-section-item field-body"> <b><code>obj_uuid</code></b> (<code><a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/stdtypes.html#str">str</a> | None</code>, default: <code>None</code> ) – <div class=doc-md-description> <p>UUID of the consumption unit to fetch data for, default is None.</p> </div> </li> </ul> <p><span class=doc-section-title>Returns:</span></p> <ul> <li class="doc-section-item field-body"> <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/2to3.html#to3fixer-dict">dict</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/stdtypes.html#str">str</a>, <a class="autorefs autorefs-external" title="typing.Any" href="https://docs.python.org/3.12/library/typing.html#typing.Any">Any</a>] | <a class="autorefs autorefs-internal" title="pyecotrend_ista.types.ConsumptionsResponse" href="../types/#pyecotrend_ista.types.ConsumptionsResponse">ConsumptionsResponse</a></code> – <div class=doc-md-description> <p>Processed data including consumption types, total additional values, last values, last costs, sum by year, and last year compared consumption.</p> </div> </li> </ul> <details class=note open> <summary>Notes</summary> <p>This method processes consumption and cost data obtained from the <code>get_consumption_data</code> method. It filters and aggregates data based on the parameters provided.</p> </details> <p><span class=doc-section-title>Raises:</span></p> <ul> <li class="doc-section-item field-body"> <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/exceptions.html#Exception">Exception</a></code> – <div class=doc-md-description> <p>If there is an unexpected error during data processing.</p> </div> </li> </ul> <details class=quote> <summary>Source code in <code>src/pyecotrend_ista/pyecotrend_ista.py</code></summary> <pre class=highlight><code class=language-python>def consum_raw(  # noqa: C901
+    self,
+    select_year: list[int] | None = None,
+    select_month: list[int] | None = None,
+    filter_none: bool = True,
+    obj_uuid: str | None = None,
+) -&gt; dict[str, Any] | ConsumptionsResponse:  # noqa: C901
+    """Process consumption and cost data for a given consumption unit.
+
+    Parameters
+    ----------
+    select_year : list[int] | None, optional
+        List of years to filter data by year, default is None.
+    select_month : list[int] | None, optional
+        List of months to filter data by month, default is None.
+    filter_none : bool, optional
+        Whether to filter out None values in readings, default is True.
+    obj_uuid : str | None, optional
+        UUID of the consumption unit to fetch data for, default is None.
+
+    Returns
+    -------
+    dict[str, Any] | ConsumptionsResponse
+        Processed data including consumption types, total additional values, last values,
+        last costs, sum by year, and last year compared consumption.
+
+    Notes
+    -----
+    This method processes consumption and cost data obtained from the `get_consumption_data` method.
+    It filters and aggregates data based on the parameters provided.
+
+    Raises
+    ------
+    Exception
+        If there is an unexpected error during data processing.
+
+    """
+    # Fetch raw consumption data for the specified UUID
+    c_raw: ConsumptionsResponse = self.get_consumption_data(obj_uuid)
+
+    if not isinstance(c_raw, dict) or (c_raw.get("consumptions") is None and c_raw.get("costs") is None):
+        return c_raw
+
+    if "consumptions" not in c_raw or not isinstance(c_raw.get("consumptions"), list):
+        c_raw["consumptions"] = []
+
+    consum_types = []
+    all_dates = []
+    indices_to_delete_consumption = []
+
+    for i, consumption in enumerate(c_raw.get("consumptions", [])):
+        if (
+            not isinstance(consumption, dict)
+            or "readings" not in consumption
+            or consumption.get("readings") is None
+            or not isinstance(consumption.get("readings"), list)
+        ):
+            consumption = {}
+            continue
+
+        for reading in consumption.get("readings", []):
+            if reading["additionalValue"] is not None or reading["value"] is not None:
+                consum_types.append(reading["type"])
+
+        consum_types = list({consum_type for consum_type in consum_types if i is not None})
+
+        new_readings = []
+        if "date" in consumption:
+            all_dates.append(consumption["date"])
+        if select_month is None and select_year is None:
+            for reading in consumption.get("readings", []):
+                if filter_none and reading["type"] is not None:
+                    new_readings.append(reading)
+                elif not filter_none:
+                    new_readings.append(reading)
+        elif (
+            select_year is not None
+            and select_month is not None
+            and consumption["date"]["year"] in select_year
+            and consumption["date"]["month"] in select_month
+        ):
+            for reading in consumption.get("readings", []):
+                if filter_none and reading["type"] is not None:
+                    new_readings.append(reading)
+                elif not filter_none:
+                    new_readings.append(reading)
+        elif select_year is not None and consumption["date"]["year"] in select_year and select_month is None:
+            for reading in consumption.get("readings", []):
+                if filter_none and reading["type"] is not None:
+                    new_readings.append(reading)
+                elif not filter_none:
+                    new_readings.append(reading)
+        elif select_month is not None and consumption["date"]["month"] in select_month and select_year is None:
+            for reading in consumption.get("readings", []):
+                if filter_none and reading["type"] is not None:
+                    new_readings.append(reading)
+                elif not filter_none:
+                    new_readings.append(reading)
+        if new_readings:
+            consumption["readings"] = new_readings
+        else:
+            indices_to_delete_consumption.append(i)
+
+    for index in sorted(indices_to_delete_consumption, reverse=True):
+        if index &lt; len(c_raw["consumptions"]):
+            del c_raw["consumptions"][index]
+
+    _all_date = all_dates
+    new_date = []
+    sum_by_year = {}
+    for date in _all_date:
+        if select_year is None or date["year"] in select_year:
+            new_date.append(date["year"])
+    new_date = list(dict.fromkeys(new_date))
+
+    cost_consum_types = consum_types
+
+    sum_by_year = {typ: {year: 0.0 for year in new_date} for typ in cost_consum_types}
+
+    for item in c_raw.get("consumptions", []):
+        if "readings" not in item or not item["readings"]:
+            continue
+        for reading in item.get("readings", []):
+            if reading.get("type", None) is None:
+                continue
+            for typ in cost_consum_types:
+                for year in new_date:
+                    if reading["type"] == typ and item["date"]["year"] == year:
+                        if reading["value"]:
+                            sum_by_year[typ][year] += round(
+                                float(reading["value"].replace(",", ".")),
+                                1,
+                            )
+                        else:
+                            sum_by_year[typ][year] += round(
+                                (
+                                    float(reading["additionalValue"].replace(",", "."))
+                                    if reading["additionalValue"] is not None
+                                    else 0.0
+                                ),
+                                1,
+                            )
+
+                        if reading["type"] == "warmwater":
+                            sum_by_year["ww"] = reading["unit"]
+                        elif reading["type"] == "water":
+                            sum_by_year["w"] = reading["unit"]
+                        elif reading["type"] == "heating" and reading["unit"]:
+                            sum_by_year["h"] = reading["unit"]
+                        elif reading["type"] == "heating":
+                            sum_by_year["h"] = reading["additionalUnit"]
+
+    indices_to_delete_costs = []
+
+    if "costs" not in c_raw or not isinstance(c_raw.get("costs"), list):
+        c_raw["costs"] = []
+
+    for i, costs in enumerate(c_raw.get("costs", [])):
+        new_readings = []
+        if "costsByEnergyType" in costs:
+            if select_month is None and select_year is None:
+                for reading in costs.get("costsByEnergyType", []):
+                    if filter_none and reading["type"] is not None:
+                        new_readings.append(reading)
+                    elif not filter_none:
+                        new_readings.append(reading)
+            elif (
+                select_year is not None
+                and select_month is not None
+                and costs["date"]["year"] in select_year
+                and costs["date"]["month"] in select_month
+            ):
+                for reading in costs.get("costsByEnergyType", []):
+                    if filter_none and reading["type"] is not None:
+                        new_readings.append(reading)
+                    elif not filter_none:
+                        new_readings.append(reading)
+            elif select_year is not None and costs["date"]["year"] in select_year and select_month is None:
+                for reading in costs.get("costsByEnergyType", []):
+                    if filter_none and reading["type"] is not None:
+                        new_readings.append(reading)
+                    elif not filter_none:
+                        new_readings.append(reading)
+            elif select_month is not None and costs["date"]["month"] in select_month and select_year is None:
+                for reading in costs.get("costsByEnergyType", []):
+                    if filter_none and reading["type"] is not None:
+                        new_readings.append(reading)
+                    elif not filter_none:
+                        new_readings.append(reading)
+        if new_readings:
+            costs["costsByEnergyType"] = new_readings
+        else:
+            indices_to_delete_costs.append(i)
+    for index in sorted(indices_to_delete_costs, reverse=True):
+        if "costs" in c_raw and index &lt; len(c_raw["costs"]):
+            del c_raw["costs"][index]
+
+    for key in [
+        "consumptionsBillingPeriods",
+        "costsBillingPeriods",
+        "resident",
+        "co2Emissions",
+        "co2EmissionsBillingPeriods",
+    ]:
+        if key in c_raw:
+            del c_raw[key]
+
+    consumptions: list = c_raw.get("consumptions", [])
+    costs: list = c_raw.get("costs", [])
+
+    combined_data = []
+    for cost_entry in costs:
+        for consumption_entry in consumptions:
+            # Überprüfen, ob die Daten das gleiche Datum haben
+            if cost_entry["date"] == consumption_entry["date"]:
+                # Wenn ja, kombiniere die Kosten- und Verbrauchsdaten in einem Eintrag
+                combined_entry = {
+                    "date": cost_entry["date"],
+                    "consumptions": consumption_entry["readings"],
+                    "costs": cost_entry["costsByEnergyType"],
+                }
+
+                combined_data.append(combined_entry)
+
+    total_additional_values = {}
+    total_additional_custom_values = {}
+    for consumption_unit in consumptions:
+        if "readings" not in consumption_unit or not consumption_unit["readings"]:
+            continue
+        for reading in consumption_unit.get("readings", []):
+            if reading["type"] is None or (reading["value"] is None and reading["additionalValue"] is None):
+                continue
+
+            if reading["type"] not in total_additional_custom_values:
+                total_additional_custom_values[reading["type"]] = 0.0
+            if reading["additionalValue"]:
+                total_additional_custom_values[reading["type"]] += round(
+                    float(reading["additionalValue"].replace(",", ".")), 1
+                )
+            else:
+                total_additional_custom_values[reading["type"]] += round(
+                    (float(reading["value"].replace(",", ".")) if reading["value"] is not None else 0.0),
+                    1,
+                )
+
+            if reading["type"] == "warmwater":
+                total_additional_custom_values["ww"] = reading["additionalUnit"]
+            elif reading["type"] == "water":
+                total_additional_custom_values["w"] = reading["additionalUnit"]
+            elif reading["type"] == "heating" and reading["additionalUnit"]:
+                total_additional_custom_values["h"] = reading["additionalUnit"]
+            elif reading["type"] == "heating":
+                total_additional_custom_values["h"] = reading["unit"]
+
+            if reading["type"] not in total_additional_values:
+                total_additional_values[reading["type"]] = 0.0
+            if reading["value"]:
+                total_additional_values[reading["type"]] += round(float(reading["value"].replace(",", ".")), 1)
+            else:
+                total_additional_values[reading["type"]] += round(
+                    (
+                        float(reading["additionalValue"].replace(",", "."))
+                        if reading["additionalValue"] is not None
+                        else 0.0
+                    ),
+                    1,
+                )
+
+            if reading["type"] == "warmwater":
+                total_additional_values["ww"] = reading["unit"]
+            elif reading["type"] == "water":
+                total_additional_values["w"] = reading["unit"]
+            elif reading["type"] == "heating" and reading["unit"]:
+                total_additional_values["h"] = reading["unit"]
+            elif reading["type"] == "heating":
+                total_additional_values["h"] = reading["additionalUnit"]
+
+    last_value = None
+    last_custom_value = None
+    last_year_compared_consumption = None
+
+    if consumptions:
+        last_value = {}
+        last_custom_value = {}
+        last_year_compared_consumption = {}
+
+        if len(consumptions) &gt; 0 and "readings" in consumptions[0] and consumptions[0]["readings"]:
+            for reading in consumptions[0]["readings"]:
+                if reading["type"] is None or (reading["value"] is None and reading["additionalValue"] is None):
+                    continue
+
+                if reading["comparedConsumption"]:
+                    last_year_compared_consumption[reading["type"]] = reading["comparedConsumption"]
+                    last_year_compared_consumption[reading["type"]]["comparedValue"] = float(
+                        last_year_compared_consumption[reading["type"]]["comparedValue"].replace(",", ".")
+                    )
+
+                    if reading["value"]:
+                        last_year_compared_consumption[reading["type"]]["nowYearValue"] = float(
+                            reading["value"].replace(",", ".")
+                        )
+                    elif reading["additionalValue"]:
+                        last_year_compared_consumption[reading["type"]]["nowYearValue"] = float(
+                            reading["additionalValue"].replace(",", ".")
+                        )
+                    if "period" in last_year_compared_consumption[reading["type"]]:
+                        del last_year_compared_consumption[reading["type"]]["period"]
+
+                if reading["type"] not in last_custom_value:
+                    last_custom_value[reading["type"]] = 0.0
+                if reading["additionalValue"]:
+                    last_custom_value[reading["type"]] += float(reading["additionalValue"].replace(",", "."))
+                else:
+                    last_custom_value[reading["type"]] += (
+                        float(reading["value"].replace(",", ".")) if reading["value"] is not None else 0.0
+                    )
+
+                if reading["type"] == "warmwater":
+                    last_custom_value["ww"] = reading["additionalUnit"]
+                elif reading["type"] == "water":
+                    last_custom_value["w"] = reading["additionalUnit"]
+                elif reading["type"] == "heating" and reading["additionalUnit"]:
+                    last_custom_value["h"] = reading["additionalUnit"]
+                elif reading["type"] == "heating":
+                    last_custom_value["h"] = reading["unit"]
+
+                if reading["type"] not in last_value:
+                    last_value[reading["type"]] = 0.0
+                if reading["value"]:  # reading["type"] in ("warmwater", "water", "heating") and
+                    last_value[reading["type"]] += float(reading["value"].replace(",", "."))
+                else:
+                    last_value[reading["type"]] += (
+                        float(reading["additionalValue"].replace(",", "."))
+                        if reading["additionalValue"] is not None
+                        else 0.0
+                    )
+                if reading["type"] == "warmwater":
+                    last_value["ww"] = reading["unit"]
+                elif reading["type"] == "water":
+                    last_value["w"] = reading["unit"]
+                elif reading["type"] == "heating" and reading["additionalUnit"]:
+                    last_value["h"] = reading["unit"]
+                elif reading["type"] == "heating":
+                    last_value["h"] = reading["additionalUnit"]
+
+        last_custom_value["month"] = consumptions[0]["date"]["month"]
+        last_custom_value["year"] = consumptions[0]["date"]["year"]
+
+        last_value["month"] = consumptions[0]["date"]["month"]
+        last_value["year"] = consumptions[0]["date"]["year"]
+
+    last_costs = None
+    if costs:
+        if last_costs is None:
+            last_costs = {}
+        for costs_by_energy_type in costs[0]["costsByEnergyType"]:
+            if (
+                costs_by_energy_type is None
+                or "type" not in costs_by_energy_type
+                or costs_by_energy_type["type"] is None
+                or "comparedCost" not in costs_by_energy_type
+                or costs_by_energy_type["comparedCost"] is None
+                or "smiley" not in costs_by_energy_type["comparedCost"]
+                or costs_by_energy_type["comparedCost"]["smiley"] is None
+                or "comparedPercentage" not in costs_by_energy_type["comparedCost"]
+                or costs_by_energy_type["comparedCost"]["comparedPercentage"] is None
+            ):
+                continue
+
+            if costs_by_energy_type["type"] not in last_costs:
+                last_costs[costs_by_energy_type["type"]] = 0.0
+            last_costs[costs_by_energy_type["type"]] += costs_by_energy_type["value"]
+            last_costs["unit"] = costs_by_energy_type["unit"]
+            if costs_by_energy_type["type"] == "warmwater":
+                if costs_by_energy_type["comparedCost"]["smiley"] == ["MAD", "EQUAL"]:
+                    last_costs["ww"] = costs_by_energy_type["comparedCost"]["comparedPercentage"]
+                elif costs_by_energy_type["comparedCost"]["smiley"] in ["HAPPY"]:
+                    last_costs["ww"] = costs_by_energy_type["comparedCost"]["comparedPercentage"] * -1
+            elif costs_by_energy_type["type"] == "water":
+                if costs_by_energy_type["comparedCost"]["smiley"] == ["MAD", "EQUAL"]:
+                    last_costs["w"] = costs_by_energy_type["comparedCost"]["comparedPercentage"]
+                elif costs_by_energy_type["comparedCost"]["smiley"] in ["HAPPY"]:
+                    last_costs["w"] = costs_by_energy_type["comparedCost"]["comparedPercentage"] * -1
+            elif costs_by_energy_type["type"] == "heating":
+                if costs_by_energy_type["comparedCost"]["smiley"] in ["MAD", "EQUAL"]:
+                    last_costs["h"] = costs_by_energy_type["comparedCost"]["comparedPercentage"]
+                elif costs_by_energy_type["comparedCost"]["smiley"] in ["HAPPY"]:
+                    last_costs["h"] = costs_by_energy_type["comparedCost"]["comparedPercentage"] * -1
+        last_costs["month"] = costs[0]["date"]["month"]
+        last_costs["year"] = costs[0]["date"]["year"]
+
+    return CustomRaw.from_dict(
+        {
+            "consum_types": consum_types,
+            "combined_data": None,  # combined_data,
+            "total_additional_values": total_additional_values,
+            "total_additional_custom_values": total_additional_custom_values,
+            "last_value": last_value,
+            "last_custom_value": last_custom_value,
+            "last_costs": last_costs,
+            "all_dates": None,  # all_dates,
+            "sum_by_year": sum_by_year,
+            "last_year_compared_consumption": last_year_compared_consumption,
+        }
+    ).to_dict()</code></pre> </details> </div> </div> <div class="doc doc-object doc-function"> <h3 id=pyecotrend_ista.PyEcotrendIsta.get_consumption_data class="doc doc-heading"> <code class="doc-symbol doc-symbol-heading doc-symbol-method"></code> <span class="doc doc-object-name doc-function-name">get_consumption_data</span> <a href=#pyecotrend_ista.PyEcotrendIsta.get_consumption_data class=headerlink title="Permanent link">&para;</a></h3> <pre class=highlight><code class="language-python doc-signature">get_consumption_data(obj_uuid: <a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/stdtypes.html#str">str</a> | None = None) -&gt; <a class="autorefs autorefs-internal" title="pyecotrend_ista.types.ConsumptionsResponse" href="../types/#pyecotrend_ista.types.ConsumptionsResponse">ConsumptionsResponse</a></code></pre> <div class="doc doc-contents "> <p>Fetch consumption data from the API for a specific consumption unit.</p> <p><span class=doc-section-title>Parameters:</span></p> <ul> <li class="doc-section-item field-body"> <b><code>obj_uuid</code></b> (<code><a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/stdtypes.html#str">str</a></code>, default: <code>None</code> ) – <div class=doc-md-description> <p>The UUID of the consumption unit. If not provided, defaults to the UUID associated with the instance (<code>self._uuid</code>).</p> </div> </li> </ul> <p><span class=doc-section-title>Returns:</span></p> <ul> <li class="doc-section-item field-body"> <code><a class="autorefs autorefs-internal" title="pyecotrend_ista.types.ConsumptionsResponse" href="../types/#pyecotrend_ista.types.ConsumptionsResponse">ConsumptionsResponse</a></code> – <div class=doc-md-description> <p>A dictionary containing the consumption data fetched from the API.</p> </div> </li> </ul> <p><span class=doc-section-title>Raises:</span></p> <ul> <li class="doc-section-item field-body"> <code><a class="autorefs autorefs-internal" title="pyecotrend_ista.exception_classes.LoginError" href="../exception_classes/#pyecotrend_ista.exception_classes.LoginError">LoginError</a></code> – <div class=doc-md-description> <p>If the API responds with an error indicating authorization failure.</p> </div> </li> <li class="doc-section-item field-body"> <code><a class="autorefs autorefs-internal" title="pyecotrend_ista.exception_classes.ParserError" href="../exception_classes/#pyecotrend_ista.exception_classes.ParserError">ParserError</a></code> – <div class=doc-md-description> <p>If there is an error parsing the request response.</p> </div> </li> <li class="doc-section-item field-body"> <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/exceptions.html#ValueError">ValueError</a></code> – <div class=doc-md-description> <p>If the provided UUID is invalid.</p> </div> </li> <li class="doc-section-item field-body"> <code><a class="autorefs autorefs-internal" title="pyecotrend_ista.exception_classes.ServerError" href="../exception_classes/#pyecotrend_ista.exception_classes.ServerError">ServerError</a></code> – <div class=doc-md-description> <p>If there is a server error, connection timeout, or request exception.</p> </div> </li> </ul> <details class=quote> <summary>Source code in <code>src/pyecotrend_ista/pyecotrend_ista.py</code></summary> <pre class=highlight><code class=language-python>def get_consumption_data(self, obj_uuid: str | None = None) -&gt; ConsumptionsResponse:
+    """Fetch consumption data from the API for a specific consumption unit.
+
+    Parameters
+    ----------
+    obj_uuid : str, optional
+        The UUID of the consumption unit. If not provided,
+        defaults to the UUID associated with the instance (`self._uuid`).
+
+    Returns
+    -------
+    ConsumptionsResponse
+        A dictionary containing the consumption data fetched from the API.
+
+    Raises
+    ------
+    LoginError
+        If the API responds with an error indicating authorization failure.
+    ParserError
+        If there is an error parsing the request response.
+    ValueError
+        If the provided UUID is invalid.
+    ServerError
+        If there is a server error, connection timeout, or request exception.
+
+    """
+
+    params = {
+        "consumptionUnitUuid": obj_uuid or self._uuid
+    }
+    url = f"{API_BASE_URL}consumptions"
+    try:
+        with self.session.get(url, params=params, headers=self._header, ) as r:
+            _LOGGER.debug("Performed GET request: %s [%s]:\n%s", url, r.status_code, r.text[:100])
+            r.raise_for_status()
+            try:
+                return cast(ConsumptionsResponse, r.json())
+            except requests.JSONDecodeError as exc:
+                raise ParserError(
+                    "Loading consumption data failed due to an error parsing the request response"
+                ) from exc
+    except requests.HTTPError as exc:
+        if exc.response.status_code == HTTPStatus.UNAUTHORIZED:
+            raise LoginError("Loading consumption data failed failed due to an authorization failure") from exc
+        if exc.response.status_code == HTTPStatus.BAD_REQUEST:
+            raise ValueError(
+                f"Invalid UUID. Retrieving data for consumption unit {obj_uuid or self._uuid} failed"
+            ) from exc
+        raise ServerError(
+            "Loading consumption data failed due to a server error " f"[{exc.response.status_code}: {exc.response.reason}]"
+        ) from exc
+    except requests.Timeout as exc:
+        raise ServerError("Loading consumption data failed due a connection timeout") from exc
+    except requests.RequestException as exc:
+        raise ServerError("Loading consumption data failed due to a request exception") from exc</code></pre> </details> </div> </div> <div class="doc doc-object doc-function"> <h3 id=pyecotrend_ista.PyEcotrendIsta.get_consumption_unit_details class="doc doc-heading"> <code class="doc-symbol doc-symbol-heading doc-symbol-method"></code> <span class="doc doc-object-name doc-function-name">get_consumption_unit_details</span> <a href=#pyecotrend_ista.PyEcotrendIsta.get_consumption_unit_details class=headerlink title="Permanent link">&para;</a></h3> <pre class=highlight><code class="language-python doc-signature">get_consumption_unit_details() -&gt; <a class="autorefs autorefs-internal" title="pyecotrend_ista.types.ConsumptionUnitDetailsResponse" href="../types/#pyecotrend_ista.types.ConsumptionUnitDetailsResponse">ConsumptionUnitDetailsResponse</a></code></pre> <div class="doc doc-contents "> <p>Retrieve details of the consumption unit from the API.</p> <p><span class=doc-section-title>Returns:</span></p> <ul> <li class="doc-section-item field-body"> <code><a class="autorefs autorefs-internal" title="pyecotrend_ista.types.ConsumptionUnitDetailsResponse" href="../types/#pyecotrend_ista.types.ConsumptionUnitDetailsResponse">ConsumptionUnitDetailsResponse</a></code> – <div class=doc-md-description> <p>A dictionary containing the details of the consumption unit.</p> </div> </li> </ul> <p><span class=doc-section-title>Raises:</span></p> <ul> <li class="doc-section-item field-body"> <code><a class="autorefs autorefs-internal" title="pyecotrend_ista.exception_classes.LoginError" href="../exception_classes/#pyecotrend_ista.exception_classes.LoginError">LoginError</a></code> – <div class=doc-md-description> <p>If the API responds with an authorization failure.</p> </div> </li> <li class="doc-section-item field-body"> <code><a class="autorefs autorefs-internal" title="pyecotrend_ista.exception_classes.ParserError" href="../exception_classes/#pyecotrend_ista.exception_classes.ParserError">ParserError</a></code> – <div class=doc-md-description> <p>If there is an issue with decoding the JSON response</p> </div> </li> <li class="doc-section-item field-body"> <code><a class="autorefs autorefs-internal" title="pyecotrend_ista.exception_classes.ServerError" href="../exception_classes/#pyecotrend_ista.exception_classes.ServerError">ServerError</a></code> – <div class=doc-md-description> <p>If there is a server error, connection timeout, or request exception.</p> </div> </li> </ul> <details class=quote> <summary>Source code in <code>src/pyecotrend_ista/pyecotrend_ista.py</code></summary> <pre class=highlight><code class=language-python>def get_consumption_unit_details(self) -&gt; ConsumptionUnitDetailsResponse:
+    """Retrieve details of the consumption unit from the API.
+
+    Returns
+    -------
+    ConsumptionUnitDetailsResponse
+        A dictionary containing the details of the consumption unit.
+
+    Raises
+    ------
+    LoginError
+        If the API responds with an authorization failure.
+    ParserError
+        If there is an issue with decoding the JSON response
+    ServerError
+        If there is a server error, connection timeout, or request exception.
+
+    """
+    url = f"{API_BASE_URL}menu"
+    try:
+        with self.session.get(url, headers=self._header) as r:
+            _LOGGER.debug("Performed GET request: %s [%s]:\n%s", url, r.status_code, r.text)
+
+            r.raise_for_status()
+            try:
+                return cast(ConsumptionUnitDetailsResponse, r.json())
+            except requests.JSONDecodeError as exc:
+                raise ParserError(
+                    "Loading consumption unit details failed due to an error parsing the request response"
+                ) from exc
+    except requests.HTTPError as exc:
+        if exc.response.status_code == HTTPStatus.UNAUTHORIZED:
+            raise LoginError("Loading consumption unit details failed failed due to an authorization failure") from exc
+
+        raise ServerError(
+            "Loading consumption unit details failed due to a server error "
+            f"[{exc.response.status_code}: {exc.response.reason}]"
+        ) from exc
+    except requests.Timeout as exc:
+        raise ServerError("Loading consumption unit details failed due a connection timeout") from exc
+    except requests.RequestException as exc:
+        raise ServerError("Loading consumption unit details failed due to a request exception") from exc</code></pre> </details> </div> </div> <div class="doc doc-object doc-function"> <h3 id=pyecotrend_ista.PyEcotrendIsta.get_support_code class="doc doc-heading"> <code class="doc-symbol doc-symbol-heading doc-symbol-method"></code> <span class="doc doc-object-name doc-function-name">get_support_code</span> <a href=#pyecotrend_ista.PyEcotrendIsta.get_support_code class=headerlink title="Permanent link">&para;</a></h3> <pre class=highlight><code class="language-python doc-signature">get_support_code() -&gt; <a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/stdtypes.html#str">str</a> | None</code></pre> <div class="doc doc-contents "> <p>Return the support code associated with the instance.</p> <p><span class=doc-section-title>Returns:</span></p> <ul> <li class="doc-section-item field-body"> <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/stdtypes.html#str">str</a> or None</code> – <div class=doc-md-description> <p>The support code associated with the instance, or None if not set.</p> </div> </li> </ul> <details class=quote> <summary>Source code in <code>src/pyecotrend_ista/pyecotrend_ista.py</code></summary> <pre class=highlight><code class=language-python>def get_support_code(self) -&gt; str | None:
+    """Return the support code associated with the instance.
+
+    Returns
+    -------
+    str or None
+        The support code associated with the instance, or None if not set.
+
+    """
+    return getattr(self, "_account", {}).get("supportCode")</code></pre> </details> </div> </div> <div class="doc doc-object doc-function"> <h3 id=pyecotrend_ista.PyEcotrendIsta.get_user_agent class="doc doc-heading"> <code class="doc-symbol doc-symbol-heading doc-symbol-method"></code> <span class="doc doc-object-name doc-function-name">get_user_agent</span> <a href=#pyecotrend_ista.PyEcotrendIsta.get_user_agent class=headerlink title="Permanent link">&para;</a></h3> <pre class=highlight><code class="language-python doc-signature">get_user_agent() -&gt; <a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/stdtypes.html#str">str</a></code></pre> <div class="doc doc-contents "> <p>Return the User-Agent string used for HTTP requests.</p> <p><span class=doc-section-title>Returns:</span></p> <ul> <li class="doc-section-item field-body"> <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/stdtypes.html#str">str</a></code> – <div class=doc-md-description> <p>The User-Agent string.</p> </div> </li> </ul> <details class=note open> <summary>Notes</summary> <p>This method provides a static User-Agent string commonly used for web browsers.</p> </details> <details class=quote> <summary>Source code in <code>src/pyecotrend_ista/pyecotrend_ista.py</code></summary> <pre class=highlight><code class=language-python>def get_user_agent(self) -&gt; str:
+    """Return the User-Agent string used for HTTP requests.
+
+    Returns
+    -------
+    str
+        The User-Agent string.
+
+    Notes
+    -----
+    This method provides a static User-Agent string commonly used for web browsers.
+
+    """
+    return (
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/101.0.4951.67"
+        " Safari/537.36"
+    )</code></pre> </details> </div> </div> <div class="doc doc-object doc-function"> <h3 id=pyecotrend_ista.PyEcotrendIsta.demo_user_login class="doc doc-heading"> <code class="doc-symbol doc-symbol-heading doc-symbol-method"></code> <span class="doc doc-object-name doc-function-name">demo_user_login</span> <a href=#pyecotrend_ista.PyEcotrendIsta.demo_user_login class=headerlink title="Permanent link">&para;</a></h3> <pre class=highlight><code class="language-python doc-signature">demo_user_login() -&gt; <a class="autorefs autorefs-internal" title="pyecotrend_ista.types.GetTokenResponse" href="../types/#pyecotrend_ista.types.GetTokenResponse">GetTokenResponse</a></code></pre> <div class="doc doc-contents "> <p>Retrieve authentication tokens for the demo user.</p> <p><span class=doc-section-title>Returns:</span></p> <ul> <li class="doc-section-item field-body"> <code><a class="autorefs autorefs-internal" title="pyecotrend_ista.types.GetTokenResponse" href="../types/#pyecotrend_ista.types.GetTokenResponse">GetTokenResponse</a></code> – <div class=doc-md-description> <p>A TypedDict containing authentication tokens including 'accessToken', 'accessTokenExpiresIn', and 'refreshToken'.</p> </div> </li> </ul> <p><span class=doc-section-title>Raises:</span></p> <ul> <li class="doc-section-item field-body"> <code><a class="autorefs autorefs-internal" title="pyecotrend_ista.exception_classes.ParserError" href="../exception_classes/#pyecotrend_ista.exception_classes.ParserError">ParserError</a></code> – <div class=doc-md-description> <p>If there is an error parsing the request response.</p> </div> </li> <li class="doc-section-item field-body"> <code><a class="autorefs autorefs-internal" title="pyecotrend_ista.exception_classes.ServerError" href="../exception_classes/#pyecotrend_ista.exception_classes.ServerError">ServerError</a></code> – <div class=doc-md-description> <p>If there is a server error, connection timeout, or request exception.</p> </div> </li> </ul> <details class=quote> <summary>Source code in <code>src/pyecotrend_ista/pyecotrend_ista.py</code></summary> <pre class=highlight><code class=language-python>def demo_user_login(self) -&gt; GetTokenResponse:
+    """Retrieve authentication tokens for the demo user.
+
+    Returns
+    -------
+    GetTokenResponse
+        A TypedDict containing authentication tokens including 'accessToken',
+        'accessTokenExpiresIn', and 'refreshToken'.
+
+    Raises
+    ------
+    ParserError
+        If there is an error parsing the request response.
+    ServerError
+        If there is a server error, connection timeout, or request exception.
+
+    """
+    url = f"{API_BASE_URL}demo-user-token"
+    try:
+        self._header["User-Agent"] = self.get_user_agent()
+        with self.session.get(url, headers=self._header) as r:
+            _LOGGER.debug("Performed GET request %s [%s]:\n%s", url, r.status_code, r.text)
+
+            r.raise_for_status()
+            try:
+                data = r.json()
+                key = iter(GetTokenResponse.__annotations__)
+                token = {next(key): value for value in data.values()}
+                return cast(GetTokenResponse, token)
+            except requests.JSONDecodeError as exc:
+                raise ParserError(
+                    "Demo user authentication failed due to an error parsing the request response"
+                ) from exc
+    except requests.HTTPError as exc:
+        raise ServerError(
+            "Demo user authentication failed due to a server error "
+            f"[{exc.response.status_code}: {exc.response.reason}]"
+        ) from exc
+    except requests.Timeout as exc:
+        raise ServerError("Demo user authentication failed due a connection timeout") from exc
+    except requests.RequestException as exc:
+        raise ServerError("Demo user authentication failed due to a request exception") from exc</code></pre> </details> </div> </div> <div class="doc doc-object doc-function"> <h3 id=pyecotrend_ista.PyEcotrendIsta.get_account class="doc doc-heading"> <code class="doc-symbol doc-symbol-heading doc-symbol-method"></code> <span class="doc doc-object-name doc-function-name">get_account</span> <a href=#pyecotrend_ista.PyEcotrendIsta.get_account class=headerlink title="Permanent link">&para;</a></h3> <pre class=highlight><code class="language-python doc-signature">get_account() -&gt; <a class="autorefs autorefs-internal" title="pyecotrend_ista.types.AccountResponse" href="../types/#pyecotrend_ista.types.AccountResponse">AccountResponse</a> | None</code></pre> <div class="doc doc-contents "> <p>Retrieve the account information.</p> <p>Returns the <code>_account</code> attribute if it exists, otherwise returns None.</p> <p><span class=doc-section-title>Returns:</span></p> <ul> <li class="doc-section-item field-body"> <code><a class="autorefs autorefs-internal" title="pyecotrend_ista.types.AccountResponse" href="../types/#pyecotrend_ista.types.AccountResponse">AccountResponse</a> | None</code> – <div class=doc-md-description> <p>Account information if available, otherwise None.</p> </div> </li> </ul> <details class=quote> <summary>Source code in <code>src/pyecotrend_ista/pyecotrend_ista.py</code></summary> <pre class=highlight><code class=language-python>def get_account(self) -&gt; AccountResponse | None:
+    """Retrieve the account information.
+
+    Returns the `_account` attribute if it exists, otherwise returns None.
+
+    Returns
+    -------
+    AccountResponse | None
+        Account information if available, otherwise None.
+
+    """
+    return getattr(self, "_account", None)</code></pre> </details> </div> </div> </div> </div> </div> <aside class=md-source-file> <span class=md-source-file__fact> <span class=md-icon title="Last update"> <svg xmlns=http://www.w3.org/2000/svg viewbox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1-2.1-2M12.5 7v5.2l4 2.4-1 1L11 13V7h1.5M11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2v1.8Z"/></svg> </span> <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">July 21, 2024</span> </span> <span class=md-source-file__fact> <span class=md-icon title=Created> <svg xmlns=http://www.w3.org/2000/svg viewbox="0 0 24 24"><path d="M14.47 15.08 11 13V7h1.5v5.25l3.08 1.83c-.41.28-.79.62-1.11 1m-1.39 4.84c-.36.05-.71.08-1.08.08-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8c0 .37-.03.72-.08 1.08.69.1 1.33.32 1.92.64.1-.56.16-1.13.16-1.72 0-5.5-4.5-10-10-10S2 6.5 2 12s4.47 10 10 10c.59 0 1.16-.06 1.72-.16-.32-.59-.54-1.23-.64-1.92M18 15v3h-3v2h3v3h2v-3h3v-2h-3v-3h-2Z"/></svg> </span> <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">July 21, 2024</span> </span> <span class=md-source-file__fact> <span class=md-icon title=Contributors> <svg xmlns=http://www.w3.org/2000/svg viewbox="0 0 24 24"><path d="M12 4a4 4 0 0 1 4 4 4 4 0 0 1-4 4 4 4 0 0 1-4-4 4 4 0 0 1 4-4m0 10c4.42 0 8 1.79 8 4v2H4v-2c0-2.21 3.58-4 8-4Z"/></svg> </span> <nav> <a href=mailto:ludy87@users.noreply.github.com>Ludy87</a> </nav> </span> <span class=md-source-file__fact> <span class=md-icon title=Contributors> <svg xmlns=http://www.w3.org/2000/svg viewbox="0 0 24 24"><path d="M12 2A10 10 0 0 0 2 12c0 4.42 2.87 8.17 6.84 9.5.5.08.66-.23.66-.5v-1.69c-2.77.6-3.36-1.34-3.36-1.34-.46-1.16-1.11-1.47-1.11-1.47-.91-.62.07-.6.07-.6 1 .07 1.53 1.03 1.53 1.03.87 1.52 2.34 1.07 2.91.83.09-.65.35-1.09.63-1.34-2.22-.25-4.55-1.11-4.55-4.92 0-1.11.38-2 1.03-2.71-.1-.25-.45-1.29.1-2.64 0 0 .84-.27 2.75 1.02.79-.22 1.65-.33 2.5-.33.85 0 1.71.11 2.5.33 1.91-1.29 2.75-1.02 2.75-1.02.55 1.35.2 2.39.1 2.64.65.71 1.03 1.6 1.03 2.71 0 3.82-2.34 4.66-4.57 4.91.36.31.69.92.69 1.85V21c0 .27.16.59.67.5C19.14 20.16 22 16.42 22 12A10 10 0 0 0 12 2Z"/></svg> </span> <span>GitHub</span> <nav> <a href=https://github.com/Ludy87 class=md-author title=@Ludy87> <img src="https://avatars.githubusercontent.com/u/4592558?v=4&size=72" alt=Ludy87> </a> </nav> </span> </aside> </article> </div> <script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script> </div> </main> <footer class=md-footer> <nav class="md-footer__inner md-grid" aria-label=Footer> <a href=.. class="md-footer__link md-footer__link--prev" aria-label="Previous: Home"> <div class="md-footer__button md-icon"> <svg xmlns=http://www.w3.org/2000/svg viewbox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg> </div> <div class=md-footer__title> <span class=md-footer__direction> Previous </span> <div class=md-ellipsis> Home </div> </div> </a> <a href=../login_helper/ class="md-footer__link md-footer__link--next" aria-label="Next: Login Helper"> <div class=md-footer__title> <span class=md-footer__direction> Next </span> <div class=md-ellipsis> Login Helper </div> </div> <div class="md-footer__button md-icon"> <svg xmlns=http://www.w3.org/2000/svg viewbox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11H4Z"/></svg> </div> </a> </nav> <div class="md-footer-meta md-typeset"> <div class="md-footer-meta__inner md-grid"> <div class=md-copyright> Made with <a href=https://squidfunk.github.io/mkdocs-material/ target=_blank rel=noopener> Material for MkDocs </a> </div> </div> </div> </footer> </div> <div class=md-dialog data-md-component=dialog> <div class="md-dialog__inner md-typeset"></div> </div> <div class=md-progress data-md-component=progress role=progressbar></div> <script id=__config type=application/json>{"base": "..", "features": ["announce.dismiss", "content.code.annotate", "content.code.copy", "content.tooltips", "navigation.expand", "navigation.footer", "navigation.indexes", "navigation.instant", "navigation.instant.progress", "navigation.instant.prefetch", "navigation.path", "navigation.tabs.sticky", "search.highlight", "search.suggest", "search.share", "toc.follow"], "search": "../assets/javascripts/workers/search.b8dbb3d2.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script> <script src=../assets/javascripts/bundle.fe8b6f2b.min.js></script> </body> </html>
