@@ -23,7 +23,7 @@ plugins:
       minify_js: true
       minify_css: true
       htmlmin_opts:
-          remove_comments: true
+        remove_comments: true
       cache_safe: true
   - git-revision-date-localized:
       enable_creation_date: true
@@ -44,13 +44,14 @@ plugins:
       handlers:
         python:
           import:
-          # YORE: SOL 3.12: Replace `3.12` with `3` within line.
-          - url: https://docs.python.org/3.12/objects.inv
-            domains: [std, py]
+            # YORE: SOL 3.12: Replace `3.12` with `3` within line.
+            - url: https://docs.python.org/3.12/objects.inv
+              domains: [std, py]
           paths: [src, scripts, .]
           setup_commands:
             - "import sys; sys.path.insert(0, 'src')"
           options:
+            line_length: 80
             docstring_options:
               ignore_init_summary: true
             docstring_section_style: list
@@ -75,7 +76,7 @@ plugins:
 theme:
   name: material
   icon:
-      logo: material/library
+    logo: material/library
   features:
     - announce.dismiss
     - content.code.annotate
@@ -156,7 +157,7 @@ markdown_extensions:
   - pymdownx.superfences
   - mdx_gh_links:
       user: Ludy87
-      repo: pyecotrend_ista
+      repo: pyecotrend-ista
   - mkdocs-click
 
 watch:
