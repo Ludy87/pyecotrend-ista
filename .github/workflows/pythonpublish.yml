@@ -5,8 +5,6 @@ on:
     types: [created]
   push:
     branches: [main]
-    paths-ignore:
-      - ".github/**"
 
 jobs:
   deploy:
@@ -19,9 +17,12 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: |
-            3.11
+          python-version: 3.11
           check-latest: true
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install .[publish]
       - name: Get Version
         id: version
         shell: bash
@@ -33,7 +34,6 @@ jobs:
         id: checkTag
         with:
           tag: ${{ steps.version.outputs.version }}
-      - uses: actions/checkout@v4
       - name: ZIP Component Dir
         run: |
           cd ${{ github.workspace }}/src/pyecotrend_ista
@@ -53,7 +53,7 @@ jobs:
           if [[ "${{ steps.version.outputs.version }}" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
               echo "match=true" >> $GITHUB_OUTPUT
           fi
-      - name: Build
+      - name: Create Release
         if: steps.check-tag.outputs.match == 'true'
         uses: softprops/action-gh-release@v2
         with:
@@ -61,26 +61,16 @@ jobs:
           name: v${{ steps.version.outputs.version }}
           draft: false
           prerelease: false
-          token: "${{ secrets.GITHUB_TOKEN }}"
-      - name: Checkout code for release
-        if: steps.check-tag.outputs.match == 'true'
-        uses: actions/checkout@v4
-      - name: Set up Python
-        if: steps.check-tag.outputs.match == 'true'
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.11"
-          check-latest: true
-      - name: Install dependencies
-        if: steps.check-tag.outputs.match == 'true'
-        run: |
-          python -m pip install --upgrade pip
-          pip install setuptools wheel twine
-      - name: Build and publish
+          token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build and publish package to TestPyPI
         if: steps.check-tag.outputs.match == 'true'
         env:
           TWINE_USERNAME: __token__
-          TWINE_PASSWORD: ${{ secrets.PYPI_TOKEN }}
-        run: |
-          python setup.py sdist bdist_wheel
-          twine upload dist/*
+          TWINE_PASSWORD: ${{ secrets.TEST_PYPI_TOKEN }}
+        run: tox -e test-publish
+      # - name: Build and publish package to PyPI
+      #   if: steps.check-tag.outputs.match == 'true'
+      #   env:
+      #     TWINE_USERNAME: __token__
+      #     TWINE_PASSWORD: ${{ secrets.PYPI_TOKEN }}
+      #   run: tox -e publish
