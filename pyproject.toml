@@ -33,9 +33,6 @@ name = "pyecotrend-ista"
 requires-python = ">=3.11"
 
 [project.optional-dependencies]
-publish = [
-    "tox==4.16.0",
-]
 doc = [
   "tox==4.16.0",
   "mkdocs==1.6.0",
@@ -53,6 +50,9 @@ doc = [
   "mkdocs-git-authors-plugin==0.9.0",
   "mkdocs-autorefs==1.0.1",
   "mkdocs-literate-nav==0.6.1"
+]
+publish = [
+  "tox==4.16.0"
 ]
 test = [
   "tox==4.16.0",
