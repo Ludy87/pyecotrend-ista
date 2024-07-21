@@ -59,7 +59,7 @@ test = [
 ]
 
 [project.urls]
-Documentation = "https://docs.your.project"
+Documentation = "https://ludy87.github.io/pyecotrend_ista/"
 Homepage = "http://github.com/Ludy87/pyecotrend_ista"
 Repository = "http://github.com/Ludy87/pyecotrend_ista"
 
