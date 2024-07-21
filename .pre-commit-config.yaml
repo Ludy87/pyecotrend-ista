@@ -73,6 +73,21 @@ repos:
       - id: prettier
         exclude_types: [json]
         exclude: \.md$
+  - repo: https://github.com/macisamuele/language-formatters-pre-commit-hooks
+    rev: v2.14.0
+    hooks:
+      - id: pretty-format-toml
+        args: [--autofix]
+  - repo: https://github.com/numpy/numpydoc
+    rev: v1.7.0
+    hooks:
+      - id: numpydoc-validation
+        files: ^(src)/.+\.py$
+        exclude: |
+          (?x)(
+              tests/|
+              docs/
+          )
   - repo: https://github.com/cdce8p/python-typing-update
     rev: v0.6.0
     hooks:
@@ -88,7 +103,7 @@ repos:
           - --keep-updates
         files: ^(src|tests)/.+\.py$
         additional_dependencies:
-          - black==24.1.1
+          - black==24.4.2
   - repo: https://github.com/asottile/pyupgrade
     rev: v3.16.0
     hooks:
