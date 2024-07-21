@@ -1,0 +1,163 @@
+site_name: "Python Ecotrend Ista Api Documentation"
+repo_url: https://github.com/Ludy87/pyecotrend-ista/
+repo_name: Ludy87/pyecotrend-ista
+site_author: Ludy87
+
+nav:
+  - Home: index.md
+  - PyEcotrendIsta: pyecotrend_ista.md
+  - openid.md
+  - login_helper.md
+  - types.md
+  - exception_classes.md
+
+validation:
+  omitted_files: warn
+  absolute_links: warn
+  unrecognized_links: warn
+
+plugins:
+  - search
+  - minify:
+      minify_html: true
+      minify_js: true
+      minify_css: true
+      htmlmin_opts:
+          remove_comments: true
+      cache_safe: true
+  - git-revision-date-localized:
+      enable_creation_date: true
+      fallback_to_build_date: true
+  - git-committers:
+      repository: Ludy87/pyecotrend-ista
+      branch: main
+      token: !ENV ["GITHUB_TOKEN"]
+      exclude:
+        - README.md
+  - git-authors
+  - autorefs
+  - literate-nav:
+      nav_file: README.md
+      implicit_index: true
+  - mkdocstrings:
+      enabled: !ENV [MKDOCSTRINGS_ENABLED, true]
+      handlers:
+        python:
+          import:
+          # YORE: SOL 3.12: Replace `3.12` with `3` within line.
+          - url: https://docs.python.org/3.12/objects.inv
+            domains: [std, py]
+          paths: [src, scripts, .]
+          setup_commands:
+            - "import sys; sys.path.insert(0, 'src')"
+          options:
+            docstring_options:
+              ignore_init_summary: true
+            docstring_section_style: list
+            members_order: source
+            heading_level: 2
+            inherited_members: true
+            merge_init_into_class: true
+            parameter_headings: true
+            separate_signature: true
+            show_bases: false
+            show_inheritance_diagram: true
+            show_root_heading: true
+            show_root_full_path: true
+            show_source: true
+            show_signature_annotations: true
+            show_symbol_type_heading: true
+            show_symbol_type_toc: true
+            signature_crossrefs: true
+            summary: true
+            docstring_style: numpy
+
+theme:
+  name: material
+  icon:
+      logo: material/library
+  features:
+    - announce.dismiss
+    - content.code.annotate
+    - content.code.copy
+    - content.tooltips
+    - navigation.expand
+    - navigation.footer
+    - navigation.indexes
+    - navigation.instant
+    - navigation.instant.progress
+    - navigation.instant.prefetch
+    - navigation.path
+    # - navigation.sections
+    # - navigation.tabs
+    - navigation.tabs.sticky
+    # - navigation.top
+    - search.highlight
+    - search.suggest
+    - search.share
+    - toc.follow
+  palette:
+    - media: "(prefers-color-scheme)"
+      toggle:
+        icon: material/brightness-auto
+        name: Switch to light mode
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: teal
+      accent: purple
+      toggle:
+        icon: material/weather-sunny
+        name: Switch to dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: black
+      accent: lime
+      toggle:
+        icon: material/weather-night
+        name: Switch to system preference
+
+markdown_extensions:
+  - admonition
+  - codehilite
+  - attr_list
+  - github-callouts
+  # - callouts
+  - footnotes
+  - pymdownx.details
+  - pymdownx.blocks.tab:
+      alternate_style: true
+  - pymdownx.emoji:
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
+  - pymdownx.highlight:
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.magiclink
+  - pymdownx.snippets:
+      base_path: [!relative $config_dir]
+      check_paths: true
+  - pymdownx.superfences
+  - pymdownx.tabbed:
+      alternate_style: true
+      slugify: !!python/object/apply:pymdownx.slugs.slugify
+        kwds:
+          case: lower
+  - pymdownx.tasklist:
+      custom_checkbox: true
+  - pymdownx.tilde
+  - toc:
+      permalink: true
+  - def_list
+  - tables
+  - pymdownx.highlight:
+      use_pygments: false
+      anchor_linenums: true
+  - pymdownx.snippets
+  - pymdownx.superfences
+  - mdx_gh_links:
+      user: Ludy87
+      repo: pyecotrend_ista
+  - mkdocs-click
+
+watch:
+  - docs
