@@ -1,6 +1,8 @@
 """Constants for PyEcotrendIsta."""
 
-VERSION = "3.3.2"
+from pyecotrend_ista.__version import __version__
+
+VERSION = __version__
 
 API_BASE_URL = "https://api.prod.eed.ista.com/"
 
