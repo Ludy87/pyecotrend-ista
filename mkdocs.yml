@@ -6,7 +6,6 @@ site_author: Ludy87
 nav:
   - Home: index.md
   - PyEcotrendIsta: pyecotrend_ista.md
-  - openid.md
   - login_helper.md
   - types.md
   - exception_classes.md
