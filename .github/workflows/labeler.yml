@@ -1,13 +1,6 @@
 name: Manage labels
 
 on:
-  # push:
-  #   branches: [main]
-  #   paths-ignore:
-  #     - ".github/actions/**"
-  #     - ".github/workflows/**"
-  # pull_request:
-  #   branches: [main]
   schedule:
     - cron: "31 12 * * 0"
 
