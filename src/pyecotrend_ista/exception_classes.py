@@ -49,8 +49,7 @@ def deprecated(func: Callable[..., T], alias_func: str | None = None) -> Callabl
                 f"The `{alias_func}` function is deprecated and will be removed in a future release. "
                 f"Use `{func.__name__}` instead."
             )
-        else:
-            warning_message = f"The `{func.__name__}` function is deprecated and will be removed in a future release."
+        warning_message = f"The `{func.__name__}` function is deprecated and will be removed in a future release."
 
         warnings.warn(warning_message, category=DeprecationWarning, stacklevel=2)
         return func(*args, **kwargs)
