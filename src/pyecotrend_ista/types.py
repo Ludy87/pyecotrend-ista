@@ -1,9 +1,19 @@
-"""Types for PyEcotrendIsta."""
+# numpydoc ignore=EX01
+"""
+Types for PyEcotrendIsta.
+
+This module defines various TypedDicts used in the PyEcotrendIsta client to represent
+responses and data structures from the ista EcoTrend API.
+
+See Also
+--------
+PyEcotrendIsta : The main client class for interacting with the ista EcoTrend API.
+"""
 
 from typing import Any, Literal, TypedDict
 
 
-class GetTokenResponse(TypedDict):
+class GetTokenResponse(TypedDict):  # numpydoc ignore=ES01,SA01,EX01,GL01,GL02,GL03
     """A TypedDict for the response returned by the getToken function.
 
     Attributes
@@ -25,8 +35,9 @@ class GetTokenResponse(TypedDict):
     refresh_expires_in: int
 
 
-class AccountResponse(TypedDict):
-    """Represents the response for an account in the ista EcoTrend API.
+class AccountResponse(TypedDict):  # numpydoc ignore=ES01,SA01,EX01
+    """
+    Represents the response for an account in the ista EcoTrend API.
 
     Attributes
     ----------
@@ -123,8 +134,10 @@ class AccountResponse(TypedDict):
     supportCode: str
     notificationMethodEmailConfirmed: bool
 
-class IstaMonthYear(TypedDict):
-    """A TypedDict representing a month and year.
+
+class IstaMonthYear(TypedDict):  # numpydoc ignore=ES01,SA01,EX01
+    """
+    A TypedDict representing a month and year.
 
     Attributes
     ----------
@@ -137,8 +150,10 @@ class IstaMonthYear(TypedDict):
     month: int
     year: int
 
-class IstaAverageConsumption(TypedDict):
-    """A TypedDict representing average consumption values.
+
+class IstaAverageConsumption(TypedDict):  # numpydoc ignore=ES01,SA01,EX01
+    """
+    A TypedDict representing average consumption values.
 
     Attributes
     ----------
@@ -169,8 +184,10 @@ class IstaAverageConsumption(TypedDict):
     residentConsumptionPercentage: int
     residentConsumptionValue: str
 
-class IstaCompared(TypedDict):
-    """A TypedDict representing compared values.
+
+class IstaCompared(TypedDict):  # numpydoc ignore=ES01,SA01,EX01
+    """
+    A TypedDict representing compared values.
 
     Attributes
     ----------
@@ -192,8 +209,10 @@ class IstaCompared(TypedDict):
     period: IstaMonthYear
     smiley: str
 
-class IstaReading(TypedDict):
-    """A TypedDict representing a reading.
+
+class IstaReading(TypedDict):  # numpydoc ignore=ES01,SA01,EX01
+    """
+    A TypedDict representing a reading.
 
     Attributes
     ----------
@@ -227,8 +246,10 @@ class IstaReading(TypedDict):
     unit: str
     value: str
 
-class IstaTimeRange(TypedDict):
-    """A TypedDict representing a time range.
+
+class IstaTimeRange(TypedDict):  # numpydoc ignore=ES01,SA01,EX01
+    """
+    A TypedDict representing a time range.
 
     Attributes
     ----------
@@ -241,8 +262,10 @@ class IstaTimeRange(TypedDict):
     end: IstaMonthYear
     start: IstaMonthYear
 
-class IstaBillingPeriod(TypedDict):
-    """A TypedDict representing a billing period.
+
+class IstaBillingPeriod(TypedDict):  # numpydoc ignore=ES01,SA01,EX01
+    """
+    A TypedDict representing a billing period.
 
     Attributes
     ----------
@@ -256,10 +279,12 @@ class IstaBillingPeriod(TypedDict):
 
     exception: Any
     readings: list[IstaReading]
-    timeRange:IstaTimeRange
+    timeRange: IstaTimeRange
 
-class IstaBillingPeriods(TypedDict):
-    """A TypedDict representing the billing periods.
+
+class IstaBillingPeriods(TypedDict):  # numpydoc ignore=ES01,SA01,EX01
+    """
+    A TypedDict representing the billing periods.
 
     Attributes
     ----------
@@ -272,8 +297,10 @@ class IstaBillingPeriods(TypedDict):
     currentBillingPeriod: IstaBillingPeriod
     previousBillingPeriod: IstaBillingPeriod
 
-class IstaCostsByEnergyType(TypedDict):
-    """A TypedDict representing the costs associated with a specific energy type.
+
+class IstaCostsByEnergyType(TypedDict):  # numpydoc ignore=ES01,SA01,EX01
+    """
+    A TypedDict representing the costs associated with a specific energy type.
 
     Attributes
     ----------
@@ -295,8 +322,10 @@ class IstaCostsByEnergyType(TypedDict):
     unit: str
     value: int
 
-class IstaPeriods(TypedDict):
-    """A TypedDict representing data for a specific period.
+
+class IstaPeriods(TypedDict):  # numpydoc ignore=ES01,SA01,EX01
+    """
+    A TypedDict representing data for a specific period.
 
     Attributes
     ----------
@@ -322,9 +351,9 @@ class IstaPeriods(TypedDict):
     costsByEnergyType: list[IstaCostsByEnergyType]
 
 
-
-class ConsumptionsResponse(TypedDict, total=False):
-    """A TypedDict representing the response structure for consumption data.
+class ConsumptionsResponse(TypedDict, total=False):  # numpydoc ignore=ES01,SA01,EX01
+    """
+    A TypedDict representing the response structure for consumption data.
 
     Attributes
     ----------
@@ -348,7 +377,6 @@ class ConsumptionsResponse(TypedDict, total=False):
         The start date for non-EED basic plan (data type unknown).
     resident : dict[str, Any]
         A dictionary containing resident information.
-
     """
 
     co2Emissions: list[IstaPeriods]
@@ -363,9 +391,9 @@ class ConsumptionsResponse(TypedDict, total=False):
     resident: dict[str, Any]
 
 
-
-class IstaConsumptionUnitAddress(TypedDict):
-    """Represents the address of a consumption unit.
+class IstaConsumptionUnitAddress(TypedDict):  # numpydoc ignore=ES01,SA01,EX01
+    """
+    Represents the address of a consumption unit.
 
     Attributes
     ----------
@@ -393,14 +421,16 @@ class IstaConsumptionUnitAddress(TypedDict):
     houseNumber: str
     postalCode: str
     city: str
-    country: str # country code
+    country: str  # country code
     floor: str
     propertyNumber: str
     consumptionUnitNumber: str
     idAtCustomerUser: str
 
-class IstaConsumptionUnitBookedServices(TypedDict):
-    """Represents the booked extra services for an Ista consumption unit.
+
+class IstaConsumptionUnitBookedServices(TypedDict):  # numpydoc ignore=ES01,SA01,EX01
+    """
+    Represents the booked extra services for an Ista consumption unit.
 
     Attributes
     ----------
@@ -413,8 +443,10 @@ class IstaConsumptionUnitBookedServices(TypedDict):
     cost: bool
     co2: bool
 
-class IstaConsumptionUnit(TypedDict):
-    """Represents a consumption unit.
+
+class IstaConsumptionUnit(TypedDict):  # numpydoc ignore=ES01,SA01,EX01
+    """
+    Represents a consumption unit.
 
     Attributes
     ----------
@@ -428,14 +460,15 @@ class IstaConsumptionUnit(TypedDict):
         The property number associated with the consumption unit.
     """
 
-    id: str # UUID
+    id: str  # UUID
     address: IstaConsumptionUnitAddress
     booked: IstaConsumptionUnitBookedServices
     propertyNumber: str
 
 
-class ConsumptionUnitDetailsResponse(TypedDict):
-    """Represents the response details for consumption units.
+class ConsumptionUnitDetailsResponse(TypedDict):  # numpydoc ignore=ES01,SA01,EX01
+    """
+    Represents the response details for consumption units.
 
     Attributes
     ----------
@@ -446,4 +479,4 @@ class ConsumptionUnitDetailsResponse(TypedDict):
     """
 
     consumptionUnits: list[IstaConsumptionUnit]
-    coBranding: Any # #unknown
+    coBranding: Any  # #unknown

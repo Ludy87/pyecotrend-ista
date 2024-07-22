@@ -1,4 +1,4 @@
-"""Dataclasses."""
+"""Dataclasses."""  # numpydoc ignore=EX01,ES01
 
 from __future__ import annotations
 
@@ -7,9 +7,10 @@ from dataclasses import dataclass
 from dataclasses_json import DataClassJsonMixin, dataclass_json
 
 
+# pylint: disable=invalid-name
 @dataclass_json
 @dataclass
-class AverageConsumption(DataClassJsonMixin):
+class AverageConsumption(DataClassJsonMixin):  # numpydoc ignore=ES01,EX01
     """Represents average consumption data.
 
     Attributes
@@ -41,9 +42,9 @@ class AverageConsumption(DataClassJsonMixin):
     additionalAverageConsumptionPercentage: int  # noqa: N815
     additionalResidentConsumptionPercentage: int  # noqa: N815
 
-    def replace_point(self):
+    # pylint: disable=no-member
+    def replace_point(self):  # numpydoc ignore=ES01,EX01
         """Replace commas with periods in specific attributes."""
-
         for _field in self.__dataclass_fields__.values():
             if _field.name in [
                 "averageConsumptionValue",
@@ -54,15 +55,14 @@ class AverageConsumption(DataClassJsonMixin):
                 if isinstance(getattr(self, _field.name), str):
                     setattr(self, _field.name, float(getattr(self, _field.name).replace(",", ".")))
 
-    def __post_init__(self):
+    def __post_init__(self):  # numpydoc ignore=ES01,EX01
         """Post-initialization processing."""
-
         self.replace_point()
 
 
 @dataclass_json
 @dataclass
-class ComparedConsumption(DataClassJsonMixin):
+class ComparedConsumption(DataClassJsonMixin):  # numpydoc ignore=ES01,EX01
     """
     Represents compared consumption data.
 
@@ -86,9 +86,9 @@ class ComparedConsumption(DataClassJsonMixin):
     comparedPercentage: int | None = None  # noqa: N815
     comparedValue: float | None = None  # noqa: N815
 
-    def replace_point(self):
+    # pylint: disable=no-member
+    def replace_point(self):  # numpydoc ignore=ES01,EX01
         """Replace commas with periods in specific attributes."""
-
         for _field in self.__dataclass_fields__.values():
             if _field.name in ["lastYearValue", "comparedValue"]:
                 if isinstance(getattr(self, _field.name), str):
@@ -96,14 +96,14 @@ class ComparedConsumption(DataClassJsonMixin):
                 else:
                     setattr(self, _field.name, float(getattr(self, _field.name)))
 
-    def __post_init__(self):
+    def __post_init__(self):  # numpydoc ignore=ES01,EX01
         """Post-initialization processing."""
         self.replace_point()
 
 
 @dataclass_json
 @dataclass
-class Consumption(DataClassJsonMixin):
+class Consumption(DataClassJsonMixin):  # numpydoc ignore=ES01,EX01,PR02
     """Data class representing consumption.
 
     Parameters
@@ -138,23 +138,22 @@ class Consumption(DataClassJsonMixin):
     comparedCost: ComparedConsumption | None  # noqa: N815
     averageConsumption: AverageConsumption | None  # field(default_factory=AverageConsumption)  # noqa: N815
 
-    def replace_point(self):
+    # pylint: disable=no-member
+    def replace_point(self):  # numpydoc ignore=ES01,EX01
         """Replace commas with periods in specific attributes."""
-
         for _field in self.__dataclass_fields__.values():
             if _field.name in ["value", "additionalValue"]:
                 if isinstance(getattr(self, _field.name), str):
                     setattr(self, _field.name, float(getattr(self, _field.name).replace(",", ".")))
 
-    def __post_init__(self):
+    def __post_init__(self):  # numpydoc ignore=ES01,EX01
         """Post-initialization processing."""
-
         self.replace_point()
 
 
 @dataclass_json
 @dataclass
-class Cost(DataClassJsonMixin):
+class Cost(DataClassJsonMixin):  # numpydoc ignore=ES01,EX01
     """Data class representing cost information.
 
     Attributes
@@ -180,7 +179,7 @@ class Cost(DataClassJsonMixin):
 
 @dataclass_json
 @dataclass
-class Date(DataClassJsonMixin):
+class Date(DataClassJsonMixin):  # numpydoc ignore=ES01,EX01
     """Data class representing a date with month and year.
 
     Attributes
@@ -197,7 +196,7 @@ class Date(DataClassJsonMixin):
 
 @dataclass_json
 @dataclass
-class LastValue(DataClassJsonMixin):
+class LastValue(DataClassJsonMixin):  # numpydoc ignore=ES01,EX01
     """Data class representing last values.
 
     Attributes
@@ -232,7 +231,7 @@ class LastValue(DataClassJsonMixin):
 
 @dataclass_json
 @dataclass
-class LastCustomValue(DataClassJsonMixin):
+class LastCustomValue(DataClassJsonMixin):  # numpydoc ignore=ES01,EX01
     """Data class representing last custom values.
 
     Attributes
@@ -267,7 +266,7 @@ class LastCustomValue(DataClassJsonMixin):
 
 @dataclass_json
 @dataclass
-class LastCosts(DataClassJsonMixin):
+class LastCosts(DataClassJsonMixin):  # numpydoc ignore=ES01,EX01
     """Data class representing last costs.
 
     Attributes
@@ -296,7 +295,7 @@ class LastCosts(DataClassJsonMixin):
 
 @dataclass_json
 @dataclass
-class CombinedData(DataClassJsonMixin):
+class CombinedData(DataClassJsonMixin):  # numpydoc ignore=ES01,EX01
     """Data class representing combined data.
 
     Attributes
@@ -316,7 +315,7 @@ class CombinedData(DataClassJsonMixin):
 
 @dataclass_json
 @dataclass
-class TotalAdditionalValues(DataClassJsonMixin):
+class TotalAdditionalValues(DataClassJsonMixin):  # numpydoc ignore=ES01,EX01
     """Data class for representing total additional values.
 
     Attributes
@@ -345,7 +344,7 @@ class TotalAdditionalValues(DataClassJsonMixin):
 
 @dataclass_json
 @dataclass
-class TotalAdditionalCustomValues(DataClassJsonMixin):
+class TotalAdditionalCustomValues(DataClassJsonMixin):  # numpydoc ignore=ES01,EX01
     """Data class for representing total additional custom values.
 
     Attributes
@@ -374,7 +373,7 @@ class TotalAdditionalCustomValues(DataClassJsonMixin):
 
 @dataclass_json
 @dataclass
-class SumByYear(DataClassJsonMixin):
+class SumByYear(DataClassJsonMixin):  # numpydoc ignore=ES01,EX01
     """Data class for representing the sum of values grouped by year.
 
     Attributes
@@ -403,7 +402,7 @@ class SumByYear(DataClassJsonMixin):
 
 @dataclass_json
 @dataclass
-class CustomRaw(DataClassJsonMixin):
+class CustomRaw(DataClassJsonMixin):  # numpydoc ignore=ES01,EX01
     """Data class for representing custom raw data.
 
     Attributes

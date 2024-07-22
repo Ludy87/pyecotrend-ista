@@ -24,11 +24,11 @@ dependencies = [
   "requests>=2",
   "dataclasses-json>=0.6"
 ]
-description = "Python ecotrend-ista Api"
+description = "Python EcoTrend-ista Api"
 dynamic = ["version", "readme"]
 keywords = ["python", "api", "ecotrend", "ista"]
 license = {file = "LICENSE"}
-name = "pyecotrend-ista"
+name = "pyEcoTrend-ista"
 # readme = "README.md"
 requires-python = ">=3.11"
 
@@ -71,6 +71,19 @@ Repository = "http://github.com/Ludy87/pyecotrend-ista"
 [tool.black]
 line-length = 127
 target-version = ["py311"]
+
+[tool.numpydoc_validation]
+checks = [
+  "all",  # report on all checks, except the below
+  "SA01",
+  "GL01",
+  "GL02",
+  "GL03",
+  "SS05"
+]
+exclude = [
+  '\.__str__$'
+]
 
 [tool.pylint.FORMAT]
 max-line-length = 127

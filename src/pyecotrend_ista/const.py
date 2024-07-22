@@ -1,4 +1,4 @@
-"""Constants for PyEcotrendIsta."""
+"""Constants for PyEcotrendIsta."""  # numpydoc ignore=EX01,ES01
 
 from pyecotrend_ista.__version import __version__
 

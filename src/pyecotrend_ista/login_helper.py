@@ -1,4 +1,4 @@
-"""Login helper for Keycloak."""
+"""Login helper for Keycloak."""  # numpydoc ignore=EX01,ES01
 
 from __future__ import annotations
 
@@ -34,7 +34,7 @@ from .exception_classes import (
 from .types import GetTokenResponse
 
 
-class LoginHelper:
+class LoginHelper:  # numpydoc ignore=ES01,EX01,PR01
     """Login helper for Keycloak.
 
     Attributes
@@ -71,7 +71,7 @@ class LoginHelper:
         totp: str | None = None,
         session: requests.Session | None = None,
         logger=None,
-    ) -> None:
+    ) -> None:  # numpydoc ignore=ES01,EX01
         """Initialize the object with username and password.
 
         Parameters
@@ -100,7 +100,7 @@ class LoginHelper:
 
         self.logger = logger or logging.getLogger(__name__)
 
-    def _send_request(self, method, url, **kwargs) -> requests.Response:
+    def _send_request(self, method, url, **kwargs) -> requests.Response:  # numpydoc ignore=ES01,EX01
         """Send an HTTP request using the session object.
 
         Parameters
@@ -136,7 +136,7 @@ class LoginHelper:
 
         return response
 
-    def _login(self) -> None:
+    def _login(self) -> None:  # numpydoc ignore=ES01,EX01
         """Log in to ista EcoTrend.
 
         Raises
@@ -149,7 +149,7 @@ class LoginHelper:
         except KeycloakAuthenticationError as error:
             raise KeycloakAuthenticationError(error.error_message) from error
 
-    def _get_auth_code(self) -> str:
+    def _get_auth_code(self) -> str:  # numpydoc ignore=ES01,EX01
         """
         Retrieve the authentication code for ista EcoTrend.
 
@@ -204,7 +204,7 @@ class LoginHelper:
             raise KeycloakCodeNotFound("header[Location] Code not found", response_code=resp.status_code)
         return redirect_params["code"][0]
 
-    def _get_cookie_and_action(self) -> tuple:
+    def _get_cookie_and_action(self) -> tuple:  # numpydoc ignore=ES01,EX01
         """Retrieve the cookie and action URL from the OpenID Connect provider.
 
         Returns
@@ -243,7 +243,7 @@ class LoginHelper:
             form_action = html.unescape(search.group(1))
         return cookie, form_action
 
-    def refresh_token(self, refresh_token) -> tuple:
+    def refresh_token(self, refresh_token) -> tuple:  # numpydoc ignore=ES01,EX01
         """Refresh the access token using the provided refresh token.
 
         Parameters
@@ -271,7 +271,7 @@ class LoginHelper:
 
         return result["access_token"], result["expires_in"], result["refresh_token"]
 
-    def get_token(self) -> GetTokenResponse:
+    def get_token(self) -> GetTokenResponse:  # numpydoc ignore=ES01,EX01
         """Retrieve access and refresh tokens using the obtained authorization code.
 
         Raises
@@ -313,7 +313,7 @@ class LoginHelper:
 
         return cast(GetTokenResponse, resp.json())
 
-    def userinfo(self, token) -> Any:
+    def userinfo(self, token) -> Any:  # numpydoc ignore=EX01
         """Retrieve user information from the Keycloak provider.
 
         This method sends a GET request to the Keycloak `userinfo` endpoint using the provided
@@ -345,7 +345,7 @@ class LoginHelper:
 
         return resp.json()
 
-    def logout(self, token) -> dict | Any | bytes | dict[str, str]:
+    def logout(self, token) -> dict | Any | bytes | dict[str, str]:  # numpydoc ignore=ES01,EX01
         """Log out the user session from the identity provider.
 
         Parameters
@@ -378,7 +378,7 @@ class LoginHelper:
 
 def raise_error_from_response(
     response: requests.Response, error, expected_codes=None, skip_exists=False
-) -> dict | Any | bytes | dict[str, str]:
+) -> dict | Any | bytes | dict[str, str]:  # numpydoc ignore=ES01,EX01
     """Raise an exception for the response.
 
     Parameters
@@ -405,7 +405,7 @@ def raise_error_from_response(
     Notes
     -----
     Source from https://github.com/marcospereirampj/python-keycloak/blob/c98189ca6951f12f1023ed3370c9aaa0d81e4aa4/src/keycloak/exceptions.py
-    """  # noqa: DAR401,DAR402
+    """  # noqa: DAR401,DAR402 pylint: disable=line-too-long
     if expected_codes is None:
         expected_codes = [200, 201, 204]
 
