@@ -1,4 +1,4 @@
-# pyecotrend-ista
+# PyEcoTrend-ista
 
 [![PyPI version](https://badge.fury.io/py/pyecotrend-ista.svg)](https://badge.fury.io/py/pyecotrend-ista) [![Downloads](https://pepy.tech/badge/pyecotrend-ista)](https://pepy.tech/project/pyecotrend-ista) [![Downloads](https://pepy.tech/badge/pyecotrend-ista/month)](https://pepy.tech/project/pyecotrend-ista) [![Downloads](https://pepy.tech/badge/pyecotrend-ista/week)](https://pepy.tech/project/pyecotrend-ista)
 
@@ -17,4 +17,4 @@
 ---
 Unofficial python library for the pyecotrend-ista API
 
-![ecotrend-ista](https://github.com/Ludy87/pyecotrend-ista/blob/main/image/logo.png?raw=true)
+![EcoTrend-ista](https://github.com/Ludy87/pyecotrend-ista/blob/main/image/logo.png?raw=true)
