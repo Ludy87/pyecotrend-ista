@@ -43,6 +43,7 @@ repos:
     hooks:
       - id: check-ast
       - id: check-yaml
+        exclude: mkdocs\.yml
       - id: check-json
         exclude: (.vscode|.devcontainer)
       - id: check-added-large-files

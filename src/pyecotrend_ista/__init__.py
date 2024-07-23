@@ -1,4 +1,5 @@
-"""pyecotrend ista."""
+"""PyEcotrend Ista."""  # numpydoc ignore=EX01,ES01
+
 from .exception_classes import (
     KeycloakAuthenticationError,
     KeycloakError,

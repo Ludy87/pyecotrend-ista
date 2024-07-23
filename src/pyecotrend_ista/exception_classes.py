@@ -1,4 +1,4 @@
-"""Exception Class."""
+"""Exception Class."""  # numpydoc ignore=ES01,EX01
 
 from __future__ import annotations
 
@@ -9,8 +9,9 @@ import warnings
 T = TypeVar("T")
 
 
-def deprecated(func: Callable[..., T], alias_func: str | None = None) -> Callable[..., T]:
-    """Decorate a function as deprecated and emit a warning when called.
+def deprecated(func: Callable[..., T], alias_func: str | None = None) -> Callable[..., T]:  # numpydoc ignore=ES01,PR01,PR02,PR04,PR10,EX01
+    """
+    Decorate a function as deprecated and emit a warning when called.
 
     Parameters
     ----------
@@ -20,7 +21,6 @@ def deprecated(func: Callable[..., T], alias_func: str | None = None) -> Callabl
         The real function name to show as deprecated, in case the function was called
         through an alias.
 
-
     Returns
     -------
     Callable[..., T]
@@ -28,7 +28,22 @@ def deprecated(func: Callable[..., T], alias_func: str | None = None) -> Callabl
 
     """
 
-    def deprecated_func(*args, **kwargs):
+    def deprecated_func(*args, **kwargs):  # numpydoc ignore=ES01,SA01,EX01
+        """
+        Emit a deprecation warning and call the decorated function.
+
+        Parameters
+        ----------
+        *args : tuple
+            Positional arguments passed to the decorated function.
+        **kwargs : dict
+            Keyword arguments passed to the decorated function.
+
+        Returns
+        -------
+        T
+            The return value of the decorated function.
+        """
         if alias_func:
             warning_message = (
                 f"The `{alias_func}` function is deprecated and will be removed in a future release. "
@@ -43,16 +58,16 @@ def deprecated(func: Callable[..., T], alias_func: str | None = None) -> Callabl
     return deprecated_func
 
 
-class BaseError(Exception):
-    """
-    Base class for exceptions in this module.
+class BaseError(Exception):  # numpydoc ignore=ES01,EX01
+    """Base class for exceptions in this module.
 
     This is the base class for all custom exceptions in the module. It inherits
     from Python's built-in Exception class and can be used to catch errors specific
     to this module.
     """
 
-class ServerError(BaseError):
+
+class ServerError(BaseError):  # numpydoc ignore=ES01,EX01
     """Exception raised for server errors during requests.
 
     This exception is raised when a exception occurs during a request.
@@ -65,7 +80,7 @@ class ServerError(BaseError):
         return "Server error occurred during the request"
 
 
-class LoginError(BaseError):
+class LoginError(BaseError):  # numpydoc ignore=ES01,EX01
     """Exception raised for login- and authentication related errors.
 
     This exception is raised when an authentication exception occurs during a request.
@@ -77,7 +92,8 @@ class LoginError(BaseError):
         """Return a string representation of an authentication error."""
         return "An authentication error occurred during the request"
 
-class ParserError(ServerError):
+
+class ParserError(ServerError):  # numpydoc ignore=ES01,EX01
     """Exception raised for errors encountered during parsing.
 
     This exception is raised when an error occurs during the parsing process
@@ -111,29 +127,26 @@ class ParserError(ServerError):
 # IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-# Source from https://github.com/marcospereirampj/python-keycloak/blob/c98189ca6951f12f1023ed3370c9aaa0d81e4aa4/src/keycloak/exceptions.py
+# Source from
+# https://github.com/marcospereirampj/python-keycloak/blob/c98189ca6951f12f1023ed3370c9aaa0d81e4aa4/src/keycloak/exceptions.py
 
 # Keycloak custom exceptions module.
 
 
-class KeycloakError(Exception):
-    """Base class for custom Keycloak errors.
+class KeycloakError(Exception):  # numpydoc ignore=ES01,EX01,PR01
+    """Base class for custom Keycloak errors."""
 
-    :param error_message: The error message
-    :type error_message: str
-    :param response_code: The response status code
-    :type response_code: int
-    """
-
-    def __init__(self, error_message="", response_code=None, response_body=None):
+    def __init__(self, error_message="", response_code=None, response_body=None):  # numpydoc ignore=ES01,EX01
         """Init method.
 
-        :param error_message: The error message
-        :type error_message: str
-        :param response_code: The code of the response
-        :type response_code: int
-        :param response_body: Body of the response
-        :type response_body: bytes
+        Parameters
+        ----------
+        error_message : str, optional
+            The error message (default is an empty string).
+        response_code : int, optional
+            The code of the response (default is None).
+        response_body : bytes, optional
+            Body of the response (default is None).
         """
         Exception.__init__(self, error_message)
 
@@ -144,34 +157,35 @@ class KeycloakError(Exception):
     def __str__(self):
         """Str method.
 
-        :returns: String representation of the object
-        :rtype: str
+        Returns
+        -------
+        str
+            String representation of the object.
         """
         if self.response_code is not None:
             return f"{self.response_code}: {self.error_message}"
-        else:
-            return f"{self.error_message}"
+        return f"{self.error_message}"
 
 
-class KeycloakAuthenticationError(KeycloakError):
+class KeycloakAuthenticationError(KeycloakError):  # numpydoc ignore=ES01,EX01
     """Keycloak authentication error exception."""
 
 
-class KeycloakOperationError(KeycloakError):
+class KeycloakOperationError(KeycloakError):  # numpydoc ignore=ES01,EX01
     """Keycloak operation error exception."""
 
 
-class KeycloakGetError(KeycloakOperationError):
+class KeycloakGetError(KeycloakOperationError):  # numpydoc ignore=ES01,EX01
     """Keycloak request get error exception."""
 
 
-class KeycloakPostError(KeycloakOperationError):
+class KeycloakPostError(KeycloakOperationError):  # numpydoc ignore=ES01,EX01
     """Keycloak request post error exception."""
 
 
-class KeycloakCodeNotFound(KeycloakOperationError):  # noqa: N818
+class KeycloakCodeNotFound(KeycloakOperationError):  # noqa: N818  numpydoc ignore=ES01,EX01
     """Keycloak Code not found exception."""
 
 
-class KeycloakInvalidTokenError(KeycloakOperationError):
+class KeycloakInvalidTokenError(KeycloakOperationError):  # numpydoc ignore=ES01,EX01
     """Keycloak invalid token exception."""

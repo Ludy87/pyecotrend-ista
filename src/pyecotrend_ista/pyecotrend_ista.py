@@ -1,4 +1,13 @@
-"""Unofficial python library for the ista EcoTrend API."""
+# numpydoc ignore=EX01,GL06,GL07
+"""Unofficial python library for the ista EcoTrend API.
+
+This module provides a Python client for interacting with the ista EcoTrend API.
+
+Classes
+-------
+PyEcotrendIsta
+    A Python client for interacting with the ista EcoTrend API.
+"""
 
 from __future__ import annotations
 
@@ -19,10 +28,37 @@ from .types import AccountResponse, ConsumptionsResponse, ConsumptionUnitDetails
 _LOGGER = logging.getLogger(__name__)
 
 
-class PyEcotrendIsta:
-    """A Python client for interacting with the ista EcoTrend API.
+class PyEcotrendIsta:  # numpydoc ignore=PR01
+    """
+    A Python client for interacting with the ista EcoTrend API.
 
     This class provides methods to authenticate and interact with the ista EcoTrend API.
+
+    Attributes
+    ----------
+    _account : AccountResponse
+        The account information.
+    _uuid : str
+        The UUID of the consumption unit.
+    _access_token : str | None
+        The access token for API authentication.
+    _refresh_token : str | None
+        The refresh token for obtaining new access tokens.
+    _access_token_expires_in : int
+        The expiration time of the access token.
+    _header : dict[str, str]
+        The headers used in HTTP requests.
+    _support_code : str | None
+        The support code for the account.
+    _start_timer : float
+        The start time for tracking elapsed time.
+
+    Examples
+    --------
+    Initialize the client and log in:
+
+    >>> client = PyEcotrendIsta(email="user@example.com", password="password")
+    >>> client.login()
     """
 
     _account: AccountResponse
@@ -42,7 +78,7 @@ class PyEcotrendIsta:
         hass_dir: str | None = None,
         totp: str | None = None,
         session: requests.Session | None = None,
-    ) -> None:
+    ) -> None:  # numpydoc ignore=ES01,EX01
         """Initialize the PyEcotrendIsta client.
 
         Parameters
@@ -59,9 +95,7 @@ class PyEcotrendIsta:
             An optional TOTP (Time-based One-Time Password) for two-factor authentication. Default is None.
         session : requests.Session, optional
             An optional requests session for making HTTP requests. Default is None.
-
         """
-
         if hass_dir:
             warnings.warn(
                 "The 'hass_dir' parameter is deprecated and will be removed in a future release.",
@@ -90,8 +124,9 @@ class PyEcotrendIsta:
         self.session: requests.Session = self.loginhelper.session
 
     @property
-    def access_token(self):
-        """Retrieve the access token, refreshing it if necessary.
+    def access_token(self):  # numpydoc ignore=EX01
+        """
+        Retrieve the access token, refreshing it if necessary.
 
         This property checks if the access token is still valid. If the token has expired and the client is connected,
         it refreshes the token. The token is considered expired if the current time minus the start time exceeds the
@@ -105,7 +140,6 @@ class PyEcotrendIsta:
         Notes
         -----
         This method will automatically refresh the access token if it has expired.
-
         """
         if (
             self._access_token_expires_in > 0
@@ -117,9 +151,17 @@ class PyEcotrendIsta:
         return self._access_token
 
     @access_token.setter
-    def access_token(self, value: str) -> None:
-        """Setter method for the access token attribute.
+    def access_token(self, value: str) -> None:  # numpydoc ignore=ES01,EX01
+        """
+        Setter method for the access token attribute.
 
+        Parameters
+        ----------
+        value : str
+            The new access token value.
+
+        Notes
+        -----
         Sets the access token value and updates the start timer to the current time.
         This method is used to assign a new access token value and reset the timer
         tracking the token's validity period.
@@ -131,19 +173,20 @@ class PyEcotrendIsta:
             time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(self._start_timer)),
         )
 
-    def _is_connected(self) -> bool:
-        """Check if the client is connected by verifying the presence of an access token.
+    def _is_connected(self) -> bool:  # numpydoc ignore=ES01,EX01
+        """
+        Check if the client is connected by verifying the presence of an access token.
 
         Returns
         -------
         bool
             True if the client has a valid access token, False otherwise.
-
         """
         return bool(self._access_token)
 
-    def __login(self) -> str | None:
-        """Perform the login process to obtain an access token.
+    def __login(self) -> str | None:  # numpydoc ignore=ES01,EX01
+        """
+        Perform the login process to obtain an access token.
 
         If the email is a demo account, it logs in using a demo user login function.
         For other accounts, it retrieves a token using a login helper.
@@ -152,7 +195,6 @@ class PyEcotrendIsta:
         -------
         str or None
             The access token if login is successful, None otherwise.
-
         """
         if self._email == DEMO_USER_ACCOUNT:
             _LOGGER.debug("Logging in as demo user")
@@ -166,8 +208,9 @@ class PyEcotrendIsta:
             return self.access_token
         return None
 
-    def __refresh(self) -> None:
-        """Refresh the access token using the refresh token.
+    def __refresh(self) -> None:  # numpydoc ignore=ES01,EX01
+        """
+        Refresh the access token using the refresh token.
 
         This method retrieves a new access token, updates internal variables,
         and resets the token expiration timer.
@@ -184,7 +227,6 @@ class PyEcotrendIsta:
         Notes
         -----
         This method assumes `self._refresh_token` is already set.
-
         """
         (
             self.access_token,
@@ -194,10 +236,11 @@ class PyEcotrendIsta:
 
         self._header["Authorization"] = f"Bearer {self.access_token}"
 
-    def __set_account(self) -> None:
-        """Fetch and set account information from the API.
+    def __set_account(self) -> None:  # numpydoc ignore=ES01,EX01
+        """
+        Fetch and set account information from the API.
 
-         This method performs an API request to retrieve account information,
+        This method performs an API request to retrieve account information,
         handles various potential errors that might occur during the request,
         and sets instance variables accordingly using the response data.
 
@@ -209,7 +252,6 @@ class PyEcotrendIsta:
             If the request fails due to an authorization error.
         ServerError
             If the request fails due to a server error, timeout, or other request exceptions.
-
         """
         self._header = {
             "Content-Type": "application/json",
@@ -243,21 +285,22 @@ class PyEcotrendIsta:
         self._account = cast(AccountResponse, data)
         self._uuid = data["activeConsumptionUnit"]
 
-    def get_version(self) -> str:
-        """Get the version of the PyEcotrendIsta client.
+    def get_version(self) -> str:  # numpydoc ignore=EX01,ES01
+        """
+        Get the version of the PyEcotrendIsta client.
 
         Returns
         -------
         str
             The version number of the PyEcotrendIsta client.
-
         """
         return VERSION
 
     getVersion = deprecated(get_version, "getVersion")  # noqa: N815
 
-    def login(self, force_login: bool = False, debug: bool = False, **kwargs) -> str | None:
-        """Perform the login process if not already connected or forced.
+    def login(self, force_login: bool = False, debug: bool = False, **kwargs) -> str | None:  # numpydoc ignore=ES01,EX01,PR01,PR02
+        """
+        Perform the login process if not already connected or forced.
 
         Parameters
         ----------
@@ -317,7 +360,12 @@ class PyEcotrendIsta:
         return self.access_token
 
     def userinfo(self, token):
-        """Retrieve user information using the provided access token.
+        """
+        Retrieve user information using the provided access token.
+
+        This method constructs an authorization header using the provided access token
+        and sends a GET request to the userinfo endpoint of the provider API. It expects
+        a JSON response with user information.
 
         Parameters
         ----------
@@ -329,53 +377,53 @@ class PyEcotrendIsta:
         Any
             JSON response containing user information.
 
+        Raises
+        ------
+        requests.exceptions.RequestException
+            If an error occurs while making the HTTP request.
+
         Notes
         -----
         This method constructs an authorization header using the provided access token
         and sends a GET request to the userinfo endpoint of the provider API.
         It expects a JSON response with user information.
 
-        Raises
-        ------
-        requests.exceptions.RequestException
-            If an error occurs while making the HTTP request.
-
-        Example
-        -------
-        >>> client = PyEcotrendIsta(email='user@example.com', password='password')
+        Examples
+        --------
+        >>> client = PyEcotrendIsta(email="user@example.com", password="password")
         >>> token = client.login()
         >>> user_info = client.userinfo(token)
-
         """
         return self.loginhelper.userinfo(token=token)
 
     def logout(self) -> None:
-        """Perform logout operation by invalidating the current session.
+        """
+        Perform logout operation by invalidating the current session.
 
         This method invokes the logout functionality in the loginhelper module,
         passing the current refresh token for session invalidation.
+
+        Raises
+        ------
+        KeycloakPostError
+        If an error occurs during the logout process. This error is raised based on the response from the logout request.
 
         Notes
         -----
         This method assumes `self._refresh_token` is already set.
 
-        Raises
-        ------
-        KeycloakPostError
-            If an error occurs during the logout process. This error is raised based on the response from the logout request.
-
-        Example:
-        -------
-        >>> client = PyEcotrendIsta(email='user@example.com', password='password')
+        Examples
+        --------
+        >>> client = PyEcotrendIsta(email="user@example.com", password="password")
         >>> client.login()
         >>> client.logout()
-
         """
         if self.loginhelper.username != DEMO_USER_ACCOUNT:
             self.loginhelper.logout(self._refresh_token)
 
-    def get_uuids(self) -> list[str]:
-        """Retrieve UUIDs of consumption units registered in the account.
+    def get_uuids(self) -> list[str]:  # numpydoc ignore=ES01
+        """
+        Retrieve UUIDs of consumption units registered in the account.
 
         Returns
         -------
@@ -388,19 +436,19 @@ class PyEcotrendIsta:
         A consumption unit represents a residence or building where consumption readings are recorded.
         The UUIDs are extracted from the `_residentAndConsumptionUuidsMap` attribute.
 
-        Example:
-        -------
-        >>> client = PyEcotrendIsta(email='user@example.com', password='password')
+        Examples
+        --------
+        >>> client = PyEcotrendIsta(email="user@example.com", password="password")
         >>> client.login()
         >>> uuids = client.get_uuids()
         >>> print(uuids)
         ['uuid1', 'uuid2', 'uuid3']
-
         """
         return list(self._account.get("residentAndConsumptionUuidsMap", {}).values())
 
     getUUIDs = deprecated(get_uuids, "getUUIDs")  # noqa: N815
 
+    # pylint: disable=too-many-branches,too-many-statements
     def consum_raw(  # noqa: C901
         self,
         select_year: list[int] | None = None,
@@ -408,7 +456,11 @@ class PyEcotrendIsta:
         filter_none: bool = True,
         obj_uuid: str | None = None,
     ) -> dict[str, Any] | ConsumptionsResponse:  # noqa: C901
-        """Process consumption and cost data for a given consumption unit.
+        """
+        Process and filter consumption and cost data for a given consumption unit.
+
+        This method processes consumption and cost data obtained from the `get_consumption_data` method.
+        It filters and aggregates data based on the parameters provided.
 
         Parameters
         ----------
@@ -427,16 +479,21 @@ class PyEcotrendIsta:
             Processed data including consumption types, total additional values, last values,
             last costs, sum by year, and last year compared consumption.
 
-        Notes
-        -----
-        This method processes consumption and cost data obtained from the `get_consumption_data` method.
-        It filters and aggregates data based on the parameters provided.
-
         Raises
         ------
         Exception
             If there is an unexpected error during data processing.
 
+        Notes
+        -----
+        This method processes consumption and cost data obtained from the `get_consumption_data` method.
+        It filters and aggregates data based on the parameters provided.
+
+        Examples
+        --------
+        >>> api = PyEcotrendIsta()
+        >>> result = api.consum_raw(select_year=[2023], select_month=[7], filter_none=True, obj_uuid="uuid")
+        >>> print(result)
         """
         # Fetch raw consumption data for the specified UUID
         c_raw: ConsumptionsResponse = self.get_consumption_data(obj_uuid)
@@ -520,6 +577,7 @@ class PyEcotrendIsta:
 
         sum_by_year = {typ: {year: 0.0 for year in new_date} for typ in cost_consum_types}
 
+        # pylint: disable=too-many-nested-blocks
         for item in c_raw.get("consumptions", []):
             if "readings" not in item or not item["readings"]:
                 continue
@@ -757,6 +815,7 @@ class PyEcotrendIsta:
             if last_costs is None:
                 last_costs = {}
             for costs_by_energy_type in costs[0]["costsByEnergyType"]:
+                # pylint: disable=too-many-boolean-expressions
                 if (
                     costs_by_energy_type is None
                     or "type" not in costs_by_energy_type
@@ -808,7 +867,12 @@ class PyEcotrendIsta:
         ).to_dict()
 
     def get_consumption_data(self, obj_uuid: str | None = None) -> ConsumptionsResponse:
-        """Fetch consumption data from the API for a specific consumption unit.
+        """
+        Fetch consumption data from the API for a specific consumption unit.
+
+        This method sends a GET request to the ista EcoTrend API to retrieve consumption data
+        for a specific consumption unit identified by the provided UUID. If no UUID is provided,
+        the method uses the UUID associated with the instance.
 
         Parameters
         ----------
@@ -821,6 +885,7 @@ class PyEcotrendIsta:
         ConsumptionsResponse
             A dictionary containing the consumption data fetched from the API.
 
+
         Raises
         ------
         LoginError
@@ -832,22 +897,26 @@ class PyEcotrendIsta:
         ServerError
             If there is a server error, connection timeout, or request exception.
 
+        Examples
+        --------
+        >>> api = PyEcotrendIsta()
+        >>> data = api.get_consumption_data(obj_uuid="uuid")
+        >>> print(data)
         """
-
-        params = {
-            "consumptionUnitUuid": obj_uuid or self._uuid
-        }
+        params = {"consumptionUnitUuid": obj_uuid or self._uuid}
         url = f"{API_BASE_URL}consumptions"
         try:
-            with self.session.get(url, params=params, headers=self._header, ) as r:
-                _LOGGER.debug("Performed GET request: %s [%s]:\n%s", url, r.status_code, r.text[:100])
-                r.raise_for_status()
+            with self.session.get(
+                url,
+                params=params,
+                headers=self._header,
+            ) as result:
+                _LOGGER.debug("Performed GET request: %s [%s]:\n%s", url, result.status_code, result.text[:100])
+                result.raise_for_status()
                 try:
-                    return cast(ConsumptionsResponse, r.json())
+                    return cast(ConsumptionsResponse, result.json())
                 except requests.JSONDecodeError as exc:
-                    raise ParserError(
-                        "Loading consumption data failed due to an error parsing the request response"
-                    ) from exc
+                    raise ParserError("Loading consumption data failed due to an error parsing the request response") from exc
         except requests.HTTPError as exc:
             if exc.response.status_code == HTTPStatus.UNAUTHORIZED:
                 raise LoginError("Loading consumption data failed failed due to an authorization failure") from exc
@@ -865,8 +934,9 @@ class PyEcotrendIsta:
 
     get_raw = deprecated(get_consumption_data, "get_raw")
 
-    def get_consumption_unit_details(self) -> ConsumptionUnitDetailsResponse:
-        """Retrieve details of the consumption unit from the API.
+    def get_consumption_unit_details(self) -> ConsumptionUnitDetailsResponse:  # numpydoc ignore=ES01,EX01
+        """
+        Retrieve details of the consumption unit from the API.
 
         Returns
         -------
@@ -881,7 +951,6 @@ class PyEcotrendIsta:
             If there is an issue with decoding the JSON response
         ServerError
             If there is a server error, connection timeout, or request exception.
-
         """
         url = f"{API_BASE_URL}menu"
         try:
@@ -908,21 +977,22 @@ class PyEcotrendIsta:
         except requests.RequestException as exc:
             raise ServerError("Loading consumption unit details failed due to a request exception") from exc
 
-    def get_support_code(self) -> str | None:
-        """Return the support code associated with the instance.
+    def get_support_code(self) -> str | None:  # numpydoc ignore=ES01,EX01
+        """
+        Return the support code associated with the instance.
 
         Returns
         -------
         str or None
             The support code associated with the instance, or None if not set.
-
         """
         return getattr(self, "_account", {}).get("supportCode")
 
     getSupportCode = deprecated(get_support_code, "getSupportCode")  # noqa: N815
 
-    def get_user_agent(self) -> str:
-        """Return the User-Agent string used for HTTP requests.
+    def get_user_agent(self) -> str:  # numpydoc ignore=ES01,EX01
+        """
+        Return the User-Agent string used for HTTP requests.
 
         Returns
         -------
@@ -932,15 +1002,15 @@ class PyEcotrendIsta:
         Notes
         -----
         This method provides a static User-Agent string commonly used for web browsers.
-
         """
         return (
             "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/101.0.4951.67"
             " Safari/537.36"
         )
 
-    def demo_user_login(self) -> GetTokenResponse:
-        """Retrieve authentication tokens for the demo user.
+    def demo_user_login(self) -> GetTokenResponse:  # numpydoc ignore=ES01,EX01
+        """
+        Retrieve authentication tokens for the demo user.
 
         Returns
         -------
@@ -954,7 +1024,6 @@ class PyEcotrendIsta:
             If there is an error parsing the request response.
         ServerError
             If there is a server error, connection timeout, or request exception.
-
         """
         url = f"{API_BASE_URL}demo-user-token"
         try:
@@ -969,22 +1038,19 @@ class PyEcotrendIsta:
                     token = {next(key): value for value in data.values()}
                     return cast(GetTokenResponse, token)
                 except requests.JSONDecodeError as exc:
-                    raise ParserError(
-                        "Demo user authentication failed due to an error parsing the request response"
-                    ) from exc
+                    raise ParserError("Demo user authentication failed due to an error parsing the request response") from exc
         except requests.HTTPError as exc:
             raise ServerError(
-                "Demo user authentication failed due to a server error "
-                f"[{exc.response.status_code}: {exc.response.reason}]"
+                "Demo user authentication failed due to a server error " f"[{exc.response.status_code}: {exc.response.reason}]"
             ) from exc
         except requests.Timeout as exc:
             raise ServerError("Demo user authentication failed due a connection timeout") from exc
         except requests.RequestException as exc:
             raise ServerError("Demo user authentication failed due to a request exception") from exc
 
-
-    def get_account(self) -> AccountResponse | None:
-        """Retrieve the account information.
+    def get_account(self) -> AccountResponse | None:  # numpydoc ignore=ES01,EX01
+        """
+        Retrieve the account information.
 
         Returns the `_account` attribute if it exists, otherwise returns None.
 
@@ -992,6 +1058,5 @@ class PyEcotrendIsta:
         -------
         AccountResponse | None
             Account information if available, otherwise None.
-
         """
         return getattr(self, "_account", None)
