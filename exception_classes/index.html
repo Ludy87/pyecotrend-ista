@@ -4,115 +4,131 @@
     """Return a string representation of an authentication error."""
     return "An authentication error occurred during the request"</code></pre> </details> </div> </div> </div> </div> </div> <div class="doc doc-object doc-class"> <h3 id=pyecotrend_ista.exception_classes.ParserError class="doc doc-heading"> <code class="doc-symbol doc-symbol-heading doc-symbol-class"></code> <span class="doc doc-object-name doc-class-name">ParserError</span> <a href=#pyecotrend_ista.exception_classes.ParserError class=headerlink title="Permanent link">&para;</a></h3> <div class="doc doc-contents "> <p>Exception raised for errors encountered during parsing.</p> <p>This exception is raised when an error occurs during the parsing process of the request response. It inherits from BaseError and can be used to handle issues specifically related to parsing.</p> <div class="doc doc-children"> <div class="doc doc-object doc-function"> <h4 id=pyecotrend_ista.exception_classes.ParserError.__str__ class="doc doc-heading"> <code class="doc-symbol doc-symbol-heading doc-symbol-method"></code> <span class="doc doc-object-name doc-function-name">__str__</span> <a href=#pyecotrend_ista.exception_classes.ParserError.__str__ class=headerlink title="Permanent link">&para;</a></h4> <pre class=highlight><code class="language-python doc-signature">__str__() -&gt; <a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/stdtypes.html#str">str</a></code></pre> <div class="doc doc-contents "> <p>Return a string representation of parser error.</p> <details class=quote> <summary>Source code in <code>src/pyecotrend_ista/exception_classes.py</code></summary> <pre class=highlight><code class=language-python>def __str__(self) -&gt; str:
     """Return a string representation of parser error."""
-    return "Error occurred during parsing of the request response"</code></pre> </details> </div> </div> </div> </div> </div> <div class="doc doc-object doc-class"> <h3 id=pyecotrend_ista.exception_classes.KeycloakError class="doc doc-heading"> <code class="doc-symbol doc-symbol-heading doc-symbol-class"></code> <span class="doc doc-object-name doc-class-name">KeycloakError</span> <a href=#pyecotrend_ista.exception_classes.KeycloakError class=headerlink title="Permanent link">&para;</a></h3> <pre class=highlight><code class="language-python doc-signature">KeycloakError(error_message='', response_code=None, response_body=None)</code></pre> <div class="doc doc-contents "> <p>Base class for custom Keycloak errors.</p> <p>:param error_message: The error message :type error_message: str :param response_code: The response status code :type response_code: int</p> <p>:param error_message: The error message :type error_message: str :param response_code: The code of the response :type response_code: int :param response_body: Body of the response :type response_body: bytes</p> <details class=quote> <summary>Source code in <code>src/pyecotrend_ista/exception_classes.py</code></summary> <pre class=highlight><code class=language-python>def __init__(self, error_message="", response_code=None, response_body=None):
+    return "Error occurred during parsing of the request response"</code></pre> </details> </div> </div> </div> </div> </div> <div class="doc doc-object doc-class"> <h3 id=pyecotrend_ista.exception_classes.KeycloakError class="doc doc-heading"> <code class="doc-symbol doc-symbol-heading doc-symbol-class"></code> <span class="doc doc-object-name doc-class-name">KeycloakError</span> <a href=#pyecotrend_ista.exception_classes.KeycloakError class=headerlink title="Permanent link">&para;</a></h3> <pre class=highlight><code class="language-python doc-signature">KeycloakError(error_message='', response_code=None, response_body=None)</code></pre> <div class="doc doc-contents "> <p>Base class for custom Keycloak errors.</p> <p><span class=doc-section-title>Parameters:</span></p> <ul> <li class="doc-section-item field-body"> <b><code>error_message</code></b> (<code><a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/stdtypes.html#str">str</a></code>, default: <code>&#39;&#39;</code> ) – <div class=doc-md-description> <p>The error message (default is an empty string).</p> </div> </li> <li class="doc-section-item field-body"> <b><code>response_code</code></b> (<code><a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/functions.html#int">int</a></code>, default: <code>None</code> ) – <div class=doc-md-description> <p>The code of the response (default is None).</p> </div> </li> <li class="doc-section-item field-body"> <b><code>response_body</code></b> (<code><a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/stdtypes.html#bytes">bytes</a></code>, default: <code>None</code> ) – <div class=doc-md-description> <p>Body of the response (default is None).</p> </div> </li> </ul> <details class=quote> <summary>Source code in <code>src/pyecotrend_ista/exception_classes.py</code></summary> <pre class=highlight><code class=language-python>def __init__(self, error_message="", response_code=None, response_body=None):  # numpydoc ignore=ES01,EX01
     """Init method.
 
-    :param error_message: The error message
-    :type error_message: str
-    :param response_code: The code of the response
-    :type response_code: int
-    :param response_body: Body of the response
-    :type response_body: bytes
+    Parameters
+    ----------
+    error_message : str, optional
+        The error message (default is an empty string).
+    response_code : int, optional
+        The code of the response (default is None).
+    response_body : bytes, optional
+        Body of the response (default is None).
     """
     Exception.__init__(self, error_message)
 
     self.response_code = response_code
     self.response_body = response_body
-    self.error_message = error_message</code></pre> </details> <div class="doc doc-children"> <div class="doc doc-object doc-function"> <h4 id=pyecotrend_ista.exception_classes.KeycloakError.__str__ class="doc doc-heading"> <code class="doc-symbol doc-symbol-heading doc-symbol-method"></code> <span class="doc doc-object-name doc-function-name">__str__</span> <a href=#pyecotrend_ista.exception_classes.KeycloakError.__str__ class=headerlink title="Permanent link">&para;</a></h4> <pre class=highlight><code class="language-python doc-signature">__str__()</code></pre> <div class="doc doc-contents "> <p>Str method.</p> <p>:returns: String representation of the object :rtype: str</p> <details class=quote> <summary>Source code in <code>src/pyecotrend_ista/exception_classes.py</code></summary> <pre class=highlight><code class=language-python>def __str__(self):
+    self.error_message = error_message</code></pre> </details> <div class="doc doc-children"> <div class="doc doc-object doc-function"> <h4 id=pyecotrend_ista.exception_classes.KeycloakError.__str__ class="doc doc-heading"> <code class="doc-symbol doc-symbol-heading doc-symbol-method"></code> <span class="doc doc-object-name doc-function-name">__str__</span> <a href=#pyecotrend_ista.exception_classes.KeycloakError.__str__ class=headerlink title="Permanent link">&para;</a></h4> <pre class=highlight><code class="language-python doc-signature">__str__()</code></pre> <div class="doc doc-contents "> <p>Str method.</p> <p><span class=doc-section-title>Returns:</span></p> <ul> <li class="doc-section-item field-body"> <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/stdtypes.html#str">str</a></code> – <div class=doc-md-description> <p>String representation of the object.</p> </div> </li> </ul> <details class=quote> <summary>Source code in <code>src/pyecotrend_ista/exception_classes.py</code></summary> <pre class=highlight><code class=language-python>def __str__(self):
     """Str method.
 
-    :returns: String representation of the object
-    :rtype: str
+    Returns
+    -------
+    str
+        String representation of the object.
     """
     if self.response_code is not None:
         return f"{self.response_code}: {self.error_message}"
-    else:
-        return f"{self.error_message}"</code></pre> </details> </div> </div> </div> </div> </div> <div class="doc doc-object doc-class"> <h3 id=pyecotrend_ista.exception_classes.KeycloakAuthenticationError class="doc doc-heading"> <code class="doc-symbol doc-symbol-heading doc-symbol-class"></code> <span class="doc doc-object-name doc-class-name">KeycloakAuthenticationError</span> <a href=#pyecotrend_ista.exception_classes.KeycloakAuthenticationError class=headerlink title="Permanent link">&para;</a></h3> <pre class=highlight><code class="language-python doc-signature">KeycloakAuthenticationError(error_message='', response_code=None, response_body=None)</code></pre> <div class="doc doc-contents "> <p>Keycloak authentication error exception.</p> <p>:param error_message: The error message :type error_message: str :param response_code: The code of the response :type response_code: int :param response_body: Body of the response :type response_body: bytes</p> <details class=quote> <summary>Source code in <code>src/pyecotrend_ista/exception_classes.py</code></summary> <pre class=highlight><code class=language-python>def __init__(self, error_message="", response_code=None, response_body=None):
+    return f"{self.error_message}"</code></pre> </details> </div> </div> </div> </div> </div> <div class="doc doc-object doc-class"> <h3 id=pyecotrend_ista.exception_classes.KeycloakAuthenticationError class="doc doc-heading"> <code class="doc-symbol doc-symbol-heading doc-symbol-class"></code> <span class="doc doc-object-name doc-class-name">KeycloakAuthenticationError</span> <a href=#pyecotrend_ista.exception_classes.KeycloakAuthenticationError class=headerlink title="Permanent link">&para;</a></h3> <pre class=highlight><code class="language-python doc-signature">KeycloakAuthenticationError(error_message='', response_code=None, response_body=None)</code></pre> <div class="doc doc-contents "> <p>Keycloak authentication error exception.</p> <p><span class=doc-section-title>Parameters:</span></p> <ul> <li class="doc-section-item field-body"> <b><code>error_message</code></b> (<code><a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/stdtypes.html#str">str</a></code>, default: <code>&#39;&#39;</code> ) – <div class=doc-md-description> <p>The error message (default is an empty string).</p> </div> </li> <li class="doc-section-item field-body"> <b><code>response_code</code></b> (<code><a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/functions.html#int">int</a></code>, default: <code>None</code> ) – <div class=doc-md-description> <p>The code of the response (default is None).</p> </div> </li> <li class="doc-section-item field-body"> <b><code>response_body</code></b> (<code><a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/stdtypes.html#bytes">bytes</a></code>, default: <code>None</code> ) – <div class=doc-md-description> <p>Body of the response (default is None).</p> </div> </li> </ul> <details class=quote> <summary>Source code in <code>src/pyecotrend_ista/exception_classes.py</code></summary> <pre class=highlight><code class=language-python>def __init__(self, error_message="", response_code=None, response_body=None):  # numpydoc ignore=ES01,EX01
     """Init method.
 
-    :param error_message: The error message
-    :type error_message: str
-    :param response_code: The code of the response
-    :type response_code: int
-    :param response_body: Body of the response
-    :type response_body: bytes
+    Parameters
+    ----------
+    error_message : str, optional
+        The error message (default is an empty string).
+    response_code : int, optional
+        The code of the response (default is None).
+    response_body : bytes, optional
+        Body of the response (default is None).
     """
     Exception.__init__(self, error_message)
 
     self.response_code = response_code
     self.response_body = response_body
-    self.error_message = error_message</code></pre> </details> </div> </div> <div class="doc doc-object doc-class"> <h3 id=pyecotrend_ista.exception_classes.KeycloakOperationError class="doc doc-heading"> <code class="doc-symbol doc-symbol-heading doc-symbol-class"></code> <span class="doc doc-object-name doc-class-name">KeycloakOperationError</span> <a href=#pyecotrend_ista.exception_classes.KeycloakOperationError class=headerlink title="Permanent link">&para;</a></h3> <pre class=highlight><code class="language-python doc-signature">KeycloakOperationError(error_message='', response_code=None, response_body=None)</code></pre> <div class="doc doc-contents "> <p>Keycloak operation error exception.</p> <p>:param error_message: The error message :type error_message: str :param response_code: The code of the response :type response_code: int :param response_body: Body of the response :type response_body: bytes</p> <details class=quote> <summary>Source code in <code>src/pyecotrend_ista/exception_classes.py</code></summary> <pre class=highlight><code class=language-python>def __init__(self, error_message="", response_code=None, response_body=None):
+    self.error_message = error_message</code></pre> </details> </div> </div> <div class="doc doc-object doc-class"> <h3 id=pyecotrend_ista.exception_classes.KeycloakOperationError class="doc doc-heading"> <code class="doc-symbol doc-symbol-heading doc-symbol-class"></code> <span class="doc doc-object-name doc-class-name">KeycloakOperationError</span> <a href=#pyecotrend_ista.exception_classes.KeycloakOperationError class=headerlink title="Permanent link">&para;</a></h3> <pre class=highlight><code class="language-python doc-signature">KeycloakOperationError(error_message='', response_code=None, response_body=None)</code></pre> <div class="doc doc-contents "> <p>Keycloak operation error exception.</p> <p><span class=doc-section-title>Parameters:</span></p> <ul> <li class="doc-section-item field-body"> <b><code>error_message</code></b> (<code><a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/stdtypes.html#str">str</a></code>, default: <code>&#39;&#39;</code> ) – <div class=doc-md-description> <p>The error message (default is an empty string).</p> </div> </li> <li class="doc-section-item field-body"> <b><code>response_code</code></b> (<code><a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/functions.html#int">int</a></code>, default: <code>None</code> ) – <div class=doc-md-description> <p>The code of the response (default is None).</p> </div> </li> <li class="doc-section-item field-body"> <b><code>response_body</code></b> (<code><a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/stdtypes.html#bytes">bytes</a></code>, default: <code>None</code> ) – <div class=doc-md-description> <p>Body of the response (default is None).</p> </div> </li> </ul> <details class=quote> <summary>Source code in <code>src/pyecotrend_ista/exception_classes.py</code></summary> <pre class=highlight><code class=language-python>def __init__(self, error_message="", response_code=None, response_body=None):  # numpydoc ignore=ES01,EX01
     """Init method.
 
-    :param error_message: The error message
-    :type error_message: str
-    :param response_code: The code of the response
-    :type response_code: int
-    :param response_body: Body of the response
-    :type response_body: bytes
+    Parameters
+    ----------
+    error_message : str, optional
+        The error message (default is an empty string).
+    response_code : int, optional
+        The code of the response (default is None).
+    response_body : bytes, optional
+        Body of the response (default is None).
     """
     Exception.__init__(self, error_message)
 
     self.response_code = response_code
     self.response_body = response_body
-    self.error_message = error_message</code></pre> </details> </div> </div> <div class="doc doc-object doc-class"> <h3 id=pyecotrend_ista.exception_classes.KeycloakGetError class="doc doc-heading"> <code class="doc-symbol doc-symbol-heading doc-symbol-class"></code> <span class="doc doc-object-name doc-class-name">KeycloakGetError</span> <a href=#pyecotrend_ista.exception_classes.KeycloakGetError class=headerlink title="Permanent link">&para;</a></h3> <pre class=highlight><code class="language-python doc-signature">KeycloakGetError(error_message='', response_code=None, response_body=None)</code></pre> <div class="doc doc-contents "> <p>Keycloak request get error exception.</p> <p>:param error_message: The error message :type error_message: str :param response_code: The code of the response :type response_code: int :param response_body: Body of the response :type response_body: bytes</p> <details class=quote> <summary>Source code in <code>src/pyecotrend_ista/exception_classes.py</code></summary> <pre class=highlight><code class=language-python>def __init__(self, error_message="", response_code=None, response_body=None):
+    self.error_message = error_message</code></pre> </details> </div> </div> <div class="doc doc-object doc-class"> <h3 id=pyecotrend_ista.exception_classes.KeycloakGetError class="doc doc-heading"> <code class="doc-symbol doc-symbol-heading doc-symbol-class"></code> <span class="doc doc-object-name doc-class-name">KeycloakGetError</span> <a href=#pyecotrend_ista.exception_classes.KeycloakGetError class=headerlink title="Permanent link">&para;</a></h3> <pre class=highlight><code class="language-python doc-signature">KeycloakGetError(error_message='', response_code=None, response_body=None)</code></pre> <div class="doc doc-contents "> <p>Keycloak request get error exception.</p> <p><span class=doc-section-title>Parameters:</span></p> <ul> <li class="doc-section-item field-body"> <b><code>error_message</code></b> (<code><a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/stdtypes.html#str">str</a></code>, default: <code>&#39;&#39;</code> ) – <div class=doc-md-description> <p>The error message (default is an empty string).</p> </div> </li> <li class="doc-section-item field-body"> <b><code>response_code</code></b> (<code><a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/functions.html#int">int</a></code>, default: <code>None</code> ) – <div class=doc-md-description> <p>The code of the response (default is None).</p> </div> </li> <li class="doc-section-item field-body"> <b><code>response_body</code></b> (<code><a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/stdtypes.html#bytes">bytes</a></code>, default: <code>None</code> ) – <div class=doc-md-description> <p>Body of the response (default is None).</p> </div> </li> </ul> <details class=quote> <summary>Source code in <code>src/pyecotrend_ista/exception_classes.py</code></summary> <pre class=highlight><code class=language-python>def __init__(self, error_message="", response_code=None, response_body=None):  # numpydoc ignore=ES01,EX01
     """Init method.
 
-    :param error_message: The error message
-    :type error_message: str
-    :param response_code: The code of the response
-    :type response_code: int
-    :param response_body: Body of the response
-    :type response_body: bytes
+    Parameters
+    ----------
+    error_message : str, optional
+        The error message (default is an empty string).
+    response_code : int, optional
+        The code of the response (default is None).
+    response_body : bytes, optional
+        Body of the response (default is None).
     """
     Exception.__init__(self, error_message)
 
     self.response_code = response_code
     self.response_body = response_body
-    self.error_message = error_message</code></pre> </details> </div> </div> <div class="doc doc-object doc-class"> <h3 id=pyecotrend_ista.exception_classes.KeycloakPostError class="doc doc-heading"> <code class="doc-symbol doc-symbol-heading doc-symbol-class"></code> <span class="doc doc-object-name doc-class-name">KeycloakPostError</span> <a href=#pyecotrend_ista.exception_classes.KeycloakPostError class=headerlink title="Permanent link">&para;</a></h3> <pre class=highlight><code class="language-python doc-signature">KeycloakPostError(error_message='', response_code=None, response_body=None)</code></pre> <div class="doc doc-contents "> <p>Keycloak request post error exception.</p> <p>:param error_message: The error message :type error_message: str :param response_code: The code of the response :type response_code: int :param response_body: Body of the response :type response_body: bytes</p> <details class=quote> <summary>Source code in <code>src/pyecotrend_ista/exception_classes.py</code></summary> <pre class=highlight><code class=language-python>def __init__(self, error_message="", response_code=None, response_body=None):
+    self.error_message = error_message</code></pre> </details> </div> </div> <div class="doc doc-object doc-class"> <h3 id=pyecotrend_ista.exception_classes.KeycloakPostError class="doc doc-heading"> <code class="doc-symbol doc-symbol-heading doc-symbol-class"></code> <span class="doc doc-object-name doc-class-name">KeycloakPostError</span> <a href=#pyecotrend_ista.exception_classes.KeycloakPostError class=headerlink title="Permanent link">&para;</a></h3> <pre class=highlight><code class="language-python doc-signature">KeycloakPostError(error_message='', response_code=None, response_body=None)</code></pre> <div class="doc doc-contents "> <p>Keycloak request post error exception.</p> <p><span class=doc-section-title>Parameters:</span></p> <ul> <li class="doc-section-item field-body"> <b><code>error_message</code></b> (<code><a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/stdtypes.html#str">str</a></code>, default: <code>&#39;&#39;</code> ) – <div class=doc-md-description> <p>The error message (default is an empty string).</p> </div> </li> <li class="doc-section-item field-body"> <b><code>response_code</code></b> (<code><a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/functions.html#int">int</a></code>, default: <code>None</code> ) – <div class=doc-md-description> <p>The code of the response (default is None).</p> </div> </li> <li class="doc-section-item field-body"> <b><code>response_body</code></b> (<code><a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/stdtypes.html#bytes">bytes</a></code>, default: <code>None</code> ) – <div class=doc-md-description> <p>Body of the response (default is None).</p> </div> </li> </ul> <details class=quote> <summary>Source code in <code>src/pyecotrend_ista/exception_classes.py</code></summary> <pre class=highlight><code class=language-python>def __init__(self, error_message="", response_code=None, response_body=None):  # numpydoc ignore=ES01,EX01
     """Init method.
 
-    :param error_message: The error message
-    :type error_message: str
-    :param response_code: The code of the response
-    :type response_code: int
-    :param response_body: Body of the response
-    :type response_body: bytes
+    Parameters
+    ----------
+    error_message : str, optional
+        The error message (default is an empty string).
+    response_code : int, optional
+        The code of the response (default is None).
+    response_body : bytes, optional
+        Body of the response (default is None).
     """
     Exception.__init__(self, error_message)
 
     self.response_code = response_code
     self.response_body = response_body
-    self.error_message = error_message</code></pre> </details> </div> </div> <div class="doc doc-object doc-class"> <h3 id=pyecotrend_ista.exception_classes.KeycloakCodeNotFound class="doc doc-heading"> <code class="doc-symbol doc-symbol-heading doc-symbol-class"></code> <span class="doc doc-object-name doc-class-name">KeycloakCodeNotFound</span> <a href=#pyecotrend_ista.exception_classes.KeycloakCodeNotFound class=headerlink title="Permanent link">&para;</a></h3> <pre class=highlight><code class="language-python doc-signature">KeycloakCodeNotFound(error_message='', response_code=None, response_body=None)</code></pre> <div class="doc doc-contents "> <p>Keycloak Code not found exception.</p> <p>:param error_message: The error message :type error_message: str :param response_code: The code of the response :type response_code: int :param response_body: Body of the response :type response_body: bytes</p> <details class=quote> <summary>Source code in <code>src/pyecotrend_ista/exception_classes.py</code></summary> <pre class=highlight><code class=language-python>def __init__(self, error_message="", response_code=None, response_body=None):
+    self.error_message = error_message</code></pre> </details> </div> </div> <div class="doc doc-object doc-class"> <h3 id=pyecotrend_ista.exception_classes.KeycloakCodeNotFound class="doc doc-heading"> <code class="doc-symbol doc-symbol-heading doc-symbol-class"></code> <span class="doc doc-object-name doc-class-name">KeycloakCodeNotFound</span> <a href=#pyecotrend_ista.exception_classes.KeycloakCodeNotFound class=headerlink title="Permanent link">&para;</a></h3> <pre class=highlight><code class="language-python doc-signature">KeycloakCodeNotFound(error_message='', response_code=None, response_body=None)</code></pre> <div class="doc doc-contents "> <p>Keycloak Code not found exception.</p> <p><span class=doc-section-title>Parameters:</span></p> <ul> <li class="doc-section-item field-body"> <b><code>error_message</code></b> (<code><a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/stdtypes.html#str">str</a></code>, default: <code>&#39;&#39;</code> ) – <div class=doc-md-description> <p>The error message (default is an empty string).</p> </div> </li> <li class="doc-section-item field-body"> <b><code>response_code</code></b> (<code><a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/functions.html#int">int</a></code>, default: <code>None</code> ) – <div class=doc-md-description> <p>The code of the response (default is None).</p> </div> </li> <li class="doc-section-item field-body"> <b><code>response_body</code></b> (<code><a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/stdtypes.html#bytes">bytes</a></code>, default: <code>None</code> ) – <div class=doc-md-description> <p>Body of the response (default is None).</p> </div> </li> </ul> <details class=quote> <summary>Source code in <code>src/pyecotrend_ista/exception_classes.py</code></summary> <pre class=highlight><code class=language-python>def __init__(self, error_message="", response_code=None, response_body=None):  # numpydoc ignore=ES01,EX01
     """Init method.
 
-    :param error_message: The error message
-    :type error_message: str
-    :param response_code: The code of the response
-    :type response_code: int
-    :param response_body: Body of the response
-    :type response_body: bytes
+    Parameters
+    ----------
+    error_message : str, optional
+        The error message (default is an empty string).
+    response_code : int, optional
+        The code of the response (default is None).
+    response_body : bytes, optional
+        Body of the response (default is None).
     """
     Exception.__init__(self, error_message)
 
     self.response_code = response_code
     self.response_body = response_body
-    self.error_message = error_message</code></pre> </details> </div> </div> <div class="doc doc-object doc-class"> <h3 id=pyecotrend_ista.exception_classes.KeycloakInvalidTokenError class="doc doc-heading"> <code class="doc-symbol doc-symbol-heading doc-symbol-class"></code> <span class="doc doc-object-name doc-class-name">KeycloakInvalidTokenError</span> <a href=#pyecotrend_ista.exception_classes.KeycloakInvalidTokenError class=headerlink title="Permanent link">&para;</a></h3> <pre class=highlight><code class="language-python doc-signature">KeycloakInvalidTokenError(error_message='', response_code=None, response_body=None)</code></pre> <div class="doc doc-contents "> <p>Keycloak invalid token exception.</p> <p>:param error_message: The error message :type error_message: str :param response_code: The code of the response :type response_code: int :param response_body: Body of the response :type response_body: bytes</p> <details class=quote> <summary>Source code in <code>src/pyecotrend_ista/exception_classes.py</code></summary> <pre class=highlight><code class=language-python>def __init__(self, error_message="", response_code=None, response_body=None):
+    self.error_message = error_message</code></pre> </details> </div> </div> <div class="doc doc-object doc-class"> <h3 id=pyecotrend_ista.exception_classes.KeycloakInvalidTokenError class="doc doc-heading"> <code class="doc-symbol doc-symbol-heading doc-symbol-class"></code> <span class="doc doc-object-name doc-class-name">KeycloakInvalidTokenError</span> <a href=#pyecotrend_ista.exception_classes.KeycloakInvalidTokenError class=headerlink title="Permanent link">&para;</a></h3> <pre class=highlight><code class="language-python doc-signature">KeycloakInvalidTokenError(error_message='', response_code=None, response_body=None)</code></pre> <div class="doc doc-contents "> <p>Keycloak invalid token exception.</p> <p><span class=doc-section-title>Parameters:</span></p> <ul> <li class="doc-section-item field-body"> <b><code>error_message</code></b> (<code><a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/stdtypes.html#str">str</a></code>, default: <code>&#39;&#39;</code> ) – <div class=doc-md-description> <p>The error message (default is an empty string).</p> </div> </li> <li class="doc-section-item field-body"> <b><code>response_code</code></b> (<code><a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/functions.html#int">int</a></code>, default: <code>None</code> ) – <div class=doc-md-description> <p>The code of the response (default is None).</p> </div> </li> <li class="doc-section-item field-body"> <b><code>response_body</code></b> (<code><a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/stdtypes.html#bytes">bytes</a></code>, default: <code>None</code> ) – <div class=doc-md-description> <p>Body of the response (default is None).</p> </div> </li> </ul> <details class=quote> <summary>Source code in <code>src/pyecotrend_ista/exception_classes.py</code></summary> <pre class=highlight><code class=language-python>def __init__(self, error_message="", response_code=None, response_body=None):  # numpydoc ignore=ES01,EX01
     """Init method.
 
-    :param error_message: The error message
-    :type error_message: str
-    :param response_code: The code of the response
-    :type response_code: int
-    :param response_body: Body of the response
-    :type response_body: bytes
+    Parameters
+    ----------
+    error_message : str, optional
+        The error message (default is an empty string).
+    response_code : int, optional
+        The code of the response (default is None).
+    response_body : bytes, optional
+        Body of the response (default is None).
     """
     Exception.__init__(self, error_message)
 
     self.response_code = response_code
     self.response_body = response_body
-    self.error_message = error_message</code></pre> </details> </div> </div> <div class="doc doc-object doc-function"> <h3 id=pyecotrend_ista.exception_classes.deprecated class="doc doc-heading"> <code class="doc-symbol doc-symbol-heading doc-symbol-function"></code> <span class="doc doc-object-name doc-function-name">deprecated</span> <a href=#pyecotrend_ista.exception_classes.deprecated class=headerlink title="Permanent link">&para;</a></h3> <pre class=highlight><code class="language-python doc-signature">deprecated(func: <a class="autorefs autorefs-external" title="collections.abc.Callable" href="https://docs.python.org/3.12/library/collections.abc.html#collections.abc.Callable">Callable</a>[..., <span title="pyecotrend_ista.exception_classes.T">T</span>], alias_func: <a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/stdtypes.html#str">str</a> | None = None) -&gt; <a class="autorefs autorefs-external" title="collections.abc.Callable" href="https://docs.python.org/3.12/library/collections.abc.html#collections.abc.Callable">Callable</a>[..., <span title="pyecotrend_ista.exception_classes.T">T</span>]</code></pre> <div class="doc doc-contents "> <p>Decorate a function as deprecated and emit a warning when called.</p> <p><span class=doc-section-title>Parameters:</span></p> <ul> <li class="doc-section-item field-body"> <b><code>func</code></b> (<code><a class="autorefs autorefs-external" title="collections.abc.Callable" href="https://docs.python.org/3.12/library/collections.abc.html#collections.abc.Callable">Callable</a>[..., <span title="pyecotrend_ista.exception_classes.T">T</span>]</code>) – <div class=doc-md-description> <p>The function to be marked as deprecated.</p> </div> </li> <li class="doc-section-item field-body"> <b><code>alias_func</code></b> (<code><a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/stdtypes.html#str">str</a></code>, default: <code>None</code> ) – <div class=doc-md-description> <p>The real function name to show as deprecated, in case the function was called through an alias.</p> </div> </li> </ul> <p><span class=doc-section-title>Returns:</span></p> <ul> <li class="doc-section-item field-body"> <code><a class="autorefs autorefs-external" title="collections.abc.Callable" href="https://docs.python.org/3.12/library/collections.abc.html#collections.abc.Callable">Callable</a>[..., <span title="pyecotrend_ista.exception_classes.T">T</span>]</code> – <div class=doc-md-description> <p>A wrapper function that emits a deprecation warning when called.</p> </div> </li> </ul> <details class=quote> <summary>Source code in <code>src/pyecotrend_ista/exception_classes.py</code></summary> <pre class=highlight><code class=language-python>def deprecated(func: Callable[..., T], alias_func: str | None = None) -&gt; Callable[..., T]:
-    """Decorate a function as deprecated and emit a warning when called.
+    self.error_message = error_message</code></pre> </details> </div> </div> <div class="doc doc-object doc-function"> <h3 id=pyecotrend_ista.exception_classes.deprecated class="doc doc-heading"> <code class="doc-symbol doc-symbol-heading doc-symbol-function"></code> <span class="doc doc-object-name doc-function-name">deprecated</span> <a href=#pyecotrend_ista.exception_classes.deprecated class=headerlink title="Permanent link">&para;</a></h3> <pre class=highlight><code class="language-python doc-signature">deprecated(func: <a class="autorefs autorefs-external" title="collections.abc.Callable" href="https://docs.python.org/3.12/library/collections.abc.html#collections.abc.Callable">Callable</a>[..., <span title="pyecotrend_ista.exception_classes.T">T</span>], alias_func: <a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/stdtypes.html#str">str</a> | None = None) -&gt; <a class="autorefs autorefs-external" title="collections.abc.Callable" href="https://docs.python.org/3.12/library/collections.abc.html#collections.abc.Callable">Callable</a>[..., <span title="pyecotrend_ista.exception_classes.T">T</span>]</code></pre> <div class="doc doc-contents "> <p>Decorate a function as deprecated and emit a warning when called.</p> <p><span class=doc-section-title>Parameters:</span></p> <ul> <li class="doc-section-item field-body"> <b><code>func</code></b> (<code><a class="autorefs autorefs-external" title="collections.abc.Callable" href="https://docs.python.org/3.12/library/collections.abc.html#collections.abc.Callable">Callable</a>[..., <span title="pyecotrend_ista.exception_classes.T">T</span>]</code>) – <div class=doc-md-description> <p>The function to be marked as deprecated.</p> </div> </li> <li class="doc-section-item field-body"> <b><code>alias_func</code></b> (<code><a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/stdtypes.html#str">str</a></code>, default: <code>None</code> ) – <div class=doc-md-description> <p>The real function name to show as deprecated, in case the function was called through an alias.</p> </div> </li> </ul> <p><span class=doc-section-title>Returns:</span></p> <ul> <li class="doc-section-item field-body"> <code><a class="autorefs autorefs-external" title="collections.abc.Callable" href="https://docs.python.org/3.12/library/collections.abc.html#collections.abc.Callable">Callable</a>[..., <span title="pyecotrend_ista.exception_classes.T">T</span>]</code> – <div class=doc-md-description> <p>A wrapper function that emits a deprecation warning when called.</p> </div> </li> </ul> <details class=quote> <summary>Source code in <code>src/pyecotrend_ista/exception_classes.py</code></summary> <pre class=highlight><code class=language-python>def deprecated(func: Callable[..., T], alias_func: str | None = None) -&gt; Callable[..., T]:  # numpydoc ignore=ES01,PR01,PR02,PR04,PR10,EX01
+    """
+    Decorate a function as deprecated and emit a warning when called.
 
     Parameters
     ----------
@@ -122,7 +138,6 @@
         The real function name to show as deprecated, in case the function was called
         through an alias.
 
-
     Returns
     -------
     Callable[..., T]
@@ -130,7 +145,22 @@
 
     """
 
-    def deprecated_func(*args, **kwargs):
+    def deprecated_func(*args, **kwargs):  # numpydoc ignore=ES01,SA01,EX01
+        """
+        Emit a deprecation warning and call the decorated function.
+
+        Parameters
+        ----------
+        *args : tuple
+            Positional arguments passed to the decorated function.
+        **kwargs : dict
+            Keyword arguments passed to the decorated function.
+
+        Returns
+        -------
+        T
+            The return value of the decorated function.
+        """
         if alias_func:
             warning_message = (
                 f"The `{alias_func}` function is deprecated and will be removed in a future release. "
