@@ -27,7 +27,7 @@ jobs:
           pip install .[test]
       - name: Run tests with tox
         run: tox -e py${{ matrix.python_version }}
-      - uses: codecov/codecov-action@v4
+      - uses: codecov/codecov-action@v5
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           slug: Ludy87/pyecotrend-ista
