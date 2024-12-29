@@ -12,7 +12,7 @@ ci:
 
 repos:
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.4.9
+    rev: v0.8.4
     hooks:
       - id: ruff
         exclude: ^(.github|.*object.*\.py$)
@@ -39,7 +39,7 @@ repos:
         exclude_types: [csv, json]
         exclude: tests/__snapshots__/
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.5.0
+    rev: v5.0.0
     hooks:
       - id: check-ast
       - id: check-yaml
@@ -79,7 +79,7 @@ repos:
       - id: pretty-format-toml
         args: [--autofix]
   - repo: https://github.com/numpy/numpydoc
-    rev: v1.7.0
+    rev: v1.8.0
     hooks:
       - id: numpydoc-validation
         files: ^(src)/.+\.py$
@@ -89,7 +89,7 @@ repos:
               docs/
           )
   - repo: https://github.com/cdce8p/python-typing-update
-    rev: v0.6.0
+    rev: v0.7.0
     hooks:
       # Run `python-typing-update` hook manually from time to time
       # to update python typing syntax.
@@ -105,7 +105,7 @@ repos:
         additional_dependencies:
           - black==24.4.2
   - repo: https://github.com/asottile/pyupgrade
-    rev: v3.16.0
+    rev: v3.19.1
     hooks:
       - id: pyupgrade
         args: [--py311-plus]
