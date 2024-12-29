@@ -81,12 +81,16 @@ jobs:
         uses: svenstaro/upload-release-action@04733e069f2d7f7f0b4aebc4fbdbce8613b03ccd # v2
         with:
           repo_token: ${{ secrets.TOKEN }}
-          file: |
-            ${{ github.workspace }}/src/pyecotrend_ista/pyecotrend_ista.zip
-            ${{ github.workspace }}/src/pyecotrend_ista/pyecotrend_ista.zip.asc
-          asset_name: |
-            pyecotrend_ista.zip
-            pyecotrend_ista.zip.asc
+          file: ${{ github.workspace }}/src/pyecotrend_ista/pyecotrend_ista.zip
+          asset_name:  pyecotrend_ista.zip
+          tag: ${{ steps.version.outputs.version }}
+          overwrite: true
+      - name: Upload zip to release
+        uses: svenstaro/upload-release-action@04733e069f2d7f7f0b4aebc4fbdbce8613b03ccd # v2
+        with:
+          repo_token: ${{ secrets.TOKEN }}
+          file: ${{ github.workspace }}/src/pyecotrend_ista/pyecotrend_ista.zip.asc
+          asset_name: pyecotrend_ista.zip.asc
           tag: ${{ steps.version.outputs.version }}
           overwrite: true
       - if: steps.checkTag.outputs.exists == 'false'
