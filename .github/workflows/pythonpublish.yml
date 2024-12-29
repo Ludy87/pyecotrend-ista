@@ -48,12 +48,29 @@ jobs:
         run: |
           cd ${{ github.workspace }}/src/pyecotrend_ista
           zip -r pyecotrend_ista.zip ./
+      - name: Import GPG key
+        env:
+          GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
+          PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
+        run: |
+          echo "$GPG_PRIVATE_KEY" | gpg --batch --import
+          echo "allow-loopback-pinentry" >> ~/.gnupg/gpg.conf
+          echo "use-agent" >> ~/.gnupg/gpg.conf
+          gpg --list-keys
+      - name: Sign ZIP file
+        run: |
+          gpg --detach-sign --batch --yes --passphrase "$PASSPHRASE" -a ${{ github.workspace }}/src/pyecotrend_ista/pyecotrend_ista.zip
+
       - name: Upload zip to release
         uses: svenstaro/upload-release-action@04733e069f2d7f7f0b4aebc4fbdbce8613b03ccd # v2
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: ${{ github.workspace }}/src/pyecotrend_ista/pyecotrend_ista.zip
-          asset_name: pyecotrend_ista.zip
+          file: |
+            ${{ github.workspace }}/src/pyecotrend_ista/pyecotrend_ista.zip
+            ${{ github.workspace }}/src/pyecotrend_ista/pyecotrend_ista.zip.asc
+          asset_name: |
+            pyecotrend_ista.zip
+            pyecotrend_ista.zip.asc
           tag: ${{ steps.version.outputs.version }}
           overwrite: true
       - if: steps.checkTag.outputs.exists == 'false'
