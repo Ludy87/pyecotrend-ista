@@ -53,11 +53,27 @@ jobs:
           GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
           PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
         run: |
+          mkdir -p ~/.gnupg
+          chmod 700 ~/.gnupg
           echo "$GPG_PRIVATE_KEY" | gpg --batch --import
-          echo "use-agent" >> ~/.gnupg/gpg.conf
+          echo "use-agent" > ~/.gnupg/gpg.conf
           echo "allow-loopback-pinentry" >> ~/.gnupg/gpg.conf
           gpg --list-keys
+
+      - name: Debug Passphrase
+        run: |
+          if [ -z "$PASSPHRASE" ]; then
+            echo "Passphrase is empty!"
+            exit 1
+          else
+            echo "Passphrase is set."
+          fi
+        env:
+          PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
+
       - name: Sign ZIP file
+        env:
+          PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
         run: |
           gpg --detach-sign --batch --yes --pinentry-mode loopback --passphrase "$PASSPHRASE" -a ${{ github.workspace }}/src/pyecotrend_ista/pyecotrend_ista.zip
 
