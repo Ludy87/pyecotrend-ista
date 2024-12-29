@@ -54,12 +54,12 @@ jobs:
           PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
         run: |
           echo "$GPG_PRIVATE_KEY" | gpg --batch --import
-          echo "allow-loopback-pinentry" >> ~/.gnupg/gpg.conf
           echo "use-agent" >> ~/.gnupg/gpg.conf
+          echo "allow-loopback-pinentry" >> ~/.gnupg/gpg.conf
           gpg --list-keys
       - name: Sign ZIP file
         run: |
-          gpg --detach-sign --batch --yes --passphrase "$PASSPHRASE" -a ${{ github.workspace }}/src/pyecotrend_ista/pyecotrend_ista.zip
+          gpg --detach-sign --batch --yes --pinentry-mode loopback --passphrase "$PASSPHRASE" -a ${{ github.workspace }}/src/pyecotrend_ista/pyecotrend_ista.zip
 
       - name: Upload zip to release
         uses: svenstaro/upload-release-action@04733e069f2d7f7f0b4aebc4fbdbce8613b03ccd # v2
