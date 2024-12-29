@@ -15,12 +15,17 @@ jobs:
     permissions:
       contents: write
     steps:
+      - name: Harden Runner
+        uses: step-security/harden-runner@0080882f6c36860b6ba35c610c98ce87d4e2f26f # v2.10.2
+        with:
+          egress-policy: audit
+
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
           ref: main
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@0b93645e9fea7318ecaed2b359559ac225c90a2b # v5.3.0
         with:
           python-version: 3.11
           check-latest: true
@@ -35,7 +40,7 @@ jobs:
           version="$(python3 ./.github/actions/get_version.py)"
           echo "version=$version" >> $GITHUB_OUTPUT
       - name: Is Tag exists
-        uses: mukunku/tag-exists-action@v1.6.0
+        uses: mukunku/tag-exists-action@bdad1eaa119ce71b150b952c97351c75025c06a9 # v1.6.0
         id: checkTag
         with:
           tag: ${{ steps.version.outputs.version }}
@@ -44,7 +49,7 @@ jobs:
           cd ${{ github.workspace }}/src/pyecotrend_ista
           zip -r pyecotrend_ista.zip ./
       - name: Upload zip to release
-        uses: svenstaro/upload-release-action@v2
+        uses: svenstaro/upload-release-action@04733e069f2d7f7f0b4aebc4fbdbce8613b03ccd # v2
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           file: ${{ github.workspace }}/src/pyecotrend_ista/pyecotrend_ista.zip
@@ -60,7 +65,7 @@ jobs:
           fi
       - name: Create Release
         if: steps.check-tag.outputs.match == 'true'
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@e7a8f85e1c67a31e6ed99a94b41bd0b71bbee6b8 # v2.0.9
         with:
           tag_name: ${{ steps.version.outputs.version }}
           name: v${{ steps.version.outputs.version }}
