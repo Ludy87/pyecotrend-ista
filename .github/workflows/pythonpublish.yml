@@ -82,7 +82,7 @@ jobs:
         with:
           repo_token: ${{ secrets.TOKEN }}
           file: ${{ github.workspace }}/src/pyecotrend_ista/pyecotrend_ista.zip
-          asset_name:  pyecotrend_ista.zip
+          asset_name: pyecotrend_ista.zip
           tag: ${{ steps.version.outputs.version }}
           overwrite: true
       - name: Upload zip to release
