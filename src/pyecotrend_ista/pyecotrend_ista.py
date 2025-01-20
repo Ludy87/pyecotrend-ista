@@ -308,8 +308,11 @@ class PyEcotrendIsta:  # numpydoc ignore=PR01
             If True, forces a fresh login attempt even if already connected. Default is False.
         debug : bool, optional
             [DEPRECATED] Flag indicating whether to enable debug logging. Default is False.
+
+        Deprecated Parameters
+        ----------------------
         forceLogin : bool, optional
-            [DEPRECATED] Use `force_login` instead.
+            Use `force_login` instead. This parameter is deprecated and will be removed in a future release.
 
         Returns
         -------
@@ -327,6 +330,10 @@ class PyEcotrendIsta:  # numpydoc ignore=PR01
         Exception
             For any other unexpected errors during the login process.
 
+        Notes
+        -----
+        - The `forceLogin` parameter is handled via `**kwargs` for backward compatibility.
+        - The `debug` parameter is deprecated; use appropriate logging configuration instead.
         """
         if debug:
             warnings.warn(
