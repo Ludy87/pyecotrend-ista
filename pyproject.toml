@@ -35,7 +35,7 @@ requires-python = ">=3.11"
 [project.optional-dependencies]
 doc = [
   "tox==4.16.0",
-  "mkdocs==1.6.0",
+  "mkdocs==1.6.1",
   "mkdocstrings[python]==0.25.1",
   "Markdown==3.3.6",
   "markdown-callouts==0.4.0",
