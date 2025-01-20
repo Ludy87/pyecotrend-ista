@@ -1,0 +1,16 @@
+tox
+mkdocs
+mkdocstrings[python]
+Markdown
+markdown-callouts
+mkdocs-material
+pygments
+pymdown-extensions
+mdx-gh-links
+mkdocs-click
+mkdocs-minify-plugin
+mkdocs-git-revision-date-localized-plugin
+mkdocs-git-committers-plugin-2
+mkdocs-git-authors-plugin
+mkdocs-autorefs
+mkdocs-literate-nav
