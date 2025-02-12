@@ -35,7 +35,7 @@ requires-python = ">=3.11"
 [project.optional-dependencies]
 doc = [
   "babel==2.16.0",
-  "cachetools==5.5.0",
+  "cachetools==5.5.1",
   "certifi==2024.12.14",
   "chardet==5.2.0",
   "charset-normalizer==3.4.1",
