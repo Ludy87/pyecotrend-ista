@@ -102,7 +102,7 @@ test = [
   "pytest-cov==6.0.0",
   "pytest-xdist==3.6.1",
   "requests-mock[fixture]==1.12.1",
-  "syrupy==4.6.1"
+  "syrupy==4.8.2"
 ]
 
 [project.urls]
