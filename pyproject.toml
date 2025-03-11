@@ -50,7 +50,7 @@ doc = [
   "griffe==1.5.7",
   "htmlmin2==0.1.13",
   "idna==3.10",
-  "jinja2==3.1.5",
+  "jinja2==3.1.6",
   "jsmin==3.0.1",
   "markdown==3.7",
   "markdown-callouts==0.4.0",
