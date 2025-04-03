@@ -90,7 +90,7 @@ doc = [
   "tox==4.24.2",
   "typing-extensions==4.12.2",
   "urllib3==2.3.0",
-  "virtualenv==20.29.3",
+  "virtualenv==20.30.0",
   "watchdog==6.0.0"
 ]
 publish = [
