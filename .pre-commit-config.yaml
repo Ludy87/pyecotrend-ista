@@ -12,7 +12,7 @@ ci:
 
 repos:
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.8.4
+    rev: v0.11.9
     hooks:
       - id: ruff
         exclude: ^(.github|.*object.*\.py$)
@@ -29,7 +29,7 @@ repos:
           - "--remove-unused-variables"
           - "--remove-all-unused-imports"
   - repo: https://github.com/codespell-project/codespell
-    rev: v2.3.0
+    rev: v2.4.1
     hooks:
       - id: codespell
         args:
@@ -89,7 +89,7 @@ repos:
               docs/
           )
   - repo: https://github.com/cdce8p/python-typing-update
-    rev: v0.7.0
+    rev: v0.7.1
     hooks:
       # Run `python-typing-update` hook manually from time to time
       # to update python typing syntax.
@@ -111,10 +111,10 @@ repos:
         args: [--py311-plus]
         exclude: ^.*object.*\.py$
   - repo: https://github.com/gitleaks/gitleaks
-    rev: v8.16.3
+    rev: v8.26.0
     hooks:
       - id: gitleaks
   - repo: https://github.com/pylint-dev/pylint
-    rev: v2.17.2
+    rev: v3.3.7
     hooks:
       - id: pylint
