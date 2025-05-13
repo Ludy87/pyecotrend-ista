@@ -33,8 +33,8 @@ plugins:
       token: !ENV ["GITHUB_TOKEN"]
       exclude:
         - README.md
-  - git-authors
-  - autorefs
+  # - git-authors
+  # - autorefs
   - literate-nav:
       nav_file: README.md
       implicit_index: true
@@ -151,7 +151,7 @@ markdown_extensions:
   - tables
   - pymdownx.highlight:
       use_pygments: false
-      # anchor_linenums: true
+      anchor_linenums: true
   - pymdownx.snippets
   - pymdownx.superfences
   - mdx_gh_links:
