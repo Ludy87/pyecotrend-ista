@@ -34,7 +34,8 @@ plugins:
       exclude:
         - README.md
   - git-authors
-  - autorefs
+  - autorefs:
+      resolve_closest: true
   - literate-nav:
       nav_file: README.md
       implicit_index: true
