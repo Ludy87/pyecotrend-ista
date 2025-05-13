@@ -88,7 +88,7 @@ doc = [
   "smmap==5.0.2",
   "tomli==2.2.1",
   "tox==4.24.2",
-  "typing-extensions==4.12.2",
+  "typing-extensions==4.13.2",
   "urllib3==2.3.0",
   "virtualenv==20.31.2",
   "watchdog==6.0.0"
