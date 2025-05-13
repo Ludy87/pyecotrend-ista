@@ -76,7 +76,7 @@ doc = [
   "platformdirs==4.3.8",
   "pluggy==1.5.0",
   "pygments==2.19.1",
-  "pymdown-extensions==10.14.3",
+  "pymdown-extensions==10.15",
   "pyproject-api==1.9.1",
   "python-dateutil==2.9.0.post0",
   "pytz==2025.2",
