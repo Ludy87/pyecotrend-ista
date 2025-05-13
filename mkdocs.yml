@@ -33,8 +33,8 @@ plugins:
       token: !ENV ["GITHUB_TOKEN"]
       exclude:
         - README.md
-  # - git-authors
-  # - autorefs
+  - git-authors
+  - autorefs
   - literate-nav:
       nav_file: README.md
       implicit_index: true
@@ -47,8 +47,6 @@ plugins:
             - url: https://docs.python.org/3.12/objects.inv
               domains: [std, py]
           paths: [src, scripts, .]
-          # setup_commands:
-          #   - "import sys; sys.path.insert(0, 'src')"
           options:
             line_length: 80
             docstring_options:
