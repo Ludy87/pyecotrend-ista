@@ -42,7 +42,7 @@ plugins:
       enabled: !ENV [MKDOCSTRINGS_ENABLED, true]
       handlers:
         python:
-          import:
+          inventories:
             # YORE: SOL 3.12: Replace `3.12` with `3` within line.
             - url: https://docs.python.org/3.12/objects.inv
               domains: [std, py]
