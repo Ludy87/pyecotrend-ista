@@ -81,7 +81,7 @@ doc = [
   "python-dateutil==2.9.0.post0",
   "pytz==2025.2",
   "pyyaml==6.0.2",
-  "pyyaml-env-tag==1.0",
+  "pyyaml-env-tag==1.1",
   "regex==2024.11.6",
   "requests==2.32.3",
   "six==1.17.0",
