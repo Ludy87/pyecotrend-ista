@@ -19,7 +19,7 @@ from .const import (
     PROVIDER_URL,
     REDIRECT_URI,
     RESPONSE_MODE,
-    RESPONSE_TPYE,
+    RESPONSE_TYPE,
     SCOPE,
     TIMEOUT,
 )
@@ -224,7 +224,7 @@ class LoginHelper:  # numpydoc ignore=ES01,EX01,PR01
             url=f"{PROVIDER_URL}auth",
             params={
                 "response_mode": RESPONSE_MODE,  # fragment
-                "response_type": RESPONSE_TPYE,  # code
+                "response_type": RESPONSE_TYPE,  # code
                 "client_id": CLIENT_ID,
                 "scope": SCOPE,
                 "redirect_uri": REDIRECT_URI,
