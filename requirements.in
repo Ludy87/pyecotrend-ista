@@ -72,6 +72,6 @@ watchdog==6.0.0
 tox==4.26.0
 pytest==8.4.0
 pytest-cov==6.1.1
-pytest-xdist==3.6.1
+pytest-xdist==3.7.0
 requests-mock[fixture]==1.12.1
 syrupy==4.9.1
