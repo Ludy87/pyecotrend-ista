@@ -55,7 +55,7 @@ jobs:
         run: |
           cd ${{ github.workspace }}/src/pyecotrend_ista
           zip -r pyecotrend_ista.zip ./
-          
+
       - name: Import GPG key
         if: steps.check-tag.outputs.match == 'true'
         env:
@@ -65,7 +65,7 @@ jobs:
           mkdir -p ~/.gnupg
           chmod 700 ~/.gnupg
           echo "$GPG_PRIVATE_KEY" | gpg --batch --import
-          echo "allow-loopback-pinentry" > ~/.gnupg/gpg.conf
+          echo "allow-loopback-pinentry" > ~/.gnupg/gpg-agent.conf
           gpg --list-keys
 
       - name: Debug Passphrase
