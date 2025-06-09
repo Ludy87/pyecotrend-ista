@@ -119,10 +119,10 @@ jobs:
         env:
           TWINE_USERNAME: __token__
           TWINE_PASSWORD: ${{ secrets.TEST_PYPI_TOKEN }}
-        run: tox -e test-publish
-      # - name: Build and publish package to PyPI
-      #   if: steps.check-tag.outputs.match == 'true'
-      #   env:
-      #     TWINE_USERNAME: __token__
-      #     TWINE_PASSWORD: ${{ secrets.PYPI_TOKEN }}
-      #   run: tox -e publish
+        run: tox -e test-publish -- --non-interactive
+      - name: Build and publish package to PyPI
+        if: steps.check-tag.outputs.match == 'true'
+        env:
+          TWINE_USERNAME: __token__
+          TWINE_PASSWORD: ${{ secrets.PYPI_TOKEN }}
+        run: tox -e publish
