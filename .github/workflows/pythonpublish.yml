@@ -135,12 +135,12 @@ jobs:
           tag: ${{ steps.version.outputs.version }}
           overwrite: true
 
-      - name: Build and publish package to TestPyPI
-        # if: steps.check-tag.outputs.match == 'true'
-        env:
-          TWINE_USERNAME: __token__
-          TWINE_PASSWORD: ${{ secrets.TEST_PYPI_TOKEN }}
-        run: tox -e test-publish -- --non-interactive
+      # - name: Build and publish package to TestPyPI
+      #   # if: steps.check-tag.outputs.match == 'true'
+      #   env:
+      #     TWINE_USERNAME: __token__
+      #     TWINE_PASSWORD: ${{ secrets.TEST_PYPI_TOKEN }}
+      #   run: tox -e test-publish -- --non-interactive
 
       - name: Build and publish package to PyPI
         # if: steps.check-tag.outputs.match == 'true'
