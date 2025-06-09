@@ -13,6 +13,7 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     permissions:
+      id-token: write
       contents: write
     steps:
       - name: Harden Runner
@@ -142,9 +143,20 @@ jobs:
       #     TWINE_PASSWORD: ${{ secrets.TEST_PYPI_TOKEN }}
       #   run: tox -e test-publish -- --non-interactive
 
-      - name: Build and publish package to PyPI
-        # if: steps.check-tag.outputs.match == 'true'
-        env:
-          TWINE_USERNAME: __token__
-          TWINE_PASSWORD: ${{ secrets.PYPI_TOKEN }}
-        run: tox -e publish
+      # - name: Build and publish package to PyPI
+      #   # if: steps.check-tag.outputs.match == 'true'
+      #   env:
+      #     TWINE_USERNAME: __token__
+      #     TWINE_PASSWORD: ${{ secrets.PYPI_TOKEN }}
+      #   run: tox -e publish
+
+      - name: Build package
+        shell: bash
+        run: |
+          pip install build
+          python -m build
+
+      - name: Upload package to PyPI
+        uses: pypa/gh-action-pypi-publish@v1.12.4
+        with:
+          skip-existing: true
