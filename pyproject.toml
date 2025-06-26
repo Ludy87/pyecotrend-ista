@@ -99,7 +99,7 @@ publish = [
 ]
 test = [
   "tox==4.27.0",
-  "pytest==8.4.0",
+  "pytest==8.4.1",
   "pytest-cov==6.2.1",
   "pytest-xdist==3.7.0",
   "requests-mock[fixture]==1.12.1",
