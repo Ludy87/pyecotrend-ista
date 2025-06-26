@@ -10,7 +10,7 @@ dataclasses-json>=0.6
 
 # Optionale Abhängigkeiten für Dokumentation
 babel==2.17.0
-cachetools==6.0.0
+cachetools==6.1.0
 certifi==2025.6.15
 chardet==5.2.0
 charset-normalizer==3.4.2
@@ -58,7 +58,7 @@ pytz==2025.2
 pyyaml==6.0.2
 pyyaml-env-tag==1.1
 regex==2024.11.6
-requests==2.32.3
+requests==2.32.4
 six==1.17.0
 smmap==5.0.2
 tomli==2.2.1
