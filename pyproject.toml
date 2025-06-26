@@ -90,7 +90,7 @@ doc = [
   "tomli==2.2.1",
   "tox==4.27.0",
   "typing-extensions==4.14.0",
-  "urllib3==2.3.0",
+  "urllib3==2.5.0",
   "virtualenv==20.31.2",
   "watchdog==6.0.0"
 ]
