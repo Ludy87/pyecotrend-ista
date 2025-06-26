@@ -90,7 +90,7 @@ doc = [
   "tomli==2.2.1",
   "tox==4.27.0",
   "typing-extensions==4.14.0",
-  "urllib3==2.3.0",
+  "urllib3==2.5.0",
   "virtualenv==20.31.2",
   "watchdog==6.0.0"
 ]
@@ -99,7 +99,7 @@ publish = [
 ]
 test = [
   "tox==4.27.0",
-  "pytest==8.4.0",
+  "pytest==8.4.1",
   "pytest-cov==6.2.1",
   "pytest-xdist==3.7.0",
   "requests-mock[fixture]==1.12.1",
