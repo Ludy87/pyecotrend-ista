@@ -62,14 +62,14 @@ requests==2.32.4
 six==1.17.0
 smmap==5.0.2
 tomli==2.2.1
-tox==4.27.0
+tox==4.28.1
 typing-extensions==4.14.1
 urllib3==2.5.0
 virtualenv==20.31.2
 watchdog==6.0.0
 
 # Abhängigkeiten für Tests
-tox==4.27.0
+tox==4.28.1
 pytest==8.4.1
 pytest-cov==6.2.1
 pytest-xdist==3.8.0
