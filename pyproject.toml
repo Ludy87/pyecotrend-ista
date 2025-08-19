@@ -84,7 +84,7 @@ doc = [
   "pyyaml==6.0.2",
   "pyyaml-env-tag==1.1",
   "regex==2025.7.34",
-  "requests==2.32.4",
+  "requests==2.32.5",
   "six==1.17.0",
   "smmap==5.0.2",
   "tomli==2.2.1",
