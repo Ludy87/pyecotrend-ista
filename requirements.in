@@ -70,7 +70,7 @@ watchdog==6.0.0
 
 # Abhängigkeiten für Tests
 tox==4.28.4
-pytest==8.4.1
+pytest==8.4.2
 pytest-cov==6.2.1
 pytest-xdist==3.8.0
 requests-mock[fixture]==1.12.1
