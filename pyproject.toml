@@ -89,7 +89,7 @@ doc = [
   "smmap==5.0.2",
   "tomli==2.2.1",
   "tox==4.28.4",
-  "typing-extensions==4.14.1",
+  "typing-extensions==4.15.0",
   "urllib3==2.5.0",
   "virtualenv==20.34.0",
   "watchdog==6.0.0"
