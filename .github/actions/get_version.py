@@ -37,7 +37,7 @@ def main():
     Examples
     --------
     >>> main()
-    3.3.3
+    3.4.0
     0
     """
     spec = importlib.util.spec_from_file_location("pyecotrend_ista.__version__", "./src/pyecotrend_ista/__version.py")
