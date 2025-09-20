@@ -113,15 +113,17 @@ class PyEcotrendIsta:  # numpydoc ignore=PR01
         self._email: str = email.strip()
         self._password: str = password
 
+
+        self.session = session or requests.Session()
+        self.session.headers.update({"User-Agent": self.get_user_agent()})
+
         self.loginhelper = LoginHelper(
             username=self._email,
             password=self._password,
             totp=totp,
-            session=session,
+            session=self.session,
             logger=_LOGGER,
         )
-
-        self.session: requests.Session = self.loginhelper.session
 
     @property
     def access_token(self):  # numpydoc ignore=EX01
