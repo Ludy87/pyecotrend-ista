@@ -12,7 +12,7 @@ ci:
 
 repos:
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.11.9
+    rev: v0.13.1
     hooks:
       - id: ruff
         exclude: ^(.github|.*object.*\.py$)
@@ -39,7 +39,7 @@ repos:
         exclude_types: [csv, json]
         exclude: tests/__snapshots__/
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v5.0.0
+    rev: v6.0.0
     hooks:
       - id: check-ast
       - id: check-yaml
@@ -74,12 +74,12 @@ repos:
         exclude_types: [json]
         exclude: \.md$
   - repo: https://github.com/macisamuele/language-formatters-pre-commit-hooks
-    rev: v2.14.0
+    rev: v2.15.0
     hooks:
       - id: pretty-format-toml
         args: [--autofix]
   - repo: https://github.com/numpy/numpydoc
-    rev: v1.8.0
+    rev: v1.9.0
     hooks:
       - id: numpydoc-validation
         files: ^(src)/.+\.py$
@@ -89,7 +89,7 @@ repos:
               docs/
           )
   - repo: https://github.com/cdce8p/python-typing-update
-    rev: v0.7.1
+    rev: v0.7.2
     hooks:
       # Run `python-typing-update` hook manually from time to time
       # to update python typing syntax.
@@ -103,18 +103,18 @@ repos:
           - --keep-updates
         files: ^(src|tests)/.+\.py$
         additional_dependencies:
-          - black==24.4.2
+          - black==25.9.0
   - repo: https://github.com/asottile/pyupgrade
-    rev: v3.19.1
+    rev: v3.20.0
     hooks:
       - id: pyupgrade
         args: [--py311-plus]
         exclude: ^.*object.*\.py$
   - repo: https://github.com/gitleaks/gitleaks
-    rev: v8.26.0
+    rev: v8.28.0
     hooks:
       - id: gitleaks
   - repo: https://github.com/pylint-dev/pylint
-    rev: v3.3.7
+    rev: v3.3.8
     hooks:
       - id: pylint
