@@ -82,7 +82,7 @@ jobs:
           zip -r pyecotrend_ista.zip ./
 
       - name: Import GPG key (no PII)
-        if: steps.check-tag.outputs.match == 'true'
+        # if: steps.check-tag.outputs.match == 'true'
         shell: bash
         env:
           GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
