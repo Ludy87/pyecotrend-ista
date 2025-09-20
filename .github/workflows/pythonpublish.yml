@@ -82,7 +82,7 @@ jobs:
           zip -r pyecotrend_ista.zip ./
 
       - name: Import GPG key (no PII)
-        # if: steps.check-tag.outputs.match == 'true'
+        if: steps.check-tag.outputs.match == 'true'
         shell: bash
         env:
           GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
@@ -93,7 +93,6 @@ jobs:
           chmod 700 ~/.gnupg
           printf 'allow-loopback-pinentry\n' > ~/.gnupg/gpg-agent.conf
           printf 'pinentry-mode loopback\n' > ~/.gnupg/gpg.conf
-          # Import ohne UIDs ins Log zu schreiben
           gpg --batch --quiet --import <<< "$GPG_PRIVATE_KEY"
 
       - name: Debug Passphrase
