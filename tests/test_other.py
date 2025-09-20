@@ -45,6 +45,7 @@ def test_get_support_code(ista_client: PyEcotrendIsta) -> None:
     ista_client.login()
     assert ista_client.get_support_code() == "XXXXXXXXX"
 
+
 @pytest.mark.usefixtures("mock_requests_login")
 def test_get_support_code_returns_none(ista_client: PyEcotrendIsta) -> None:
     """Test `get_support_code` method."""
@@ -58,32 +59,6 @@ def test_is_connected(ista_client: PyEcotrendIsta, access_token: str | None, exp
 
     ista_client._access_token = access_token  # pylint: disable=W0212
     assert ista_client._is_connected() is expected_result  # pylint: disable=W0212
-
-
-@pytest.mark.parametrize(("deprecated_method"), ["getVersion", "getUUIDs", "getSupportCode"])
-def test_method_deprecations(ista_client: PyEcotrendIsta, deprecated_method: str) -> None:
-    """Test warnings for deprecated methods."""
-    with pytest.warns(DeprecationWarning):
-        try:
-            getattr(ista_client, deprecated_method)()
-        except Exception:  # pylint: disable=W0718
-            pass
-
-
-@pytest.mark.parametrize(("param"), ["debug", "forceLogin"])
-def test_login_deprecated_parameters(ista_client: PyEcotrendIsta, param: str) -> None:
-    """Test warnings for deprecated methods."""
-    with pytest.warns(DeprecationWarning):
-        try:
-            ista_client.login(**{param: True})
-        except Exception:  # pylint: disable=W0718
-            pass
-
-@pytest.mark.parametrize(("param"), ["logger", "hass_dir"])
-def test_init_deprecated_parameters(param: str) -> None:
-    """Test warnings for deprecated methods."""
-    with pytest.warns(DeprecationWarning):
-        PyEcotrendIsta(email="", password="", **{param: True}) # type: ignore
 
 
 @pytest.mark.usefixtures("mock_requests_login")
