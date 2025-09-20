@@ -15,12 +15,11 @@ from http import HTTPStatus
 import logging
 import time
 from typing import Any, cast
-import warnings
 
 import requests
 
 from .const import API_BASE_URL, DEMO_USER_ACCOUNT, VERSION
-from .exception_classes import KeycloakError, LoginError, ParserError, ServerError, deprecated
+from .exception_classes import KeycloakError, LoginError, ParserError, ServerError
 from .helper_object_de import CustomRaw
 from .login_helper import LoginHelper
 from .types import AccountResponse, ConsumptionsResponse, ConsumptionUnitDetailsResponse, GetTokenResponse
@@ -74,8 +73,6 @@ class PyEcotrendIsta:  # numpydoc ignore=PR01
         self,
         email: str,
         password: str,
-        logger: logging.Logger | None = None,
-        hass_dir: str | None = None,
         totp: str | None = None,
         session: requests.Session | None = None,
     ) -> None:  # numpydoc ignore=ES01,EX01
@@ -87,28 +84,11 @@ class PyEcotrendIsta:  # numpydoc ignore=PR01
             The email address used to log in to the ista EcoTrend API.
         password : str
             The password used to log in to the ista EcoTrend API.
-        logger : logging.Logger, optional
-            [DEPRECATED] An optional logger instance for logging messages. Default is None.
-        hass_dir : str, optional
-            [DEPRECATED] An optional directory for Home Assistant configuration. Default is None.
         totp : str, optional
             An optional TOTP (Time-based One-Time Password) for two-factor authentication. Default is None.
         session : requests.Session, optional
             An optional requests session for making HTTP requests. Default is None.
         """
-        if hass_dir:
-            warnings.warn(
-                "The 'hass_dir' parameter is deprecated and will be removed in a future release.",
-                DeprecationWarning,
-                stacklevel=2,
-            )
-
-        if logger:
-            warnings.warn(
-                "The 'logger' parameter is deprecated and will be removed in a future release.",
-                DeprecationWarning,
-                stacklevel=2,
-            )
 
         self._email: str = email.strip()
         self._password: str = password
@@ -298,23 +278,9 @@ class PyEcotrendIsta:  # numpydoc ignore=PR01
         """
         return VERSION
 
-    getVersion = deprecated(get_version, "getVersion")  # noqa: N815
-
-    def login(self, force_login: bool = False, debug: bool = False, **kwargs) -> str | None:  # numpydoc ignore=ES01,EX01,PR01,PR02
+    def login(self, **kwargs) -> str | None:  # numpydoc ignore=ES01,EX01,PR01,PR02
         """
         Perform the login process if not already connected or forced.
-
-        Parameters
-        ----------
-        force_login : bool, optional
-            If True, forces a fresh login attempt even if already connected. Default is False.
-        debug : bool, optional
-            [DEPRECATED] Flag indicating whether to enable debug logging. Default is False.
-
-        Deprecated Parameters
-        ----------------------
-        forceLogin : bool, optional
-            Use `force_login` instead. This parameter is deprecated and will be removed in a future release.
 
         Returns
         -------
@@ -331,29 +297,9 @@ class PyEcotrendIsta:  # numpydoc ignore=PR01
             If an internal server error occurs during login attempts.
         Exception
             For any other unexpected errors during the login process.
-
-        Notes
-        -----
-        - The `forceLogin` parameter is handled via `**kwargs` for backward compatibility.
-        - The `debug` parameter is deprecated; use appropriate logging configuration instead.
         """
-        if debug:
-            warnings.warn(
-                "The 'debug' parameter is deprecated and will be removed in a future release.",
-                DeprecationWarning,
-                stacklevel=2,
-            )
 
-        if "forceLogin" in kwargs:
-            warnings.warn(
-                "The 'forceLogin' keyword parameter is deprecated and will be removed in a future release. "
-                "Use force_login instead.",
-                DeprecationWarning,
-                stacklevel=2,
-            )
-            force_login = kwargs["forceLogin"]
-
-        if not self._is_connected() or force_login:
+        if not self._is_connected():
             try:
                 self.__login()
                 self.__set_account()
@@ -454,8 +400,6 @@ class PyEcotrendIsta:  # numpydoc ignore=PR01
         ['uuid1', 'uuid2', 'uuid3']
         """
         return list(self._account.get("residentAndConsumptionUuidsMap", {}).values())
-
-    getUUIDs = deprecated(get_uuids, "getUUIDs")  # noqa: N815
 
     # pylint: disable=too-many-branches,too-many-statements
     def consum_raw(  # noqa: C901
@@ -941,8 +885,6 @@ class PyEcotrendIsta:  # numpydoc ignore=PR01
         except requests.RequestException as exc:
             raise ServerError("Loading consumption data failed due to a request exception") from exc
 
-    get_raw = deprecated(get_consumption_data, "get_raw")
-
     def get_consumption_unit_details(self) -> ConsumptionUnitDetailsResponse:  # numpydoc ignore=ES01,EX01
         """
         Retrieve details of the consumption unit from the API.
@@ -996,8 +938,6 @@ class PyEcotrendIsta:  # numpydoc ignore=PR01
             The support code associated with the instance, or None if not set.
         """
         return getattr(self, "_account", {}).get("supportCode")
-
-    getSupportCode = deprecated(get_support_code, "getSupportCode")  # noqa: N815
 
     def get_user_agent(self) -> str:  # numpydoc ignore=ES01,EX01
         """
