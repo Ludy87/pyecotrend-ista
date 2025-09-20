@@ -4,7 +4,8 @@ requires = ['setuptools>=77.0.3', "setuptools-scm", "requests", "dataclasses_jso
 
 [project]
 authors = [
-  {name = "Ludy87", email = "android@astra-g.org"}
+  {name = "Ludy87", email = "android@astra-g.org"},
+  {name = "tr4nt0r", email = "4445816+tr4nt0r@users.noreply.github.com"}
 ]
 classifiers = [
   "Development Status :: 4 - Beta",
@@ -36,32 +37,18 @@ requires-python = ">=3.11"
 [project.optional-dependencies]
 doc = [
   "babel==2.17.0",
-  "cachetools==6.1.0",
-  "certifi==2025.8.3",
-  "chardet==5.2.0",
-  "charset-normalizer==3.4.3",
-  "click==8.2.1",
-  "colorama==0.4.6",
   "csscompressor==0.9.5",
-  "distlib==0.4.0",
-  "filelock==3.19.1",
   "ghp-import==2.1.0",
-  "gitdb==4.0.12",
   "gitpython==3.1.45",
-  "griffe==1.12.1",
   "htmlmin2==0.1.13",
-  "idna==3.10",
   "jinja2==3.1.6",
   "jsmin==3.0.1",
-  "markdown==3.8.2",
+  "markdown==3.9",
   "markdown-callouts==0.4.0",
-  "markupsafe==3.0.2",
   "mdx-gh-links==0.4",
-  "mergedeep==1.3.4",
   "mkdocs==1.6.1",
-  "mkdocs-autorefs==1.4.2",
+  "mkdocs-autorefs==1.4.3",
   "mkdocs-click==0.9.0",
-  "mkdocs-get-deps==0.2.0",
   "mkdocs-git-authors-plugin==0.10.0",
   "mkdocs-git-committers-plugin-2==2.5.0",
   "mkdocs-git-revision-date-localized-plugin==1.4.7",
@@ -69,36 +56,20 @@ doc = [
   "mkdocs-material==9.6.20",
   "mkdocs-material-extensions==1.3.1",
   "mkdocs-minify-plugin==0.8.0",
-  "mkdocstrings[python]==0.30.0",
-  "mkdocstrings-python==1.17.0",
-  "packaging==25.0",
+  "mkdocstrings[python]==0.30.1",
+  "mkdocstrings-python==1.18.2",
   "paginate==0.5.7",
-  "pathspec==0.12.1",
-  "platformdirs==4.3.8",
-  "pluggy==1.6.0",
-  "pygments==2.19.2",
   "pymdown-extensions==10.16.1",
-  "pyproject-api==1.9.1",
+  "pygments==2.19.2",
   "python-dateutil==2.9.0.post0",
   "pytz==2025.2",
-  "pyyaml==6.0.2",
-  "pyyaml-env-tag==1.1",
-  "regex==2025.7.34",
-  "requests==2.32.4",
-  "six==1.17.0",
-  "smmap==5.0.2",
-  "tomli==2.2.1",
-  "tox==4.28.4",
-  "typing-extensions==4.14.1",
-  "urllib3==2.5.0",
-  "virtualenv==20.34.0",
+  "regex==2025.9.18",
   "watchdog==6.0.0"
 ]
 publish = [
-  "tox==4.28.4"
+  "tox==4.30.2"
 ]
 test = [
-  "tox==4.28.4",
   "pytest==8.4.1",
   "pytest-cov==6.2.1",
   "pytest-xdist==3.8.0",
