@@ -118,3 +118,11 @@ repos:
     rev: v3.3.8
     hooks:
       - id: pylint
+        additional_dependencies:
+          - requests
+          - urllib3
+          - dataclasses-json
+          - pytest
+          - requests-mock
+          - syrupy
+          - types-requests
