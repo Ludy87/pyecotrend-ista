@@ -62,12 +62,12 @@ doc = [
   "pygments==2.19.2",
   "python-dateutil==2.9.0.post0",
   "pytz==2025.2",
-  "tox==4.30.3",
+  "tox==4.31.0",
   "regex==2025.9.18",
   "watchdog==6.0.0"
 ]
 publish = [
-  "tox==4.30.3"
+  "tox==4.31.0"
 ]
 test = [
   "pytest==8.4.1",
@@ -75,7 +75,7 @@ test = [
   "pytest-xdist==3.8.0",
   "requests-mock[fixture]==1.12.1",
   "syrupy==4.9.1",
-  "tox==4.30.3"
+  "tox==4.31.0"
 ]
 
 [project.urls]
