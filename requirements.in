@@ -33,7 +33,7 @@ regex==2025.9.18
 watchdog==6.0.0
 
 # Optional dependencies: publish
-tox==4.30.3
+tox==4.32.0
 
 # Optional dependencies: test
 pytest==8.4.1
