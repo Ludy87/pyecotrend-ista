@@ -12,7 +12,7 @@ ci:
 
 repos:
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.13.1
+    rev: v0.14.8
     hooks:
       - id: ruff
         exclude: ^(.github|.*object.*\.py$)
@@ -79,7 +79,7 @@ repos:
       - id: pretty-format-toml
         args: [--autofix]
   - repo: https://github.com/numpy/numpydoc
-    rev: v1.9.0
+    rev: v1.10.0
     hooks:
       - id: numpydoc-validation
         files: ^(src)/.+\.py$
@@ -89,7 +89,7 @@ repos:
               docs/
           )
   - repo: https://github.com/cdce8p/python-typing-update
-    rev: v0.7.2
+    rev: v0.8.1
     hooks:
       # Run `python-typing-update` hook manually from time to time
       # to update python typing syntax.
@@ -103,19 +103,19 @@ repos:
           - --keep-updates
         files: ^(src|tests)/.+\.py$
         additional_dependencies:
-          - black==25.9.0
+          - black==25.12.0
   - repo: https://github.com/asottile/pyupgrade
-    rev: v3.20.0
+    rev: v3.21.2
     hooks:
       - id: pyupgrade
         args: [--py311-plus]
         exclude: ^.*object.*\.py$
   - repo: https://github.com/gitleaks/gitleaks
-    rev: v8.28.0
+    rev: v8.30.0
     hooks:
       - id: gitleaks
   - repo: https://github.com/pylint-dev/pylint
-    rev: v3.3.8
+    rev: v4.0.4
     hooks:
       - id: pylint
         additional_dependencies:
