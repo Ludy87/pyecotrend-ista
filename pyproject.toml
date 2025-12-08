@@ -114,7 +114,7 @@ disable = [
 ]
 
 [tool.pytest.ini_options]
-addopts = "--cov=src/pyecotrend_ista/ --cov-report=term-missing -n auto"
+addopts = "--cov=src/pyecotrend_ista/ --cov-report=term-missing -n auto tests"
 pythonpath = ["src"]
 testpaths = ["tests"]
 
