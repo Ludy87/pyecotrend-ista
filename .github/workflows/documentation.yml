@@ -1,6 +1,8 @@
 name: documentation
 
 on:
+  pull_request:
+    branches: ["main"]
   push:
     branches: ["main"]
   workflow_dispatch:
@@ -36,7 +38,16 @@ jobs:
       - name: Installing pip packages
         run: |
           pip install .[doc]
+
+      - name: Build documentation
+        if: github.event_name == 'pull_request'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          tox -e documentation
+
       - name: Build & Publish documentation
+        if: github.event_name == 'push'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
