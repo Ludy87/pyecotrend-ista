@@ -1,6 +1,6 @@
 [build-system]
 build-backend = "setuptools.build_meta"
-requires = ['setuptools>=77.0.3', "setuptools-scm", "requests", "dataclasses_json"]
+requires = ['setuptools>=77.0.3', "setuptools-scm", "requests", "dataclasses-json"]
 
 [project]
 authors = [
@@ -62,7 +62,6 @@ doc = [
   "pygments==2.19.2",
   "python-dateutil==2.9.0.post0",
   "pytz==2025.2",
-  "tox==4.30.3",
   "regex==2025.9.18",
   "watchdog==6.0.0"
 ]
@@ -71,11 +70,10 @@ publish = [
 ]
 test = [
   "pytest==8.4.1",
-  "pytest-cov==6.2.1",
+  "pytest-cov==7.0.0",
   "pytest-xdist==3.8.0",
   "requests-mock[fixture]==1.12.1",
-  "syrupy==4.9.1",
-  "tox==4.30.3"
+  "syrupy==5.0.0"
 ]
 
 [project.urls]
