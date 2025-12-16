@@ -157,11 +157,8 @@ colorama==0.4.6 \
     --hash=sha256:08695f5cb7ed6e0531a20572697297273c47b8cae5a63ffc6d6ed5c201be6e44 \
     --hash=sha256:4f1d9991f5acc0ca119f9d443620b77f9d6b33703e51011c16baf57afb285fc6
     # via
-    #   click
     #   griffe
-    #   mkdocs
     #   mkdocs-material
-    #   pytest
     #   tox
 coverage==7.13.0 \
     --hash=sha256:0018f73dfb4301a89292c73be6ba5f58722ff79f51593352759c1790ded1cabe \
@@ -274,9 +271,9 @@ execnet==2.1.2 \
     --hash=sha256:63d83bfdd9a23e35b9c6a3261412324f964c2ec8dcd8d3c6916ee9373e0befcd \
     --hash=sha256:67fba928dd5a544b783f6056f449e5e3931a5c378b128bc18501f7ea79e296ec
     # via pytest-xdist
-filelock==3.20.0 \
-    --hash=sha256:339b4732ffda5cd79b13f4e2711a31b0365ce445d95d243bb996273d072546a2 \
-    --hash=sha256:711e943b4ec6be42e1d4e6690b48dc175c822967466bb31c0c293f34334c13f4
+filelock==3.20.1 \
+    --hash=sha256:15d9e9a67306188a44baa72f569d2bfd803076269365fdea0934385da4dc361a \
+    --hash=sha256:b8360948b351b80f420878d8516519a2204b07aefcdcfd24912a5d33127f188c
     # via
     #   tox
     #   virtualenv
