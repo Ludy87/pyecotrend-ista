@@ -61,7 +61,7 @@ doc = [
   "pymdown-extensions==10.16.1",
   "pygments==2.19.2",
   "python-dateutil==2.9.0.post0",
-  "pytz==2025.2",
+  "pytz==2026.1.post1",
   "tox==4.30.3",
   "regex==2025.9.18",
   "watchdog==6.0.0"
