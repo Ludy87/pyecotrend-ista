@@ -157,11 +157,8 @@ colorama==0.4.6 \
     --hash=sha256:08695f5cb7ed6e0531a20572697297273c47b8cae5a63ffc6d6ed5c201be6e44 \
     --hash=sha256:4f1d9991f5acc0ca119f9d443620b77f9d6b33703e51011c16baf57afb285fc6
     # via
-    #   click
     #   griffe
-    #   mkdocs
     #   mkdocs-material
-    #   pytest
     #   tox
 coverage==7.13.0 \
     --hash=sha256:0018f73dfb4301a89292c73be6ba5f58722ff79f51593352759c1790ded1cabe \
@@ -808,9 +805,9 @@ regex==2025.9.18 \
     --hash=sha256:fb967eb441b0f15ae610b7069bdb760b929f267efbf522e814bbbfffdf125ce2 \
     --hash=sha256:fe5d50572bc885a0a799410a717c42b1a6b50e2f45872e2b40f4f288f9bce8a2
     # via -r requirements.in
-requests==2.32.5 \
-    --hash=sha256:2462f94637a34fd532264295e186976db0f5d453d1cdd31473c85a6a161affb6 \
-    --hash=sha256:dbba0bac56e100853db0ea71b82b4dfd5fe2bf6d3754a8893c3af500cec7d7cf
+requests==2.34.0 \
+    --hash=sha256:7d62fe92f50eb82c529b0916bb445afa1531a566fc8f35ffdc64446e771b856a \
+    --hash=sha256:917520a21b767485ce7c588f4ebb917c436b24a31231b44228715eaeb5a52c60
     # via
     #   -r requirements.in
     #   mkdocs-git-committers-plugin-2
