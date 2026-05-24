@@ -3,6 +3,8 @@ name: documentation
 on:
   pull_request:
     branches: ["main"]
+  merge_group:
+    types: [checks_requested]
   push:
     branches: ["main"]
   workflow_dispatch:
@@ -40,7 +42,7 @@ jobs:
           pip install .[doc]
 
       - name: Build documentation
-        if: github.event_name == 'pull_request'
+        if: github.event_name == 'pull_request' || github.event_name == 'merge_group'
         run: |
           tox -e documentation
 
