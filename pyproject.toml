@@ -59,7 +59,7 @@ doc = [
   "mkdocstrings[python]==1.0.4",
   "paginate==0.5.7",
   "pymdown-extensions==10.21.3",
-  "pygments==2.19.2",
+  "pygments==2.20.0",
   "python-dateutil==2.9.0.post0",
   "pytz==2026.2",
   "tox==4.54.0",
