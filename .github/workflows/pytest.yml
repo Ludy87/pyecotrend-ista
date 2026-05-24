@@ -18,7 +18,15 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python_version: ["3.11", "3.12", "3.13", "3.14"]
+        include:
+          - python_version: "3.11"
+            tox_env: "py311"
+          - python_version: "3.12"
+            tox_env: "py312"
+          - python_version: "3.13"
+            tox_env: "py313"
+          - python_version: "3.14"
+            tox_env: "py314"
 
     steps:
       - name: Harden Runner
@@ -36,7 +44,7 @@ jobs:
           python -m pip install --upgrade pip
           pip install .[test]
       - name: Run tests with tox
-        run: tox -e py${{ matrix.python_version }}
+        run: tox -e ${{ matrix.tox_env }}
       - uses: codecov/codecov-action@e79a6962e0d4c0c17b229090214935d2e33f8354 # v6.0.1
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
