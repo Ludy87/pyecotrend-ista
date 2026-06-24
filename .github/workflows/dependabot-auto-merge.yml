@@ -37,5 +37,11 @@ jobs:
       - name: Enable auto-merge for safe dependency updates
         if: steps.metadata.outputs.update-type != 'version-update:semver-major'
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: gh pr merge "${{ github.event.pull_request.html_url }}" --auto --squash
+          # Use a PAT or GitHub App token that can enqueue PRs when main is protected by a merge queue.
+          GH_TOKEN: ${{ secrets.DEPENDABOT_AUTOMERGE_TOKEN }}
+        run: |
+          if [ -z "${GH_TOKEN}" ]; then
+            echo "::notice::Set DEPENDABOT_AUTOMERGE_TOKEN to enable Dependabot auto-merge for merge-queue protected branches."
+            exit 0
+          fi
+          gh pr merge "${{ github.event.pull_request.html_url }}" --auto --squash
