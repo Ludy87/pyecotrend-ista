@@ -110,7 +110,10 @@ disable = [
   "too-many-instance-attributes",
   "wrong-import-order",
   "too-many-lines",
-  "too-many-locals"
+  "too-many-locals",
+  "too-many-positional-arguments",
+  "line-too-long",
+  "unused-argument"
 ]
 
 [tool.pytest.ini_options]
