@@ -6,7 +6,14 @@ updates:
       interval: daily
       time: "22:30"
       timezone: "Europe/Berlin"
-    open-pull-requests-limit: 50
+    open-pull-requests-limit: 10
+    labels:
+      - dependencies
+      - github_actions
+    groups:
+      github-actions:
+        patterns:
+          - "*"
 
   - package-ecosystem: pip
     directory: /
@@ -14,4 +21,11 @@ updates:
       interval: daily
       time: "22:30"
       timezone: "Europe/Berlin"
-    open-pull-requests-limit: 50
+    open-pull-requests-limit: 10
+    labels:
+      - dependencies
+      - python
+    groups:
+      python-dependencies:
+        patterns:
+          - "*"

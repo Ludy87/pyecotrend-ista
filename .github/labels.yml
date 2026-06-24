@@ -43,3 +43,12 @@
 - name: "Beta"
   description: Beta Version Release
   color: d73a4a
+- name: dependencies
+  description: Dependency updates
+  color: 0366d6
+- name: python
+  description: Python dependency updates
+  color: 3572A5
+- name: github_actions
+  description: GitHub Actions dependency updates
+  color: 2088FF
