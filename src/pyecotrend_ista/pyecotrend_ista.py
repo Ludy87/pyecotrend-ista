@@ -89,7 +89,6 @@ class PyEcotrendIsta:  # numpydoc ignore=PR01
         session : requests.Session, optional
             An optional requests session for making HTTP requests. Default is None.
         """
-
         self._email: str = email.strip()
         self._password: str = password
 
@@ -298,7 +297,6 @@ class PyEcotrendIsta:  # numpydoc ignore=PR01
         Exception
             For any other unexpected errors during the login process.
         """
-
         if not self._is_connected():
             try:
                 self.__login()
