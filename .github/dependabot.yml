@@ -7,6 +7,10 @@ updates:
       time: "22:30"
       timezone: "Europe/Berlin"
     open-pull-requests-limit: 50
+    groups:
+      github-actions:
+        patterns:
+          - "*"
 
   - package-ecosystem: pip
     directory: /
@@ -15,3 +19,7 @@ updates:
       time: "22:30"
       timezone: "Europe/Berlin"
     open-pull-requests-limit: 50
+    groups:
+      python-dependencies:
+        patterns:
+          - "*"
