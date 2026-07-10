@@ -63,7 +63,7 @@ doc = [
   "python-dateutil==2.9.0.post0",
   "pytz==2026.2",
   "tox==4.55.1",
-  "regex==2026.5.9",
+  "regex==2026.7.10",
   "watchdog==6.0.0"
 ]
 publish = [
