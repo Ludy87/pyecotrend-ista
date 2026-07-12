@@ -58,7 +58,7 @@ doc = [
   "mkdocs-minify-plugin==0.8.0",
   "mkdocstrings[python]==1.0.4",
   "paginate==0.5.7",
-  "pymdown-extensions==10.21.3",
+  "pymdown-extensions==11.0.1",
   "pygments==2.20.0",
   "python-dateutil==2.9.0.post0",
   "pytz==2026.2",
