@@ -28,7 +28,7 @@ paginate==0.5.7
 pymdown-extensions>=10.21.3
 pygments>=2.20.0
 python-dateutil==2.9.0.post0
-pytz==2026.2
+pytz==2026.3.post1
 regex==2026.5.9
 watchdog==6.0.0
 
