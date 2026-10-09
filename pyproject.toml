@@ -39,11 +39,11 @@ doc = [
   "babel==2.18.0",
   "csscompressor==0.9.5",
   "ghp-import==2.1.0",
-  "gitpython==3.1.50",
+  "gitpython==3.2.0",
   "htmlmin2==0.1.13",
   "jinja2==3.1.6",
   "jsmin==3.0.1",
-  "markdown==3.10.2",
+  "markdown==3.11",
   "markdown-callouts==0.4.0",
   "mdx-gh-links==0.4",
   "mkdocs==1.6.1",
@@ -51,31 +51,31 @@ doc = [
   "mkdocs-click==0.9.0",
   "mkdocs-git-authors-plugin==0.10.0",
   "mkdocs-git-committers-plugin-2==2.5.0",
-  "mkdocs-git-revision-date-localized-plugin==1.5.2",
+  "mkdocs-git-revision-date-localized-plugin==1.6.0",
   "mkdocs-literate-nav==0.6.3",
-  "mkdocs-material==9.7.6",
+  "mkdocs-material==9.7.7",
   "mkdocs-material-extensions==1.3.1",
   "mkdocs-minify-plugin==0.8.0",
-  "mkdocstrings[python]==1.0.4",
+  "mkdocstrings[python]==1.0.6",
   "paginate==0.5.7",
-  "pymdown-extensions==10.21.3",
-  "pygments==2.20.0",
+  "pymdown-extensions==12.1",
+  "pygments==2.21.0",
   "python-dateutil==2.9.0.post0",
-  "pytz==2026.2",
-  "tox==4.55.1",
-  "regex==2026.5.9",
+  "pytz==2026.5",
+  "tox==4.64.9",
+  "regex==2026.9.29",
   "watchdog==6.0.0"
 ]
 publish = [
-  "tox==4.55.1"
+  "tox==4.64.9"
 ]
 test = [
-  "pytest==9.0.3",
+  "pytest==9.1.1",
   "pytest-cov==7.1.0",
   "pytest-xdist==3.8.0",
   "requests-mock[fixture]==1.12.1",
-  "syrupy==5.3.1",
-  "tox==4.55.1"
+  "syrupy==6.1.1",
+  "tox==4.64.9"
 ]
 
 [project.urls]
