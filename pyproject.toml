@@ -4,8 +4,8 @@ requires = ['setuptools>=77.0.3', "setuptools-scm", "requests", "dataclasses-jso
 
 [project]
 authors = [
-  {name = "Ludy87", email = "android@astra-g.org"},
-  {name = "tr4nt0r", email = "4445816+tr4nt0r@users.noreply.github.com"}
+  { name = "Ludy87", email = "android@astra-g.org" },
+  { name = "tr4nt0r", email = "4445816+tr4nt0r@users.noreply.github.com" }
 ]
 classifiers = [
   "Development Status :: 4 - Beta",
@@ -143,5 +143,5 @@ split-on-trailing-comma = false
 convention = "numpy"
 
 [tool.setuptools.dynamic]
-readme = {file = ["README.md"]}
-version = {attr = 'pyecotrend_ista.__version.__version__'}
+readme = { file = ["README.md"] }
+version = { attr = 'pyecotrend_ista.__version.__version__' }
