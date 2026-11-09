@@ -30,7 +30,7 @@ pygments>=2.21.0
 python-dateutil==2.9.0.post0
 pytz==2026.5
 regex==2026.9.29
-watchdog==6.0.0
+watchdog==7.1.0
 
 # Optional dependencies: publish
 tox==4.64.9
